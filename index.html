@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sự Kiện Check-in (Pro)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --primary-color: #2563EB; --brand-font: 'Inter', sans-serif; --bg-value: #f8fafc; }
+        body { background-color: #0f172a; font-family: var(--brand-font); margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .dynamic-bg { background-color: var(--primary-color) !important; }
+        .dynamic-text { color: var(--primary-color) !important; }
+        
+        #client-app {
+            width: 100%; max-width: 420px; aspect-ratio: 9/16; position: relative; overflow-y: auto; overflow-x: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); background: var(--bg-value); background-size: cover; background-position: center;
+        }
+        @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
+        
+        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== ADMIN PANEL ==================== -->
+    <div id="admin-panel" class="hidden w-full max-w-5xl bg-gray-50 rounded-2xl shadow-2xl p-6 md:p-8 m-4 overflow-y-auto max-h-[95vh]">
+        <div class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Cấu Hình Giao Diện Check-in</h1>
+                <p class="text-sm text-gray-500">Thiết kế form, tải ảnh logo & hình nền</p>
+            </div>
+            <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg text-sm hover:bg-gray-300 transition">
+                Xem Trang Khách $\rightarrow$
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Màu nút / Chữ nhấn mạnh</label>
+                        <input type="color" id="cfg-color" class="w-full h-12 p-1 border rounded cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Font chữ</label>
+                        <select id="cfg-font" class="w-full h-12 px-3 border rounded-lg text-sm bg-white">
+                            <option value="Inter">Inter (Hiện đại)</option>
+                            <option value="Montserrat">Montserrat (Mạnh mẽ)</option>
+                            <option value="Roboto">Roboto (Cổ điển)</option>
+                            <option value="Playfair Display">Playfair (Gala, Sang trọng)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Giữ nguyên tỷ lệ, hỗ trợ PNG trong suốt)</label>
+                    <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
+                        <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="h-16 w-auto max-w-[150px] object-contain drop-shadow-sm">
+                        <input type="file" id="logo-upload" accept="image/png, image/jpeg" class="text-sm">
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-4">Phông nền trang (Background Theme)</label>
+                    <div class="flex gap-4 mb-4">
+                        <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="solid" checked onchange="toggleBgType()"> Màu Solid</label>
+                        <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="gradient" onchange="toggleBgType()"> Màu Gradient</label>
+                        <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="image" onchange="toggleBgType()"> Tải hình nền</label>
+                    </div>
+                    <div id="bg-panel-solid" class="p-4 bg-gray-50 rounded-lg"><input type="color" id="bg-color-solid" class="w-full h-10 p-0 border rounded cursor-pointer"></div>
+                    <div id="bg-panel-gradient" class="hidden p-4 bg-gray-50 rounded-lg flex gap-4">
+                        <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu trên</label><input type="color" id="bg-grad-1" value="#ff7e5f" class="w-full h-10 border rounded"></div>
+                        <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu dưới</label><input type="color" id="bg-grad-2" value="#feb47b" class="w-full h-10 border rounded"></div>
+                    </div>
+                    <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg">
+                        <input type="file" id="bg-upload" accept="image/*" class="text-sm w-full mb-3">
+                        <img id="bg-preview" class="w-full h-32 object-cover rounded border hidden">
+                    </div>
+                </div>
+
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center gap-2">
+                    <span>LƯU CẤU HÌNH</span><div id="save-spinner" class="spinner"></div>
+                </button>
+                
+                <!-- DANGER ZONE: Reset Data -->
+                <div class="mt-8 border-t-2 border-red-100 pt-6">
+                    <h3 class="text-red-600 font-bold text-sm mb-2 uppercase flex items-center gap-2">
+                        ⚠️ Khu vực nguy hiểm
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách đã đăng ký trên Google Sheets để làm event mới.</p>
+                    <button onclick="resetData()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 text-sm font-semibold rounded hover:bg-red-600 hover:text-white transition flex items-center gap-2">
+                        Xóa dữ liệu Check-in
+                        <div id="reset-spinner" class="spinner !border-red-600 !border-t-white"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center h-fit">
+                <h3 class="font-bold text-gray-800 mb-2">QR Code Sự Kiện</h3>
+                <p class="text-xs text-gray-500 mb-6 text-center">In mã này ra Standee đặt tại cửa check-in</p>
+                <div id="qrcode" class="p-4 bg-white border rounded-xl shadow-sm mb-6"></div>
+                <button onclick="downloadQR()" class="px-5 py-2.5 bg-gray-800 text-white text-sm font-semibold rounded-lg hover:bg-black transition w-full">
+                    TẢI MÃ QR (PNG)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CLIENT APP ==================== -->
+    <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6">
+        <div id="form-screen" class="glass-panel p-6 w-full relative">
+            <div class="text-center mb-6">
+                <!-- LOGO đã bỏ bo tròn, dùng object-contain để giữ hình dáng gốc -->
+                <img id="view-logo" src="" class="h-20 w-auto mx-auto mb-4 object-contain drop-shadow-md">
+                <h1 class="text-2xl font-bold text-gray-800">Check-in Sự Kiện</h1>
+                <p class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
+            </div>
+            <div class="space-y-4">
+                <div><input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 py-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                <div>
+                    <input type="tel" id="input-phone" placeholder="Số điện thoại" maxlength="10" class="w-full px-4 py-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p id="error-msg" class="text-red-500 text-xs mt-1 hidden">Vui lòng nhập đúng 10 số điện thoại.</p>
+                </div>
+                <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold py-3.5 rounded-lg mt-2 flex justify-center gap-2 shadow-lg active:scale-95 transition">
+                    <span id="btn-text">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
+                </button>
+            </div>
+        </div>
+
+        <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center">
+            <div id="ticket-container" class="glass-panel p-8 text-center relative border border-white/50">
+                <img id="ticket-logo" src="" class="h-14 w-auto mx-auto mb-4 object-contain drop-shadow-md">
+                <h2 class="text-base font-semibold text-gray-700 mb-1">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
+                <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
+                
+                <div class="bg-white/80 rounded-2xl p-6 shadow-inner border border-gray-100">
+                    <p class="text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-1">MÃ SỐ CỦA BẠN</p>
+                    <div id="display-id" class="text-6xl font-black dynamic-text tracking-tighter drop-shadow-sm">000</div>
+                </div>
+                <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
+            </div>
+            <button onclick="downloadTicket()" class="mt-6 w-full dynamic-bg text-white font-bold py-3.5 rounded-lg shadow-xl active:scale-95 transition border border-white/20">
+                LƯU ẢNH VỀ MÁY
+            </button>
+        </div>
+        <div class="absolute bottom-4 left-0 right-0 text-center">
+            <a href="#admin" class="text-[10px] text-white/50 bg-black/20 px-2 py-1 rounded-full backdrop-blur">Admin Panel</a>
+        </div>
+    </div>
+
+    <script>
+        // =======================================================
+        // DÁN URL GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
+        // =======================================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
+
+        let currentSettings = { primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "https://placehold.co/200x80?text=LOGO", bgType: "solid", bgValue: "#f8fafc" };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            handleRouting(); window.addEventListener('hashchange', handleRouting); fetchSettings(); generateQRCode();
+        });
+
+        function handleRouting() {
+            if (window.location.hash === '#admin') {
+                document.getElementById('admin-panel').classList.remove('hidden'); document.getElementById('client-app').classList.add('hidden');
+                document.body.style.background = '#f3f4f6';
+            } else {
+                document.getElementById('admin-panel').classList.add('hidden'); document.getElementById('client-app').classList.remove('hidden');
+                document.body.style.background = '#0f172a';
+            }
+        }
+
+        async function fetchSettings() {
+            try {
+                const res = await fetch(API_URL); const data = await res.json();
+                if (data.primaryColor) { currentSettings = Object.assign(currentSettings, data); applyTheme(currentSettings); }
+            } catch (err) { applyTheme(currentSettings); }
+        }
+
+        function applyTheme(cfg) {
+            document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
+            document.documentElement.style.setProperty('--brand-font', `'${cfg.fontFamily}', sans-serif`);
+            let bgCss = cfg.bgValue;
+            if (cfg.bgType === "gradient") bgCss = cfg.bgValue;
+            else if (cfg.bgType === "image") bgCss = `url('${cfg.bgValue}')`;
+            document.documentElement.style.setProperty('--bg-value', bgCss);
+
+            document.getElementById('cfg-color').value = cfg.primaryColor;
+            document.getElementById('cfg-font').value = cfg.fontFamily;
+            document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
+            
+            if (cfg.logoUrl) {
+                document.getElementById('logo-preview').src = cfg.logoUrl;
+                document.getElementById('view-logo').src = cfg.logoUrl;
+                document.getElementById('ticket-logo').src = cfg.logoUrl;
+            }
+        }
+
+        // BỘ NÉN ẢNH ĐƯỢC CẬP NHẬT: Cho phép giữ định dạng PNG (Trong suốt)
+        function compressImage(file, maxWidth, format, callback) {
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width; let height = img.height;
+                    if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                    // Nếu truyền format là image/png, giữ nguyên độ nét & trong suốt. Nếu jpeg thì nén 70%
+                    callback(canvas.toDataURL(format, format === 'image/jpeg' ? 0.7 : 1.0));
+                }
+            }
+        }
+
+        let currentLogoBase64 = ""; let currentBgBase64 = "";
+        
+        document.getElementById('logo-upload').addEventListener('change', function(e) {
+            if(e.target.files[0]) {
+                // Ép xuất ra 'image/png' để giữ nền trong suốt cho Logo
+                compressImage(e.target.files[0], 350, 'image/png', (base64Data) => {
+                    currentLogoBase64 = base64Data; document.getElementById('logo-preview').src = base64Data;
+                });
+            }
+        });
+
+        document.getElementById('bg-upload').addEventListener('change', function(e) {
+            if(e.target.files[0]) {
+                // Background tự nén thành JPEG để nhẹ file
+                compressImage(e.target.files[0], 600, 'image/jpeg', (base64Data) => {
+                    currentBgBase64 = base64Data;
+                    const preview = document.getElementById('bg-preview'); preview.src = base64Data; preview.classList.remove('hidden');
+                });
+            }
+        });
+
+        function toggleBgType() {
+            const type = document.querySelector('input[name="bg-type"]:checked').value;
+            document.getElementById('bg-panel-solid').classList.add('hidden'); document.getElementById('bg-panel-gradient').classList.add('hidden'); document.getElementById('bg-panel-image').classList.add('hidden');
+            document.getElementById(`bg-panel-${type}`).classList.remove('hidden');
+        }
+
+        async function saveSettings() {
+            const spinner = document.getElementById('save-spinner'); spinner.style.display = 'block';
+            const payload = {
+                action: "updateSettings", primaryColor: document.getElementById('cfg-color').value, fontFamily: document.getElementById('cfg-font').value,
+                logoUrl: currentLogoBase64 || currentSettings.logoUrl, bgType: document.querySelector('input[name="bg-type"]:checked').value,
+            };
+            if (payload.bgType === 'solid') payload.bgValue = document.getElementById('bg-color-solid').value;
+            else if (payload.bgType === 'gradient') payload.bgValue = `linear-gradient(135deg, ${document.getElementById('bg-grad-1').value}, ${document.getElementById('bg-grad-2').value})`;
+            else if (payload.bgType === 'image') payload.bgValue = currentBgBase64 || currentSettings.bgValue;
+
+            try {
+                await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                currentSettings = payload; applyTheme(currentSettings); alert("Đã áp dụng Theme thành công!");
+            } catch (e) { alert("Lỗi khi lưu cấu hình."); } finally { spinner.style.display = 'none'; }
+        }
+
+        // HÀM RESET DATA CHO ADMIN
+        async function resetData() {
+            const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời đã check-in trên Google Sheets.\n\nBạn có chắc chắn muốn xóa không?");
+            if (!confirmDelete) return;
+
+            const spinner = document.getElementById('reset-spinner');
+            spinner.style.display = 'block';
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "resetData" })
+                });
+                const result = await res.json();
+                if (result.status === "success") {
+                    alert("Đã xóa sạch dữ liệu cũ! Hệ thống sẵn sàng cho Event mới.");
+                }
+            } catch (err) {
+                alert("Lỗi kết nối. Không thể xóa dữ liệu.");
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function submitCheckin() {
+            const name = document.getElementById('input-name').value.trim(); const phone = document.getElementById('input-phone').value.trim();
+            const btn = document.getElementById('btn-submit'); const spinner = document.getElementById('loading-spinner');
+            if (!name || !phone || !/^0\d{9}$/.test(phone)) return alert("Vui lòng nhập đúng Tên & 10 chữ số SĐT");
+
+            btn.disabled = true; spinner.style.display = 'block';
+            try {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ name: name, phone: phone }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const result = await res.json();
+                if (result.status === "success") {
+                    document.getElementById('display-name').innerText = name; document.getElementById('display-id').innerText = result.id;
+                    document.getElementById('form-screen').classList.add('hidden'); document.getElementById('success-screen').classList.remove('hidden');
+                } else alert("Lỗi: " + result.message);
+            } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
+        }
+
+        function downloadTicket() {
+            html2canvas(document.getElementById('ticket-container'), { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+                const link = document.createElement('a'); link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
+                link.href = canvas.toDataURL("image/png"); link.click();
+            });
+        }
+
+        function generateQRCode() {
+            const qrContainer = document.getElementById("qrcode"); qrContainer.innerHTML = "";
+            new QRCode(qrContainer, { text: window.location.href.split('#')[0], width: 140, height: 140, colorDark: "#000000", colorLight: "#ffffff" });
+        }
+
+        function downloadQR() {
+            const img = document.querySelector('#qrcode img');
+            if (img && img.src) { const a = document.createElement('a'); a.href = img.src; a.download = 'QR_Code.png'; a.click(); }
+        }
+    </script>
+</body>
+</html>
