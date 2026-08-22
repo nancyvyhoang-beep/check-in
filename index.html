@@ -42,6 +42,13 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative">
+                
+                <!-- Bổ sung Tên sự kiện -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
+                    <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Màu nút / Chữ nhấn mạnh</label>
@@ -88,15 +95,11 @@
                     <span>LƯU CẤU HÌNH</span><div id="save-spinner" class="spinner"></div>
                 </button>
                 
-                <!-- DANGER ZONE: Reset Data -->
                 <div class="mt-8 border-t-2 border-red-100 pt-6">
-                    <h3 class="text-red-600 font-bold text-sm mb-2 uppercase flex items-center gap-2">
-                        ⚠️ Khu vực nguy hiểm
-                    </h3>
+                    <h3 class="text-red-600 font-bold text-sm mb-2 uppercase flex items-center gap-2">⚠️ Khu vực nguy hiểm</h3>
                     <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách đã đăng ký trên Google Sheets để làm event mới.</p>
                     <button onclick="resetData()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 text-sm font-semibold rounded hover:bg-red-600 hover:text-white transition flex items-center gap-2">
-                        Xóa dữ liệu Check-in
-                        <div id="reset-spinner" class="spinner !border-red-600 !border-t-white"></div>
+                        Xóa dữ liệu Check-in <div id="reset-spinner" class="spinner !border-red-600 !border-t-white"></div>
                     </button>
                 </div>
             </div>
@@ -116,9 +119,10 @@
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6">
         <div id="form-screen" class="glass-panel p-6 w-full relative">
             <div class="text-center mb-6">
-                <!-- LOGO đã bỏ bo tròn, dùng object-contain để giữ hình dáng gốc -->
                 <img id="view-logo" src="" class="h-20 w-auto mx-auto mb-4 object-contain drop-shadow-md">
-                <h1 class="text-2xl font-bold text-gray-800">Check-in Sự Kiện</h1>
+                
+                <!-- Gắn ID cho Tên sự kiện để JavaScript thay đổi -->
+                <h1 id="view-event-name" class="text-2xl font-bold text-gray-800">Check-in Sự Kiện</h1>
                 <p class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
             </div>
             <div class="space-y-4">
@@ -160,7 +164,8 @@
         // =======================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
-        let currentSettings = { primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "https://placehold.co/200x80?text=LOGO", bgType: "solid", bgValue: "#f8fafc" };
+        // Thêm eventName vào cấu hình mặc định
+        let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "https://placehold.co/200x80?text=LOGO", bgType: "solid", bgValue: "#f8fafc" };
 
         window.addEventListener('DOMContentLoaded', () => {
             handleRouting(); window.addEventListener('hashchange', handleRouting); fetchSettings(); generateQRCode();
@@ -191,6 +196,12 @@
             else if (cfg.bgType === "image") bgCss = `url('${cfg.bgValue}')`;
             document.documentElement.style.setProperty('--bg-value', bgCss);
 
+            // Cập nhật Tên sự kiện lên UI
+            if(cfg.eventName) {
+                document.getElementById('cfg-event-name').value = cfg.eventName;
+                document.getElementById('view-event-name').innerText = cfg.eventName;
+            }
+
             document.getElementById('cfg-color').value = cfg.primaryColor;
             document.getElementById('cfg-font').value = cfg.fontFamily;
             document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
@@ -202,7 +213,6 @@
             }
         }
 
-        // BỘ NÉN ẢNH ĐƯỢC CẬP NHẬT: Cho phép giữ định dạng PNG (Trong suốt)
         function compressImage(file, maxWidth, format, callback) {
             const reader = new FileReader(); reader.readAsDataURL(file);
             reader.onload = function(e) {
@@ -213,7 +223,6 @@
                     if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    // Nếu truyền format là image/png, giữ nguyên độ nét & trong suốt. Nếu jpeg thì nén 70%
                     callback(canvas.toDataURL(format, format === 'image/jpeg' ? 0.7 : 1.0));
                 }
             }
@@ -223,7 +232,6 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                // Ép xuất ra 'image/png' để giữ nền trong suốt cho Logo
                 compressImage(e.target.files[0], 350, 'image/png', (base64Data) => {
                     currentLogoBase64 = base64Data; document.getElementById('logo-preview').src = base64Data;
                 });
@@ -232,7 +240,6 @@
 
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                // Background tự nén thành JPEG để nhẹ file
                 compressImage(e.target.files[0], 600, 'image/jpeg', (base64Data) => {
                     currentBgBase64 = base64Data;
                     const preview = document.getElementById('bg-preview'); preview.src = base64Data; preview.classList.remove('hidden');
@@ -248,9 +255,15 @@
 
         async function saveSettings() {
             const spinner = document.getElementById('save-spinner'); spinner.style.display = 'block';
+            
+            // Gửi eventName lấy từ ô input lên API
             const payload = {
-                action: "updateSettings", primaryColor: document.getElementById('cfg-color').value, fontFamily: document.getElementById('cfg-font').value,
-                logoUrl: currentLogoBase64 || currentSettings.logoUrl, bgType: document.querySelector('input[name="bg-type"]:checked').value,
+                action: "updateSettings", 
+                eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
+                primaryColor: document.getElementById('cfg-color').value, 
+                fontFamily: document.getElementById('cfg-font').value,
+                logoUrl: currentLogoBase64 || currentSettings.logoUrl, 
+                bgType: document.querySelector('input[name="bg-type"]:checked').value,
             };
             if (payload.bgType === 'solid') payload.bgValue = document.getElementById('bg-color-solid').value;
             else if (payload.bgType === 'gradient') payload.bgValue = `linear-gradient(135deg, ${document.getElementById('bg-grad-1').value}, ${document.getElementById('bg-grad-2').value})`;
@@ -262,7 +275,6 @@
             } catch (e) { alert("Lỗi khi lưu cấu hình."); } finally { spinner.style.display = 'none'; }
         }
 
-        // HÀM RESET DATA CHO ADMIN
         async function resetData() {
             const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời đã check-in trên Google Sheets.\n\nBạn có chắc chắn muốn xóa không?");
             if (!confirmDelete) return;
@@ -272,19 +284,11 @@
 
             try {
                 const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "resetData" })
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "resetData" })
                 });
                 const result = await res.json();
-                if (result.status === "success") {
-                    alert("Đã xóa sạch dữ liệu cũ! Hệ thống sẵn sàng cho Event mới.");
-                }
-            } catch (err) {
-                alert("Lỗi kết nối. Không thể xóa dữ liệu.");
-            } finally {
-                spinner.style.display = 'none';
-            }
+                if (result.status === "success") { alert("Đã xóa sạch dữ liệu cũ! Hệ thống sẵn sàng cho Event mới."); }
+            } catch (err) { alert("Lỗi kết nối. Không thể xóa dữ liệu."); } finally { spinner.style.display = 'none'; }
         }
 
         async function submitCheckin() {
