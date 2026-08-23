@@ -64,10 +64,11 @@
                     </div>
                 </div>
 
+                <!-- Fix Logo: Sử dụng Div Background thay vì thẻ Img -->
                 <div class="border-t pt-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Giữ nguyên tỷ lệ, hỗ trợ PNG trong suốt)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Hỗ trợ PNG trong suốt)</label>
                     <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
-                        <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="h-16 w-auto max-w-[150px] object-contain drop-shadow-sm">
+                        <div id="logo-preview" class="h-16 w-32 bg-contain bg-center bg-no-repeat drop-shadow-sm" style="background-image: url('https://placehold.co/200x80?text=LOGO');"></div>
                         <input type="file" id="logo-upload" accept="image/png, image/jpeg" class="text-sm">
                     </div>
                 </div>
@@ -118,8 +119,10 @@
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
         <div id="form-screen" class="glass-panel p-6 w-full relative">
             <div class="text-center mb-6">
-                <img id="view-logo" src="" class="h-20 w-auto mx-auto mb-4 object-contain drop-shadow-md">
-                <h1 id="view-event-name" class="text-2xl font-bold text-gray-800">Check-in Sự Kiện</h1>
+                <!-- Chuyển Logo từ thẻ Img sang Div (Khắc phục lỗi méo hình khi chụp canvas) -->
+                <div id="view-logo" class="h-16 w-full bg-contain bg-center bg-no-repeat mx-auto mb-4 drop-shadow-md"></div>
+                
+                <h1 id="view-event-name" class="text-2xl font-bold text-gray-800 leading-tight">Check-in Sự Kiện</h1>
                 <p class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
             </div>
             
@@ -155,17 +158,23 @@
 
         <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center">
             <div id="ticket-container" class="glass-panel p-8 text-center relative border border-white/50">
-                <img id="ticket-logo" src="" class="h-14 w-auto mx-auto mb-4 object-contain drop-shadow-md">
-                <h2 class="text-base font-semibold text-gray-700 mb-1">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
+                
+                <!-- Logo màn hình kết quả (Div background chống bóp méo) -->
+                <div id="ticket-logo" class="h-16 w-full bg-contain bg-center bg-no-repeat mx-auto mb-4 drop-shadow-md"></div>
+                
+                <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
                 <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                 
-                <div class="bg-white/80 rounded-2xl p-6 shadow-inner border border-gray-100">
-                    <p class="text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-1">MÃ SỐ CỦA BẠN</p>
-                    <div id="display-id" class="text-6xl font-black dynamic-text tracking-tighter drop-shadow-sm">000</div>
+                <div class="bg-white/80 rounded-2xl p-6 shadow-inner border border-gray-100 flex flex-col justify-center items-center">
+                    <p class="text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-2 leading-none">MÃ SỐ CỦA BẠN</p>
+                    
+                    <!-- Bổ sung leading-none để chặn khoảng trắng phía dưới -->
+                    <div id="display-id" class="text-6xl font-black dynamic-text tracking-tighter drop-shadow-sm leading-none m-0 p-0">000</div>
                 </div>
                 <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
             </div>
             
+            <!-- Nút bấm -->
             <button id="action-area" onclick="downloadTicket()" class="mt-6 w-full dynamic-bg text-white font-bold py-3.5 rounded-lg shadow-xl active:scale-95 transition border border-white/20">
                 LƯU ẢNH VỀ MÁY
             </button>
@@ -174,11 +183,11 @@
 
     <script>
         // =======================================================
-        // DÁN URL GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
+        // API CỦA BẠN ĐÃ ĐƯỢC GẮN VÀO ĐÂY:
         // =======================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
-        let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "https://placehold.co/200x80?text=LOGO", bgType: "solid", bgValue: "#f8fafc" };
+        let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc" };
 
         window.addEventListener('DOMContentLoaded', () => {
             handleRouting(); window.addEventListener('hashchange', handleRouting); fetchSettings(); generateQRCode();
@@ -219,9 +228,10 @@
             document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
             
             if (cfg.logoUrl) {
-                document.getElementById('logo-preview').src = cfg.logoUrl;
-                document.getElementById('view-logo').src = cfg.logoUrl;
-                document.getElementById('ticket-logo').src = cfg.logoUrl;
+                // Áp dụng background-image cho các thẻ Div
+                document.getElementById('logo-preview').style.backgroundImage = `url('${cfg.logoUrl}')`;
+                document.getElementById('view-logo').style.backgroundImage = `url('${cfg.logoUrl}')`;
+                document.getElementById('ticket-logo').style.backgroundImage = `url('${cfg.logoUrl}')`;
             }
         }
 
@@ -245,7 +255,8 @@
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
                 compressImage(e.target.files[0], 350, 'image/png', (base64Data) => {
-                    currentLogoBase64 = base64Data; document.getElementById('logo-preview').src = base64Data;
+                    currentLogoBase64 = base64Data; 
+                    document.getElementById('logo-preview').style.backgroundImage = `url('${base64Data}')`;
                 });
             }
         });
@@ -287,19 +298,15 @@
         }
 
         async function resetData() {
-            const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời đã check-in.\n\nBạn có chắc chắn muốn xóa không?");
+            const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời.\n\nBạn có chắc chắn muốn xóa không?");
             if (!confirmDelete) return;
 
-            const spinner = document.getElementById('reset-spinner');
-            spinner.style.display = 'block';
-
+            const spinner = document.getElementById('reset-spinner'); spinner.style.display = 'block';
             try {
-                const res = await fetch(API_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "resetData" })
-                });
+                const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "resetData" }) });
                 const result = await res.json();
-                if (result.status === "success") { alert("Đã xóa sạch dữ liệu cũ! Hệ thống sẵn sàng cho Event mới."); }
-            } catch (err) { alert("Lỗi kết nối. Không thể xóa dữ liệu."); } finally { spinner.style.display = 'none'; }
+                if (result.status === "success") { alert("Đã xóa sạch dữ liệu cũ!"); }
+            } catch (err) { alert("Lỗi mạng."); } finally { spinner.style.display = 'none'; }
         }
 
         async function submitCheckin() {
@@ -322,8 +329,8 @@
             }
 
             const fullPhone = countryCode + " " + rawPhone;
-
             btn.disabled = true; spinner.style.display = 'block';
+
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ name: name, phone: fullPhone }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await res.json();
@@ -334,33 +341,52 @@
             } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
 
+        // ==========================================
+        // KHẮC PHỤC TRIỆT ĐỂ LỖI CHỤP ẢNH CANVAS
+        // ==========================================
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const actionArea = document.getElementById('action-area');
             
+            // 1. Lưu vị trí cuộn và cuộn lên top để chống lệch trục Y
             const originalScroll = window.scrollY;
-            actionArea.style.visibility = 'hidden'; 
             window.scrollTo(0, 0); 
 
+            // 2. Tàng hình nút bằng opacity (giữ nguyên layout) thay vì display:none (làm lún layout)
+            actionArea.style.opacity = '0'; 
+
+            // 3. Tạm tắt bo góc của thẻ container (nếu không sẽ hiện viền trắng mờ)
+            const origRadius = captureArea.style.borderRadius;
+            captureArea.style.borderRadius = '0';
+
+            // 4. Lấy kích thước chuẩn tuyệt đối của Container hiện tại
+            const rect = captureArea.getBoundingClientRect();
+
             html2canvas(captureArea, { 
-                scale: 3,
+                scale: 3, // HD
                 useCORS: true, 
                 backgroundColor: null,
+                width: rect.width,     // Khóa chính xác Chiều Rộng
+                height: rect.height,   // Khóa chính xác Chiều Cao (Chặn viền đen từ body)
+                x: 0,
+                y: 0,
                 scrollX: 0,
-                scrollY: 0,
-                width: captureArea.offsetWidth,
-                height: captureArea.offsetHeight
+                scrollY: 0
             }).then(canvas => {
-                actionArea.style.visibility = 'visible';
+                // Phục hồi UI
+                actionArea.style.opacity = '1';
+                captureArea.style.borderRadius = origRadius;
                 window.scrollTo(0, originalScroll);
 
+                // Tải xuống
                 const link = document.createElement('a'); 
                 link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
                 link.href = canvas.toDataURL("image/png"); 
                 link.click();
             }).catch(err => {
                 console.error("Lỗi chụp ảnh:", err);
-                actionArea.style.visibility = 'visible';
+                actionArea.style.opacity = '1';
+                captureArea.style.borderRadius = origRadius;
                 alert("Có lỗi khi tạo ảnh thẻ, vui lòng thử lại!");
             });
         }
