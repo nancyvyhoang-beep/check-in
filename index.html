@@ -43,7 +43,6 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative">
                 
-                <!-- Bổ sung Tên sự kiện -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
                     <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
@@ -116,21 +115,38 @@
     </div>
 
     <!-- ==================== CLIENT APP ==================== -->
-    <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6">
+    <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
         <div id="form-screen" class="glass-panel p-6 w-full relative">
             <div class="text-center mb-6">
                 <img id="view-logo" src="" class="h-20 w-auto mx-auto mb-4 object-contain drop-shadow-md">
-                
-                <!-- Gắn ID cho Tên sự kiện để JavaScript thay đổi -->
                 <h1 id="view-event-name" class="text-2xl font-bold text-gray-800">Check-in Sự Kiện</h1>
                 <p class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
             </div>
+            
             <div class="space-y-4">
-                <div><input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 py-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                 <div>
-                    <input type="tel" id="input-phone" placeholder="Số điện thoại" maxlength="10" class="w-full px-4 py-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <p id="error-msg" class="text-red-500 text-xs mt-1 hidden">Vui lòng nhập đúng 10 số điện thoại.</p>
+                    <input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 py-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+                
+                <div>
+                    <div class="flex">
+                        <select id="country-code" class="px-2 py-3 border border-r-0 border-gray-200 rounded-l-lg bg-gray-50 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-10 w-24">
+                            <option value="+84">🇻🇳 +84</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+65">🇸🇬 +65</option>
+                            <option value="+66">🇹🇭 +66</option>
+                            <option value="+81">🇯🇵 +81</option>
+                            <option value="+82">🇰🇷 +82</option>
+                            <option value="+86">🇨🇳 +86</option>
+                            <option value="+886">🇹🇼 +886</option>
+                        </select>
+                        <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full px-4 py-3 rounded-r-lg border border-gray-200 bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-0">
+                    </div>
+                    <p id="error-msg" class="text-red-500 text-xs mt-1 hidden">Vui lòng nhập đúng số điện thoại hợp lệ (7-11 số).</p>
+                </div>
+
                 <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold py-3.5 rounded-lg mt-2 flex justify-center gap-2 shadow-lg active:scale-95 transition">
                     <span id="btn-text">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
                 </button>
@@ -149,12 +165,10 @@
                 </div>
                 <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
             </div>
-            <button onclick="downloadTicket()" class="mt-6 w-full dynamic-bg text-white font-bold py-3.5 rounded-lg shadow-xl active:scale-95 transition border border-white/20">
+            
+            <button id="action-area" onclick="downloadTicket()" class="mt-6 w-full dynamic-bg text-white font-bold py-3.5 rounded-lg shadow-xl active:scale-95 transition border border-white/20">
                 LƯU ẢNH VỀ MÁY
             </button>
-        </div>
-        <div class="absolute bottom-4 left-0 right-0 text-center">
-            <a href="#admin" class="text-[10px] text-white/50 bg-black/20 px-2 py-1 rounded-full backdrop-blur">Admin Panel</a>
         </div>
     </div>
 
@@ -164,7 +178,6 @@
         // =======================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
-        // Thêm eventName vào cấu hình mặc định
         let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "https://placehold.co/200x80?text=LOGO", bgType: "solid", bgValue: "#f8fafc" };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -196,7 +209,6 @@
             else if (cfg.bgType === "image") bgCss = `url('${cfg.bgValue}')`;
             document.documentElement.style.setProperty('--bg-value', bgCss);
 
-            // Cập nhật Tên sự kiện lên UI
             if(cfg.eventName) {
                 document.getElementById('cfg-event-name').value = cfg.eventName;
                 document.getElementById('view-event-name').innerText = cfg.eventName;
@@ -256,7 +268,6 @@
         async function saveSettings() {
             const spinner = document.getElementById('save-spinner'); spinner.style.display = 'block';
             
-            // Gửi eventName lấy từ ô input lên API
             const payload = {
                 action: "updateSettings", 
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
@@ -276,7 +287,7 @@
         }
 
         async function resetData() {
-            const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời đã check-in trên Google Sheets.\n\nBạn có chắc chắn muốn xóa không?");
+            const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời đã check-in.\n\nBạn có chắc chắn muốn xóa không?");
             if (!confirmDelete) return;
 
             const spinner = document.getElementById('reset-spinner');
@@ -292,13 +303,29 @@
         }
 
         async function submitCheckin() {
-            const name = document.getElementById('input-name').value.trim(); const phone = document.getElementById('input-phone').value.trim();
-            const btn = document.getElementById('btn-submit'); const spinner = document.getElementById('loading-spinner');
-            if (!name || !phone || !/^0\d{9}$/.test(phone)) return alert("Vui lòng nhập đúng Tên & 10 chữ số SĐT");
+            const name = document.getElementById('input-name').value.trim(); 
+            const countryCode = document.getElementById('country-code').value;
+            let rawPhone = document.getElementById('input-phone').value.trim().replace(/\D/g, ''); 
+            
+            const btn = document.getElementById('btn-submit'); 
+            const spinner = document.getElementById('loading-spinner');
+            const errorMsg = document.getElementById('error-msg');
+            const phoneInput = document.getElementById('input-phone');
+
+            if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
+
+            if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
+                phoneInput.classList.add('border-red-500'); errorMsg.classList.remove('hidden');
+                return alert("Vui lòng điền đúng Họ tên và Số điện thoại hợp lệ!");
+            } else {
+                phoneInput.classList.remove('border-red-500'); errorMsg.classList.add('hidden');
+            }
+
+            const fullPhone = countryCode + " " + rawPhone;
 
             btn.disabled = true; spinner.style.display = 'block';
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ name: name, phone: phone }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ name: name, phone: fullPhone }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await res.json();
                 if (result.status === "success") {
                     document.getElementById('display-name').innerText = name; document.getElementById('display-id').innerText = result.id;
@@ -308,9 +335,33 @@
         }
 
         function downloadTicket() {
-            html2canvas(document.getElementById('ticket-container'), { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
-                const link = document.createElement('a'); link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
-                link.href = canvas.toDataURL("image/png"); link.click();
+            const captureArea = document.getElementById('client-app');
+            const actionArea = document.getElementById('action-area');
+            
+            const originalScroll = window.scrollY;
+            actionArea.style.visibility = 'hidden'; 
+            window.scrollTo(0, 0); 
+
+            html2canvas(captureArea, { 
+                scale: 3,
+                useCORS: true, 
+                backgroundColor: null,
+                scrollX: 0,
+                scrollY: 0,
+                width: captureArea.offsetWidth,
+                height: captureArea.offsetHeight
+            }).then(canvas => {
+                actionArea.style.visibility = 'visible';
+                window.scrollTo(0, originalScroll);
+
+                const link = document.createElement('a'); 
+                link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
+                link.href = canvas.toDataURL("image/png"); 
+                link.click();
+            }).catch(err => {
+                console.error("Lỗi chụp ảnh:", err);
+                actionArea.style.visibility = 'visible';
+                alert("Có lỗi khi tạo ảnh thẻ, vui lòng thử lại!");
             });
         }
 
