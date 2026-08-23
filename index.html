@@ -21,9 +21,15 @@
         }
         @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
         
-        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Khắc phục hiển thị logo sắc nét trên di động */
+        #view-logo, #ticket-logo, #logo-preview {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
     </style>
 </head>
 <body>
@@ -64,7 +70,6 @@
                     </div>
                 </div>
 
-                <!-- Fix Logo: Sử dụng Div Background thay vì thẻ Img -->
                 <div class="border-t pt-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Hỗ trợ PNG trong suốt)</label>
                     <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
@@ -117,64 +122,58 @@
 
     <!-- ==================== CLIENT APP ==================== -->
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
+        
+        <!-- MÀN HÌNH NHẬP THÔNG TIN -->
         <div id="form-screen" class="glass-panel p-6 w-full relative">
             <div class="text-center mb-6">
-                <!-- Chuyển Logo từ thẻ Img sang Div (Khắc phục lỗi méo hình khi chụp canvas) -->
-                <div id="view-logo" class="h-16 w-full bg-contain bg-center bg-no-repeat mx-auto mb-4 drop-shadow-md"></div>
+                <!-- Div background giúp logo không bao giờ bị méo -->
+                <div id="view-logo" class="h-16 w-full bg-contain bg-center bg-no-repeat mx-auto mb-4 drop-shadow-sm"></div>
                 
-                <h1 id="view-event-name" class="text-2xl font-bold text-gray-800 leading-tight">Check-in Sự Kiện</h1>
+                <h1 id="view-event-name" class="text-xl font-bold text-gray-800 leading-tight">Check-in Sự Kiện</h1>
                 <p class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
             </div>
             
             <div class="space-y-4">
                 <div>
-                    <input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 py-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
                 <div>
-                    <div class="flex">
-                        <select id="country-code" class="px-2 py-3 border border-r-0 border-gray-200 rounded-l-lg bg-gray-50 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-10 w-24">
-                            <option value="+84">🇻🇳 +84</option>
-                            <option value="+1">🇺🇸 +1</option>
-                            <option value="+44">🇬🇧 +44</option>
-                            <option value="+61">🇦🇺 +61</option>
-                            <option value="+65">🇸🇬 +65</option>
-                            <option value="+66">🇹🇭 +66</option>
-                            <option value="+81">🇯🇵 +81</option>
-                            <option value="+82">🇰🇷 +82</option>
-                            <option value="+86">🇨🇳 +86</option>
-                            <option value="+886">🇹🇼 +886</option>
+                    <div class="flex shadow-sm rounded-lg">
+                        <!-- Dropdown mã quốc gia - Khoá width để không xô lệch input -->
+                        <select id="country-code" class="px-2 py-3 border border-r-0 border-gray-200 rounded-l-lg bg-gray-50 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-[110px] sm:w-[130px] flex-shrink-0 truncate cursor-pointer">
+                            <!-- JS sẽ đổ danh sách vào đây -->
                         </select>
-                        <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full px-4 py-3 rounded-r-lg border border-gray-200 bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-0">
+                        <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full px-4 py-3 rounded-r-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0">
                     </div>
                     <p id="error-msg" class="text-red-500 text-xs mt-1 hidden">Vui lòng nhập đúng số điện thoại hợp lệ (7-11 số).</p>
                 </div>
 
-                <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold py-3.5 rounded-lg mt-2 flex justify-center gap-2 shadow-lg active:scale-95 transition">
+                <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold py-3.5 rounded-lg mt-3 flex justify-center gap-2 shadow-lg active:scale-95 transition">
                     <span id="btn-text">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
                 </button>
             </div>
         </div>
 
+        <!-- MÀN HÌNH TRẢ KẾT QUẢ -->
         <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center">
-            <div id="ticket-container" class="glass-panel p-8 text-center relative border border-white/50">
+            <div id="ticket-container" class="glass-panel p-7 text-center relative border border-white/50">
                 
-                <!-- Logo màn hình kết quả (Div background chống bóp méo) -->
-                <div id="ticket-logo" class="h-16 w-full bg-contain bg-center bg-no-repeat mx-auto mb-4 drop-shadow-md"></div>
+                <div id="ticket-logo" class="h-14 w-full bg-contain bg-center bg-no-repeat mx-auto mb-4 drop-shadow-sm"></div>
                 
                 <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
                 <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                 
-                <div class="bg-white/80 rounded-2xl p-6 shadow-inner border border-gray-100 flex flex-col justify-center items-center">
-                    <p class="text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-2 leading-none">MÃ SỐ CỦA BẠN</p>
-                    
-                    <!-- Bổ sung leading-none để chặn khoảng trắng phía dưới -->
-                    <div id="display-id" class="text-6xl font-black dynamic-text tracking-tighter drop-shadow-sm leading-none m-0 p-0">000</div>
+                <!-- Khu vực hiển thị số thứ tự (Đã fix lỗi lệch số 100%) -->
+                <div class="bg-white/90 rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-center items-center">
+                    <p class="text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-2 w-full text-center">MÃ SỐ CỦA BẠN</p>
+                    <!-- Chặn đứng mọi tác động của flexbox, dùng line-height tĩnh để canvas quét chuẩn -->
+                    <div id="display-id" style="font-size: 5rem; line-height: 1.1;" class="font-black dynamic-text tracking-tighter drop-shadow-sm block w-full text-center m-0 p-0">000</div>
                 </div>
+                
                 <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
             </div>
             
-            <!-- Nút bấm -->
             <button id="action-area" onclick="downloadTicket()" class="mt-6 w-full dynamic-bg text-white font-bold py-3.5 rounded-lg shadow-xl active:scale-95 transition border border-white/20">
                 LƯU ẢNH VỀ MÁY
             </button>
@@ -187,10 +186,32 @@
         // =======================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
+        // =======================================================
+        // DATA QUỐC GIA & MÃ VÙNG (Gần 200 Quốc gia chuẩn ISO)
+        // =======================================================
+        const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
+
+        function populateCountries() {
+            const select = document.getElementById('country-code');
+            select.innerHTML = ''; // Clear default
+            countriesStr.split(',').forEach(c => {
+                const [name, code, flag] = c.split('|');
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = `${flag} ${name} (${code})`;
+                if (name === "Vietnam") option.selected = true; // Vietnam mặc định
+                select.appendChild(option);
+            });
+        }
+
         let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc" };
 
         window.addEventListener('DOMContentLoaded', () => {
-            handleRouting(); window.addEventListener('hashchange', handleRouting); fetchSettings(); generateQRCode();
+            populateCountries(); // Nạp mã vùng
+            handleRouting(); 
+            window.addEventListener('hashchange', handleRouting); 
+            fetchSettings(); 
+            generateQRCode();
         });
 
         function handleRouting() {
@@ -228,7 +249,6 @@
             document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
             
             if (cfg.logoUrl) {
-                // Áp dụng background-image cho các thẻ Div
                 document.getElementById('logo-preview').style.backgroundImage = `url('${cfg.logoUrl}')`;
                 document.getElementById('view-logo').style.backgroundImage = `url('${cfg.logoUrl}')`;
                 document.getElementById('ticket-logo').style.backgroundImage = `url('${cfg.logoUrl}')`;
@@ -254,7 +274,8 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImage(e.target.files[0], 350, 'image/png', (base64Data) => {
+                // TĂNG ĐỘ PHÂN GIẢI LOGO LÊN 600px - Cân bằng giữa sắc nét và an toàn cho Database
+                compressImage(e.target.files[0], 600, 'image/png', (base64Data) => {
                     currentLogoBase64 = base64Data; 
                     document.getElementById('logo-preview').style.backgroundImage = `url('${base64Data}')`;
                 });
@@ -341,44 +362,35 @@
             } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
 
-        // ==========================================
-        // KHẮC PHỤC TRIỆT ĐỂ LỖI CHỤP ẢNH CANVAS
-        // ==========================================
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const actionArea = document.getElementById('action-area');
             
-            // 1. Lưu vị trí cuộn và cuộn lên top để chống lệch trục Y
             const originalScroll = window.scrollY;
+            actionArea.style.opacity = '0'; 
             window.scrollTo(0, 0); 
 
-            // 2. Tàng hình nút bằng opacity (giữ nguyên layout) thay vì display:none (làm lún layout)
-            actionArea.style.opacity = '0'; 
-
-            // 3. Tạm tắt bo góc của thẻ container (nếu không sẽ hiện viền trắng mờ)
+            // Loại bỏ bo góc khi chụp để chống viền rác
             const origRadius = captureArea.style.borderRadius;
             captureArea.style.borderRadius = '0';
-
-            // 4. Lấy kích thước chuẩn tuyệt đối của Container hiện tại
+            
             const rect = captureArea.getBoundingClientRect();
 
             html2canvas(captureArea, { 
-                scale: 3, // HD
+                scale: 3,
                 useCORS: true, 
                 backgroundColor: null,
-                width: rect.width,     // Khóa chính xác Chiều Rộng
-                height: rect.height,   // Khóa chính xác Chiều Cao (Chặn viền đen từ body)
+                width: rect.width,
+                height: rect.height,
                 x: 0,
                 y: 0,
                 scrollX: 0,
                 scrollY: 0
             }).then(canvas => {
-                // Phục hồi UI
                 actionArea.style.opacity = '1';
                 captureArea.style.borderRadius = origRadius;
                 window.scrollTo(0, originalScroll);
 
-                // Tải xuống
                 const link = document.createElement('a'); 
                 link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
                 link.href = canvas.toDataURL("image/png"); 
