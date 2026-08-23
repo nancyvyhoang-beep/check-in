@@ -19,19 +19,21 @@
             width: 100%; max-width: 420px; aspect-ratio: 9/16; position: relative; overflow-y: auto; overflow-x: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); background: var(--bg-value); background-size: cover; background-position: center;
         }
-        
-        /* Chỉ ghi đè min-height trên màn hình mobile, khi cần chụp ảnh thẻ sẽ xóa thuộc tính này bằng JS */
         @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
         
         .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Ép trình duyệt render ảnh logo nét nhất có thể */
         .sharp-img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
     </style>
 </head>
 <body>
+
+    <!-- MÀN HÌNH LOADING KHI VỪA MỞ WEB (Chống flash 3s) -->
+    <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin mb-4"></div>
+        <p class="text-white/70 text-sm font-medium">Đang tải cấu hình sự kiện...</p>
+    </div>
 
     <!-- ==================== ADMIN PANEL ==================== -->
     <div id="admin-panel" class="hidden w-full max-w-5xl bg-gray-50 rounded-2xl shadow-2xl p-6 md:p-8 m-4 overflow-y-auto max-h-[95vh]">
@@ -170,12 +172,12 @@
                 <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
                 <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                 
-                <!-- KHU VỰC SỐ THỨ TỰ: Fix bằng cấu trúc Block + Negative Margin -->
-                <div class="bg-white/95 rounded-2xl py-6 px-4 shadow-sm border border-gray-100 w-full text-center flex flex-col items-center justify-center">
-                    <p class="text-gray-500 font-bold text-[11px] uppercase tracking-widest m-0 p-0 leading-none">MÃ SỐ CỦA BẠN</p>
+                <!-- KHU VỰC SỐ THỨ TỰ (Đã FIX LỆCH HOÀN TOÀN BẰNG PADDING & TRANSLATE-Y) -->
+                <div class="bg-white/95 rounded-2xl pt-5 pb-8 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full">
+                    <p class="text-gray-500 font-bold text-[10.5px] uppercase tracking-widest mb-1 w-full text-center m-0 p-0 leading-none">MÃ SỐ CỦA BẠN</p>
                     
-                    <!-- m-0 p-0 leading-none kết hợp -mt-1 (kéo số lên) ép số sát vào chữ phía trên -->
-                    <div id="display-id" class="text-[6rem] font-black dynamic-text tracking-tighter drop-shadow-sm m-0 p-0 leading-none -mt-1 w-full text-center block">000</div>
+                    <!-- Sử dụng -translate-y-3 để cưỡng chế kéo font siêu bự xích lên tâm hộp -->
+                    <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-none block w-full text-center m-0 p-0 -translate-y-3">000</span>
                 </div>
                 
                 <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
@@ -191,11 +193,10 @@
 
     <script>
         // =======================================================
-        // API CỦA BẠN ĐÃ ĐƯỢC GẮN VÀO ĐÂY:
+        // API CỦA BẠN 
         // =======================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
-        // DATA QUỐC GIA & MÃ VÙNG
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
 
         function populateCountries() {
@@ -220,13 +221,36 @@
 
         let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc" };
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // ==========================================
+        // KHỞI CHẠY THÔNG MINH - CACHE & LOADING SCREEN
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
-            fetchSettings(); 
+            
+            // 1. Kiểm tra LocalStorage Cache để bỏ qua 3s chờ
+            const cachedData = localStorage.getItem('eventCheckinCache');
+            if (cachedData) {
+                currentSettings = JSON.parse(cachedData);
+                applyTheme(currentSettings);
+                hideLoader(); // Nếu có cache -> Xóa Loading Screen tức thì (mất 0.001s)
+                fetchSettingsInBackground(); // Âm thầm cập nhật dữ liệu mới nếu Admin vừa đổi màu
+            } else {
+                // Nếu chưa có cache -> Hiện Loading Screen và bắt đầu tải từ Google Sheets
+                await fetchSettings();
+                hideLoader();
+            }
             generateQRCode();
         });
+
+        function hideLoader() {
+            const loader = document.getElementById('initial-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 500); // Đợi hiệu ứng mờ dần hoàn tất rồi xóa
+            }
+        }
 
         function handleRouting() {
             if (window.location.hash === '#admin') {
@@ -241,8 +265,24 @@
         async function fetchSettings() {
             try {
                 const res = await fetch(API_URL); const data = await res.json();
-                if (data.primaryColor) { currentSettings = Object.assign(currentSettings, data); applyTheme(currentSettings); }
+                if (data.primaryColor) { 
+                    currentSettings = Object.assign(currentSettings, data); 
+                    localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); // Ghi vào Cache
+                    applyTheme(currentSettings); 
+                }
             } catch (err) { applyTheme(currentSettings); }
+        }
+
+        // Kéo data ngầm để update bộ đệm mà không làm phiền trải nghiệm người dùng
+        async function fetchSettingsInBackground() {
+            try {
+                const res = await fetch(API_URL); const data = await res.json();
+                if (data.primaryColor) { 
+                    currentSettings = Object.assign(currentSettings, data); 
+                    localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings));
+                    applyTheme(currentSettings); 
+                }
+            } catch (err) {}
         }
 
         function applyTheme(cfg) {
@@ -328,7 +368,10 @@
 
             try {
                 await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-                currentSettings = payload; applyTheme(currentSettings); alert("Đã áp dụng Theme thành công!");
+                currentSettings = payload; 
+                localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); // Ghi vào bộ đệm ngay khi Admin bấm Lưu
+                applyTheme(currentSettings); 
+                alert("Đã áp dụng Theme thành công!");
             } catch (e) { alert("Lỗi khi lưu cấu hình."); } finally { spinner.style.display = 'none'; }
         }
 
