@@ -53,7 +53,7 @@
             <div class="lg:col-span-2 space-y-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative">
                 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện (Tự động đồng bộ Tab trình duyệt)</label>
                     <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
                 </div>
 
@@ -177,19 +177,23 @@
                 <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
                 <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                 
-                <!-- GIAO DIỆN WEB: Cân đối hoàn hảo, không có bất kỳ lệnh Transform xê dịch nào -->
-                <div class="bg-white/95 rounded-2xl py-7 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full">
+                <!-- KHU VỰC SỐ THỨ TỰ (KHÓA CỨNG HOÀN TOÀN BẰNG FLEXBOX) -->
+                <div class="bg-white/95 rounded-2xl pt-6 pb-6 px-4 shadow-sm border border-gray-100 flex flex-col items-center w-full">
                     <p class="text-gray-500 font-bold text-[11px] uppercase tracking-widest mb-2 w-full text-center">MÃ SỐ CỦA BẠN</p>
-                    <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-none block w-full text-center m-0 p-0">000</span>
+                    
+                    <!-- Khung cao 110px, chứa số ở giữa. Đảm bảo html2canvas hay web đều render y chang nhau -->
+                    <div class="flex items-center justify-center w-full h-[110px]">
+                        <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm text-center block" style="line-height: 1; transform: translateY(-5px);">000</span>
+                    </div>
                 </div>
                 
                 <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
             </div>
             
-            <!-- Khu vực chứa nút bấm -->
             <div id="action-area" class="w-full mt-6">
-                <button onclick="downloadTicket()" class="w-full dynamic-bg text-white font-bold h-[48px] rounded-lg shadow-xl active:scale-95 transition border border-white/20">
-                    <span id="btn-dl-text">LƯU ẢNH VỀ MÁY</span>
+                <!-- ID nút tải ảnh -->
+                <button id="btn-download" onclick="downloadTicket()" class="w-full dynamic-bg text-white font-bold h-[48px] rounded-lg shadow-xl active:scale-95 transition border border-white/20 flex justify-center items-center gap-2">
+                    LƯU ẢNH VỀ MÁY
                 </button>
             </div>
         </div>
@@ -423,25 +427,19 @@
         }
 
         // ==========================================
-        // CÔNG NGHỆ BẢN SAO ẢO (ONCLONE)
-        // 1. Màn hình thực: Đứng im không chớp nháy.
-        // 2. Màn hình ảo: Tự động gọt tỷ lệ 9:16 và kéo bù trừ Số thứ tự lên.
+        // KHÔNG CHỚP MÀN HÌNH - KHÔNG NHẢY SỐ (SỬ DỤNG BẢN SAO ẢO)
         // ==========================================
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
-            const btnText = document.getElementById('btn-dl-text');
+            const btn = document.getElementById('btn-download');
+            const originalText = btn.innerHTML;
             
-            // Hiện trạng thái tải để khách không bấm nhiều lần
-            const originalText = btnText.innerText;
-            btnText.innerHTML = '<span class="opacity-60">ĐANG XỬ LÝ...</span>';
-            document.getElementById('action-area').style.pointerEvents = 'none';
-
-            // Tính toán tỷ lệ 9:16 chuẩn trước khi gửi lệnh chụp
+            // Chỉ đổi chữ thành đang tải, KHÔNG can thiệp vào bất kỳ giao diện nào trên màn hình khách
+            btn.innerHTML = '<div class="spinner !border-t-white !block mx-auto"></div>';
+            btn.disabled = true;
+            
             const w = captureArea.offsetWidth;
             const targetH = Math.round(w * 16 / 9);
-
-            // Khôi phục cuộn trang để camera không bị lệch
-            window.scrollTo(0, 0); 
             
             html2canvas(captureArea, { 
                 scale: 3, 
@@ -449,43 +447,35 @@
                 backgroundColor: null,
                 width: w,
                 height: targetH,
-                scrollX: 0,
-                scrollY: 0,
+                windowWidth: w,
+                windowHeight: targetH,
+                // ONCLONE: Thao tác cúp tỷ lệ 9:16 và giấu nút bấm trên một bản nháp tàng hình
                 onclone: function(clonedDoc) {
-                    // MỌI THAO TÁC NÀY CHỈ XẢY RA Ở GIAO DIỆN ẢO TÀNG HÌNH BÊN DƯỚI
                     const clonedApp = clonedDoc.getElementById('client-app');
-                    const clonedAction = clonedDoc.getElementById('action-area');
-                    const clonedId = clonedDoc.getElementById('display-id');
-                    
-                    // 1. Xóa nút khỏi ảnh
-                    if (clonedAction) clonedAction.style.display = 'none'; 
-                    
-                    // 2. Ép App về tỷ lệ 9:16, gọt bỏ viền
+                    const clonedBtnArea = clonedDoc.getElementById('action-area');
                     if (clonedApp) {
                         clonedApp.style.borderRadius = '0';
-                        clonedApp.style.minHeight = 'auto';
+                        clonedApp.style.minHeight = targetH + 'px';
                         clonedApp.style.height = targetH + 'px';
+                        clonedApp.style.justifyContent = 'center'; // Đảm bảo căn giữa
                     }
-                    
-                    // 3. Kéo số thứ tự lên để bù trừ lỗi Font của máy ảnh (Transform chỉ có tác dụng trong ảnh)
-                    if (clonedId) {
-                        clonedId.style.transform = 'translateY(-16px)';
+                    if (clonedBtnArea) {
+                        clonedBtnArea.style.display = 'none'; // Giấu nút đi trên ảnh tải về
                     }
                 }
             }).then(canvas => {
-                // Khôi phục nút
-                btnText.innerText = originalText;
-                document.getElementById('action-area').style.pointerEvents = 'auto';
+                // Trả lại trạng thái cho nút
+                btn.innerHTML = originalText;
+                btn.disabled = false;
 
-                // Lưu ảnh
                 const link = document.createElement('a'); 
                 link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
                 link.href = canvas.toDataURL("image/png"); 
                 link.click();
             }).catch(err => {
                 console.error("Lỗi chụp ảnh:", err);
-                btnText.innerText = originalText;
-                document.getElementById('action-area').style.pointerEvents = 'auto';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
                 alert("Có lỗi khi tạo ảnh thẻ, vui lòng thử lại!");
             });
         }
