@@ -25,11 +25,14 @@
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .sharp-img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
+        
+        /* Ẩn icon mũi tên mặc định của select để UI gọn gàng hơn */
+        #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
     </style>
 </head>
 <body>
 
-    <!-- MÀN HÌNH LOADING KHI VỪA MỞ WEB (Chống flash 3s) -->
+    <!-- MÀN HÌNH LOADING KHI VỪA MỞ WEB -->
     <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin mb-4"></div>
         <p class="text-white/70 text-sm font-medium">Đang tải cấu hình sự kiện...</p>
@@ -139,20 +142,30 @@
             
             <div class="space-y-4">
                 <div>
-                    <input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 h-[48px] rounded-lg border bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 h-[48px] rounded-lg border border-gray-300 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                 </div>
                 
                 <div>
-                    <div class="flex shadow-sm rounded-lg h-[48px]">
-                        <div class="relative w-[100px] flex-shrink-0 h-full">
-                            <div id="country-code-display" class="absolute inset-0 flex items-center justify-center border border-r-0 border-gray-200 rounded-l-lg bg-gray-50 text-gray-800 font-medium text-sm pointer-events-none z-10">
+                    <!-- ==============================================
+                         GIAO DIỆN SĐT MỚI (CHUNG 1 KHUNG VIỀN LIỀN MẠCH)
+                         ============================================== -->
+                    <div id="phone-wrapper" class="flex items-center w-full h-[48px] rounded-lg border border-gray-300 shadow-sm bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all overflow-hidden">
+                        
+                        <!-- Vùng chọn Mã Quốc Gia (Có đường kẻ mờ phân tách) -->
+                        <div class="relative w-[110px] h-full flex-shrink-0 bg-gray-50 border-r border-gray-200 transition-colors hover:bg-gray-100">
+                            <!-- Hiển thị ảo -->
+                            <div id="country-code-display" class="absolute inset-0 flex items-center justify-center text-gray-800 font-medium text-sm pointer-events-none z-10">
                                 🇻🇳 +84
                             </div>
-                            <select id="country-code" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="updateCountryDisplay(this)"></select>
+                            <!-- Select thật tàng hình đè lên -->
+                            <select id="country-code" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 outline-none" onchange="updateCountryDisplay(this)"></select>
                         </div>
-                        <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full px-4 h-full rounded-r-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0">
+                        
+                        <!-- Ô nhập Số điện thoại (Bỏ viền) -->
+                        <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full h-full px-4 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-800 placeholder-gray-400 min-w-0">
                     </div>
-                    <p id="error-msg" class="text-red-500 text-xs mt-1 hidden">Vui lòng nhập đúng số điện thoại hợp lệ (7-11 số).</p>
+                    
+                    <p id="error-msg" class="text-red-500 text-xs mt-1.5 hidden ml-1">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
                 </div>
 
                 <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[48px] rounded-lg mt-3 flex justify-center items-center gap-2 shadow-lg active:scale-95 transition">
@@ -172,11 +185,8 @@
                 <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
                 <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                 
-                <!-- KHU VỰC SỐ THỨ TỰ (Đã FIX LỆCH HOÀN TOÀN BẰNG PADDING & TRANSLATE-Y) -->
                 <div class="bg-white/95 rounded-2xl pt-5 pb-8 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full">
                     <p class="text-gray-500 font-bold text-[10.5px] uppercase tracking-widest mb-1 w-full text-center m-0 p-0 leading-none">MÃ SỐ CỦA BẠN</p>
-                    
-                    <!-- Sử dụng -translate-y-3 để cưỡng chế kéo font siêu bự xích lên tâm hộp -->
                     <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-none block w-full text-center m-0 p-0 -translate-y-3">000</span>
                 </div>
                 
@@ -221,23 +231,18 @@
 
         let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc" };
 
-        // ==========================================
-        // KHỞI CHẠY THÔNG MINH - CACHE & LOADING SCREEN
-        // ==========================================
         window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
             
-            // 1. Kiểm tra LocalStorage Cache để bỏ qua 3s chờ
             const cachedData = localStorage.getItem('eventCheckinCache');
             if (cachedData) {
                 currentSettings = JSON.parse(cachedData);
                 applyTheme(currentSettings);
-                hideLoader(); // Nếu có cache -> Xóa Loading Screen tức thì (mất 0.001s)
-                fetchSettingsInBackground(); // Âm thầm cập nhật dữ liệu mới nếu Admin vừa đổi màu
+                hideLoader(); 
+                fetchSettingsInBackground(); 
             } else {
-                // Nếu chưa có cache -> Hiện Loading Screen và bắt đầu tải từ Google Sheets
                 await fetchSettings();
                 hideLoader();
             }
@@ -248,7 +253,7 @@
             const loader = document.getElementById('initial-loader');
             if (loader) {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 500); // Đợi hiệu ứng mờ dần hoàn tất rồi xóa
+                setTimeout(() => loader.remove(), 500); 
             }
         }
 
@@ -267,13 +272,12 @@
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data.primaryColor) { 
                     currentSettings = Object.assign(currentSettings, data); 
-                    localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); // Ghi vào Cache
+                    localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); 
                     applyTheme(currentSettings); 
                 }
             } catch (err) { applyTheme(currentSettings); }
         }
 
-        // Kéo data ngầm để update bộ đệm mà không làm phiền trải nghiệm người dùng
         async function fetchSettingsInBackground() {
             try {
                 const res = await fetch(API_URL); const data = await res.json();
@@ -369,7 +373,7 @@
             try {
                 await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 currentSettings = payload; 
-                localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); // Ghi vào bộ đệm ngay khi Admin bấm Lưu
+                localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); 
                 applyTheme(currentSettings); 
                 alert("Đã áp dụng Theme thành công!");
             } catch (e) { alert("Lỗi khi lưu cấu hình."); } finally { spinner.style.display = 'none'; }
@@ -395,15 +399,18 @@
             const btn = document.getElementById('btn-submit'); 
             const spinner = document.getElementById('loading-spinner');
             const errorMsg = document.getElementById('error-msg');
-            const phoneInput = document.getElementById('input-phone');
+            const phoneWrapper = document.getElementById('phone-wrapper');
 
             if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
 
+            // Bật viền đỏ cho TOÀN BỘ Khung thay vì chỉ ô nhập số
             if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
-                phoneInput.classList.add('border-red-500'); errorMsg.classList.remove('hidden');
-                return alert("Vui lòng điền đúng Họ tên và Số điện thoại hợp lệ!");
+                phoneWrapper.classList.add('!border-red-500', 'ring-1', 'ring-red-500'); 
+                errorMsg.classList.remove('hidden');
+                return;
             } else {
-                phoneInput.classList.remove('border-red-500'); errorMsg.classList.add('hidden');
+                phoneWrapper.classList.remove('!border-red-500', 'ring-1', 'ring-red-500'); 
+                errorMsg.classList.add('hidden');
             }
 
             const fullPhone = countryCode + " " + rawPhone;
@@ -412,16 +419,20 @@
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ name: name, phone: fullPhone }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await res.json();
-                if (result.status === "success") {
+                
+                if (result.status === "error") {
+                    alert(result.message);
+                } else if (result.status === "success") {
                     document.getElementById('display-name').innerText = name; document.getElementById('display-id').innerText = result.id;
                     document.getElementById('form-screen').classList.add('hidden'); document.getElementById('success-screen').classList.remove('hidden');
-                } else alert("Lỗi: " + result.message);
+                }
             } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
 
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const actionArea = document.getElementById('action-area');
+            const displayId = document.getElementById('display-id'); 
             
             const origDisplay = actionArea.style.display;
             actionArea.style.display = 'none'; 
@@ -430,6 +441,9 @@
             captureArea.style.borderRadius = '0';
             captureArea.style.setProperty('min-height', 'auto', 'important');
             captureArea.style.aspectRatio = '9/16';
+            
+            const origMargin = displayId.style.marginTop;
+            displayId.style.marginTop = '-18px'; 
             
             const originalScroll = window.scrollY;
             window.scrollTo(0, 0); 
@@ -452,10 +466,11 @@
                     captureArea.style.borderRadius = origRadius;
                     captureArea.style.removeProperty('min-height');
                     captureArea.style.removeProperty('aspect-ratio');
+                    displayId.style.marginTop = origMargin;
                     window.scrollTo(0, originalScroll);
 
                     const link = document.createElement('a'); 
-                    link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
+                    link.download = `Ticket_${displayId.innerText}.png`;
                     link.href = canvas.toDataURL("image/png"); 
                     link.click();
                 }).catch(err => {
@@ -463,6 +478,7 @@
                     actionArea.style.display = origDisplay;
                     captureArea.style.borderRadius = origRadius;
                     captureArea.style.removeProperty('min-height');
+                    displayId.style.marginTop = origMargin;
                     alert("Có lỗi khi tạo ảnh thẻ, vui lòng thử lại!");
                 });
             }, 50);
