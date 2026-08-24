@@ -26,13 +26,12 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .sharp-img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
         
-        /* Ẩn icon mũi tên mặc định của select để UI gọn gàng hơn */
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
     </style>
 </head>
 <body>
 
-    <!-- MÀN HÌNH LOADING KHI VỪA MỞ WEB -->
+    <!-- MÀN HÌNH LOADING -->
     <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin mb-4"></div>
         <p class="text-white/70 text-sm font-medium">Đang tải cấu hình sự kiện...</p>
@@ -146,7 +145,6 @@
                 </div>
                 
                 <div>
-                    <!-- Khu vực nhập số điện thoại -->
                     <div id="phone-wrapper" class="flex items-center w-full h-[48px] rounded-lg border border-gray-300 shadow-sm bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all overflow-hidden">
                         
                         <div class="relative w-[110px] h-full flex-shrink-0 bg-gray-50 border-r border-gray-200 transition-colors hover:bg-gray-100">
@@ -179,10 +177,10 @@
                 <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
                 <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                 
-                <!-- KHU VỰC SỐ THỨ TỰ: Web cân đối, loại bỏ các thủ thuật ép lệch margin -->
-                <div class="bg-white/95 rounded-2xl py-7 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full min-h-[150px]">
-                    <p class="text-gray-500 font-bold text-[11px] uppercase tracking-widest mb-2 w-full text-center leading-none">MÃ SỐ CỦA BẠN</p>
-                    <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-none block w-full text-center transition-transform duration-75">000</span>
+                <!-- KHU VỰC SỐ THỨ TỰ: CSS THUẦN (Không JS, Không nhảy, Căn giữa hoàn hảo) -->
+                <div class="bg-white/95 rounded-2xl pt-6 pb-4 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full">
+                    <p class="text-gray-500 font-bold text-[10.5px] uppercase tracking-widest mb-1 w-full text-center">MÃ SỐ CỦA BẠN</p>
+                    <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-[0.85] block w-full text-center m-0 p-0">000</span>
                 </div>
                 
                 <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
@@ -423,22 +421,21 @@
             } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
 
+        // ==========================================
+        // CẬP NHẬT: XÓA HIỆU ỨNG NHẢY SỐ (PURE CSS TRONG HÀM NÀY)
+        // ==========================================
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const actionArea = document.getElementById('action-area');
-            const displayId = document.getElementById('display-id'); 
             
             const origDisplay = actionArea.style.display;
-            actionArea.style.display = 'none'; 
+            actionArea.style.display = 'none'; // Ẩn nút đi
             
+            // Ép tỷ lệ 9:16
             const origRadius = captureArea.style.borderRadius;
             captureArea.style.borderRadius = '0';
             captureArea.style.setProperty('min-height', 'auto', 'important');
             captureArea.style.aspectRatio = '9/16';
-            
-            // KÉO SỐ LÊN TRONG TÍCH TẮC CHỈ ĐỂ PHỤC VỤ HTML2CANVAS
-            const origTransform = displayId.style.transform;
-            displayId.style.transform = 'translateY(-18px)'; 
             
             const originalScroll = window.scrollY;
             window.scrollTo(0, 0); 
@@ -457,15 +454,15 @@
                     scrollX: 0,
                     scrollY: 0
                 }).then(canvas => {
+                    // Trả lại giao diện
                     actionArea.style.display = origDisplay;
                     captureArea.style.borderRadius = origRadius;
                     captureArea.style.removeProperty('min-height');
                     captureArea.style.removeProperty('aspect-ratio');
-                    displayId.style.transform = origTransform; // TRẢ SỐ VỀ VỊ TRÍ CHUẨN
                     window.scrollTo(0, originalScroll);
 
                     const link = document.createElement('a'); 
-                    link.download = `Ticket_${displayId.innerText}.png`;
+                    link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
                     link.href = canvas.toDataURL("image/png"); 
                     link.click();
                 }).catch(err => {
@@ -473,7 +470,6 @@
                     actionArea.style.display = origDisplay;
                     captureArea.style.borderRadius = origRadius;
                     captureArea.style.removeProperty('min-height');
-                    displayId.style.transform = origTransform;
                     alert("Có lỗi khi tạo ảnh thẻ, vui lòng thử lại!");
                 });
             }, 50);
