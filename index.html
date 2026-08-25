@@ -28,43 +28,56 @@
         .sharp-img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
-        /* =========================================
-           HIỆU ỨNG VIỀN LED CHẠY (LED LINE ANIMATION)
+       /* =========================================
+           HIỆU ỨNG TIA LED PHÁT SÁNG (GLOWING LED LINE)
            ========================================= */
         .led-border { 
             position: relative; 
-            padding: 2.5px; /* Độ dày của luồng sáng LED */
-            border-radius: 1.1rem; 
+            padding: 3px; /* Độ dày của viền LED */
+            border-radius: 1.15rem; 
             overflow: hidden; 
             z-index: 1; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.15); /* Làm nền dưới viền hơi tối đi để LED nổi bật hơn */
+            box-shadow: 0 15px 35px -5px rgba(0,0,0,0.2);
         }
-        .led-border::before { 
+        
+        /* Lớp 1: Tia sáng LED sắc nét */
+        /* Lớp 2: Vầng hào quang (Glow) */
+        .led-border::before, .led-border::after { 
             content: ''; 
             position: absolute; 
             top: -50%; left: -50%; 
             width: 200%; height: 200%; 
-            /* Tạo dải gradient có đuôi mờ dần */
-            background: conic-gradient(transparent, transparent, transparent, var(--primary-color)); 
-            animation: rotate-led 3.5s linear infinite; 
-            z-index: -1; 
+            /* Cấu trúc tia LED: Đầu trắng rực rỡ, thân màu chủ đạo, đuôi trong suốt */
+            background: conic-gradient(from 0deg, transparent 0%, transparent 75%, var(--primary-color) 97%, #ffffff 100%); 
+            animation: rotate-led 2.5s linear infinite; 
+            z-index: -2; 
         }
+        
+        /* Kích hoạt hiệu ứng phát sáng cho lớp 2 */
+        .led-border::after {
+            filter: blur(12px);
+            opacity: 0.9;
+            z-index: -1;
+        }
+
         @keyframes rotate-led { 
             0% { transform: rotate(0deg); } 
             100% { transform: rotate(360deg); } 
         }
+        
         .led-inner { 
-            background: rgba(255, 255, 255, 0.96); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: calc(1.1rem - 2.5px); 
+            background: rgba(255, 255, 255, 0.98); /* Nền trắng đục để tôn viền sáng */
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: calc(1.15rem - 3px); 
             width: 100%; height: 100%; 
             position: relative; 
             z-index: 2; 
         }
 
-        /* Ẩn LED khi bắt đầu chụp ảnh để HTML2Canvas không bị lỗi */
+        /* Tắt LED khi bấm chụp ảnh để trả về ảnh PNG tĩnh 100% sắc nét */
         .capture-mode .led-border { padding: 0 !important; background: transparent !important; box-shadow: none !important;}
-        .capture-mode .led-border::before { display: none !important; animation: none !important; }
+        .capture-mode .led-border::before, .capture-mode .led-border::after { display: none !important; animation: none !important; }
         .capture-mode .led-inner { border-radius: 1rem; border: 1px solid rgba(255,255,255,0.6); }
     </style>
 </head>
