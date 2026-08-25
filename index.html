@@ -30,7 +30,7 @@
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
         /* =========================================
-           HIỆU ỨNG TIA LED PHÁT SÁNG (ĐÃ GIẢM TỐC ĐỘ)
+           HIỆU ỨNG TIA LED PHÁT SÁNG (ĐÃ GIẢM TỐC ĐỘ 4.5S)
            ========================================= */
         .led-border { 
             position: relative; 
@@ -48,7 +48,6 @@
             top: -50%; left: -50%; 
             width: 200%; height: 200%; 
             background: conic-gradient(from 0deg, transparent 0%, transparent 75%, var(--primary-color) 97%, #ffffff 100%); 
-            /* Giảm tốc độ từ 2.5s xuống 4.5s để mượt và sang trọng hơn */
             animation: rotate-led 4.5s linear infinite; 
             z-index: -2; 
         }
@@ -366,7 +365,7 @@
             }
         }
 
-        // Tối ưu hóa kích thước ảnh nén để không vượt quá giới hạn 50,000 ký tự của Google Sheets
+        /* TỐI ƯU CƠ CHẾ NÉN ẢNH: Ép nhỏ để không vượt quá giới hạn 50.000 ký tự của Google Sheets */
         function compressImage(file, maxWidth, format, quality, callback) {
             const reader = new FileReader(); reader.readAsDataURL(file);
             reader.onload = function(e) {
@@ -374,7 +373,14 @@
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     let width = img.width; let height = img.height;
-                    if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+                    const maxH = maxWidth; 
+                    if (width > maxWidth || height > maxH) {
+                        if (width > height) {
+                            height = Math.round((height * maxWidth) / width); width = maxWidth;
+                        } else {
+                            width = Math.round((width * maxH) / height); height = maxH;
+                        }
+                    }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                     callback(canvas.toDataURL(format, quality));
@@ -386,8 +392,11 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                // Nén logo chuẩn 380px để an toàn 100% khi lưu vào Database
-                compressImage(e.target.files[0], 380, 'image/png', 1.0, (base64Data) => {
+                compressImage(e.target.files[0], 200, 'image/png', 1.0, (base64Data) => {
+                    if (base64Data.length > 45000) {
+                        alert("⚠️ Ảnh Logo có quá nhiều chi tiết/màu sắc phức tạp khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn hoặc nén nhỏ lại!");
+                        e.target.value = ""; return;
+                    }
                     currentLogoBase64 = base64Data; 
                     document.getElementById('logo-preview').src = base64Data;
                 });
@@ -396,8 +405,11 @@
 
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                // Nén background chuẩn 600px dạng JPEG giảm chất lượng
-                compressImage(e.target.files[0], 600, 'image/jpeg', 0.6, (base64Data) => {
+                compressImage(e.target.files[0], 400, 'image/jpeg', 0.4, (base64Data) => {
+                    if (base64Data.length > 45000) {
+                        alert("⚠️ Hình nền quá nặng, vượt mức cho phép của Google Sheets. Vui lòng chọn ảnh khác đơn giản hơn!");
+                        e.target.value = ""; return;
+                    }
                     currentBgBase64 = base64Data;
                     const preview = document.getElementById('bg-preview'); preview.src = base64Data; preview.classList.remove('hidden');
                 });
@@ -429,7 +441,6 @@
                 const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 const result = await res.json();
                 
-                // Bắt lỗi nếu Google Sheets từ chối chuỗi ảnh quá dài
                 if(result.status === "error") {
                     alert("Lỗi lưu cấu hình (Có thể hình ảnh quá nặng): " + result.message);
                     spinner.style.display = 'none';
@@ -493,7 +504,7 @@
         }
 
         // ==========================================
-        // KHẮC PHỤC TRIỆT ĐỂ LỖI LỆCH SỐ LÚC CHỤP ẢNH
+        // KHẮC PHỤC TRIỆT ĐỂ LỖI LỆCH SỐ BẰNG GHOST CLONE
         // ==========================================
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
@@ -530,7 +541,7 @@
                         clonedApp.style.height = targetH + 'px';
                     }
                     
-                    // Gọt hộp trắng ở bản sao tàng hình để kéo font chữ bị rớt lên lại đúng giữa
+                    // Xử lý bù trừ ở bản sao tàng hình
                     if (clonedId) {
                         const box = clonedId.parentElement;
                         if (box) {
