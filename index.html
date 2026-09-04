@@ -392,7 +392,7 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImage(e.target.files[0], 200, 'image/png', 1.0, (base64Data) => {
+                compressImage(e.target.files[0], 500, 'image/png', 1.0, (base64Data) => {
                     if (base64Data.length > 45000) {
                         alert("⚠️ Ảnh Logo có quá nhiều chi tiết/màu sắc phức tạp khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn hoặc nén nhỏ lại!");
                         e.target.value = ""; return;
