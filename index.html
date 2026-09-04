@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sự Kiện Check-in</title>
-    <!-- Thẻ Favicon mặc định (Sẽ được JS tự động ghi đè bằng Logo) -->
+    <!-- Thẻ Favicon mặc định -->
     <link id="dynamic-favicon" rel="icon" href="https://placehold.co/32x32?text=C" type="image/png">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,11 +26,10 @@
         
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .sharp-img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
         /* =========================================
-           HIỆU ỨNG TIA LED PHÁT SÁNG (ĐÃ GIẢM TỐC ĐỘ 4.5S)
+           HIỆU ỨNG TIA LED PHÁT SÁNG (GLOWING LED LINE)
            ========================================= */
         .led-border { 
             position: relative; 
@@ -124,8 +123,9 @@
                 <div class="border-t pt-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Hỗ trợ PNG trong suốt)</label>
                     <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
-                        <div class="h-16 w-32 flex items-center justify-center">
-                            <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="max-h-full max-w-full object-contain sharp-img">
+                        <div class="h-12 w-32 flex items-center justify-center">
+                            <!-- Đã xóa class sharp-img -->
+                            <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="max-h-full max-w-full object-contain">
                         </div>
                         <input type="file" id="logo-upload" accept="image/png, image/jpeg" class="text-sm">
                     </div>
@@ -180,8 +180,9 @@
         <div id="form-screen" class="led-border w-full transition-all duration-300">
             <div class="led-inner p-6 w-full relative">
                 <div class="text-center mb-6">
-                    <div class="h-16 w-full flex justify-center items-center mx-auto mb-4">
-                        <img id="view-logo" src="" class="max-h-full max-w-full object-contain drop-shadow-sm sharp-img">
+                    <!-- KHUNG LOGO MÀN HÌNH 1: Thu nhỏ chiều cao (h-11) và khóa chiều rộng (max-w-[75%]), XÓA sharp-img -->
+                    <div class="h-11 w-full flex justify-center items-center mx-auto mb-5">
+                        <img id="view-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
                     </div>
                     
                     <h1 id="view-event-name" class="text-xl font-bold text-gray-800 leading-tight">Check-in Sự Kiện</h1>
@@ -222,8 +223,9 @@
             <div id="ticket-container" class="led-border w-full">
                 <div class="led-inner p-7 text-center relative w-full flex flex-col items-center justify-center">
                     
-                    <div class="h-14 w-full flex justify-center items-center mx-auto mb-4">
-                        <img id="ticket-logo" src="" class="max-h-full max-w-full object-contain drop-shadow-sm sharp-img">
+                    <!-- KHUNG LOGO MÀN HÌNH 2: Thu nhỏ chiều cao (h-10) và khóa chiều rộng (max-w-[75%]), XÓA sharp-img -->
+                    <div class="h-10 w-full flex justify-center items-center mx-auto mb-4">
+                        <img id="ticket-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
                     </div>
                     
                     <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
@@ -247,9 +249,6 @@
     </div>
 
     <script>
-        // =======================================================
-        // API CỦA BẠN 
-        // =======================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
@@ -314,7 +313,6 @@
 
         async function fetchSettings() {
             try {
-                // Thêm timestamp để chống cache trình duyệt, luôn lấy data mới nhất từ Google Sheets
                 const res = await fetch(API_URL + "?t=" + new Date().getTime(), { cache: "no-store" }); 
                 const data = await res.json();
                 if (data.primaryColor) { 
@@ -365,7 +363,6 @@
             }
         }
 
-        /* TỐI ƯU CƠ CHẾ NÉN ẢNH: Ép nhỏ để không vượt quá giới hạn 50.000 ký tự của Google Sheets */
         function compressImage(file, maxWidth, format, quality, callback) {
             const reader = new FileReader(); reader.readAsDataURL(file);
             reader.onload = function(e) {
@@ -392,9 +389,10 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
+                // Tăng kích thước nén lên 500px để logo giữ được độ sắc nét cao nhất
                 compressImage(e.target.files[0], 500, 'image/png', 1.0, (base64Data) => {
                     if (base64Data.length > 45000) {
-                        alert("⚠️ Ảnh Logo có quá nhiều chi tiết/màu sắc phức tạp khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn hoặc nén nhỏ lại!");
+                        alert("⚠️ Ảnh Logo có quá nhiều chi tiết khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn!");
                         e.target.value = ""; return;
                     }
                     currentLogoBase64 = base64Data; 
@@ -442,7 +440,7 @@
                 const result = await res.json();
                 
                 if(result.status === "error") {
-                    alert("Lỗi lưu cấu hình (Có thể hình ảnh quá nặng): " + result.message);
+                    alert("Lỗi lưu cấu hình: " + result.message);
                     spinner.style.display = 'none';
                     return;
                 }
@@ -503,9 +501,6 @@
             } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
 
-        // ==========================================
-        // KHẮC PHỤC TRIỆT ĐỂ LỖI LỆCH SỐ BẰNG GHOST CLONE
-        // ==========================================
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const btnText = document.getElementById('btn-dl-text');
@@ -541,7 +536,6 @@
                         clonedApp.style.height = targetH + 'px';
                     }
                     
-                    // Xử lý bù trừ ở bản sao tàng hình
                     if (clonedId) {
                         const box = clonedId.parentElement;
                         if (box) {
