@@ -124,7 +124,6 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Hỗ trợ PNG trong suốt)</label>
                     <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
                         <div class="h-12 w-32 flex items-center justify-center">
-                            <!-- Đã xóa class sharp-img -->
                             <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="max-h-full max-w-full object-contain">
                         </div>
                         <input type="file" id="logo-upload" accept="image/png, image/jpeg" class="text-sm">
@@ -180,7 +179,6 @@
         <div id="form-screen" class="led-border w-full transition-all duration-300">
             <div class="led-inner p-6 w-full relative">
                 <div class="text-center mb-6">
-                    <!-- KHUNG LOGO MÀN HÌNH 1: Thu nhỏ chiều cao (h-11) và khóa chiều rộng (max-w-[75%]), XÓA sharp-img -->
                     <div class="h-11 w-full flex justify-center items-center mx-auto mb-5">
                         <img id="view-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
                     </div>
@@ -223,7 +221,6 @@
             <div id="ticket-container" class="led-border w-full">
                 <div class="led-inner p-7 text-center relative w-full flex flex-col items-center justify-center">
                     
-                    <!-- KHUNG LOGO MÀN HÌNH 2: Thu nhỏ chiều cao (h-10) và khóa chiều rộng (max-w-[75%]), XÓA sharp-img -->
                     <div class="h-10 w-full flex justify-center items-center mx-auto mb-4">
                         <img id="ticket-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
                     </div>
@@ -354,12 +351,32 @@
             document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
             
             if (cfg.logoUrl) {
-                let favicon = document.getElementById('dynamic-favicon');
-                if (favicon) { favicon.href = cfg.logoUrl; }
-                
                 document.getElementById('logo-preview').src = cfg.logoUrl;
                 document.getElementById('view-logo').src = cfg.logoUrl;
                 document.getElementById('ticket-logo').src = cfg.logoUrl;
+                
+                // Tự động đóng khung vuông cho Favicon để chống bóp méo ảnh ngang
+                const img = new Image();
+                img.src = cfg.logoUrl;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 64; canvas.height = 64; 
+                    const ctx = canvas.getContext('2d');
+                    
+                    let drawW = 64, drawH = 64;
+                    // Tính toán tỷ lệ giữ form nguyên bản
+                    if (img.width > img.height) { 
+                        drawH = (img.height / img.width) * 64; 
+                    } else { 
+                        drawW = (img.width / img.height) * 64; 
+                    }
+                    
+                    // Căn giữa logo trong khung vuông
+                    ctx.drawImage(img, (64 - drawW) / 2, (64 - drawH) / 2, drawW, drawH);
+                    
+                    let favicon = document.getElementById('dynamic-favicon');
+                    if (favicon) { favicon.href = canvas.toDataURL('image/png'); }
+                };
             }
         }
 
@@ -389,7 +406,6 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                // Tăng kích thước nén lên 500px để logo giữ được độ sắc nét cao nhất
                 compressImage(e.target.files[0], 500, 'image/png', 1.0, (base64Data) => {
                     if (base64Data.length > 45000) {
                         alert("⚠️ Ảnh Logo có quá nhiều chi tiết khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn!");
