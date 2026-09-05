@@ -89,7 +89,7 @@
         <div class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Cấu Hình Giao Diện Check-in</h1>
-                <p class="text-sm text-gray-500">Thiết kế form, tải ảnh logo & hình nền</p>
+                <p class="text-sm text-gray-500">Thiết kế form, ngôn ngữ & hình nền</p>
             </div>
             <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg text-sm hover:bg-gray-300 transition">
                 Xem Trang Khách $\rightarrow$
@@ -99,9 +99,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative">
                 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
-                    <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
+                        <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Ngôn ngữ Web (Language)</label>
+                        <select id="cfg-language" class="w-full h-12 px-3 border rounded-lg text-sm bg-white">
+                            <option value="vi">Tiếng Việt (VI)</option>
+                            <option value="en">English (EN)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -184,7 +193,7 @@
                     </div>
                     
                     <h1 id="view-event-name" class="text-xl font-bold text-gray-800 leading-tight">Check-in Sự Kiện</h1>
-                    <p class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
+                    <p id="view-subtitle" class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
                 </div>
                 
                 <div class="space-y-4">
@@ -225,15 +234,15 @@
                         <img id="ticket-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
                     </div>
                     
-                    <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight">Xin chào, <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
-                    <p class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
+                    <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight"><span id="view-hello">Xin chào,</span> <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
+                    <p id="view-success-sub" class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
                     
                     <div class="bg-white/95 rounded-2xl py-8 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full min-h-[160px]">
-                        <p class="text-gray-500 font-bold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ CỦA BẠN</p>
+                        <p id="view-ticket-label" class="text-gray-500 font-bold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ CỦA BẠN</p>
                         <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-[0.8] block w-full text-center m-0 p-0">000</span>
                     </div>
                     
-                    <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed">Vui lòng lưu ảnh này để tham gia <b class="dynamic-text">Lucky Draw</b></p>
+                    <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed"><span id="view-save-note">Vui lòng lưu ảnh này để tham gia </span><b class="dynamic-text">Lucky Draw</b></p>
                 </div>
             </div>
             
@@ -249,6 +258,52 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbyrFnQAildIBAbopVqOVoJiZnuhTD2QpXycrXIYqeNMqKlQPTm_tX9_kbEZLw33Kz0/exec";
 
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
+
+        // ==============================================
+        // TỪ ĐIỂN ĐA NGÔN NGỮ (I18N)
+        // ==============================================
+        const i18n = {
+            vi: {
+                subtitle: "Vui lòng điền thông tin",
+                namePh: "Họ và tên",
+                phonePh: "Số điện thoại",
+                errorMsg: "Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.",
+                btnSubmit: "GỬI THÔNG TIN",
+                hello: "Xin chào,",
+                successSub: "Bạn đã check-in thành công",
+                ticketLabel: "MÃ SỐ CỦA BẠN",
+                saveNotePre: "Vui lòng lưu ảnh này để tham gia ",
+                btnSave: "LƯU ẢNH VỀ MÁY",
+                processing: "ĐANG XỬ LÝ..."
+            },
+            en: {
+                subtitle: "Please fill in your information",
+                namePh: "Full Name",
+                phonePh: "Phone number",
+                errorMsg: "Please enter a valid Name and Phone number.",
+                btnSubmit: "SUBMIT",
+                hello: "Hello,",
+                successSub: "Check-in successful",
+                ticketLabel: "YOUR TICKET NUMBER",
+                saveNotePre: "Please save this image to join the ",
+                btnSave: "SAVE IMAGE",
+                processing: "PROCESSING..."
+            }
+        };
+
+        function applyLanguage(lang) {
+            const texts = i18n[lang] || i18n['vi'];
+            document.getElementById('view-subtitle').innerText = texts.subtitle;
+            document.getElementById('input-name').placeholder = texts.namePh;
+            document.getElementById('input-phone').placeholder = texts.phonePh;
+            document.getElementById('error-msg').innerText = texts.errorMsg;
+            document.getElementById('btn-text').innerText = texts.btnSubmit;
+            document.getElementById('view-hello').innerText = texts.hello;
+            document.getElementById('view-success-sub').innerText = texts.successSub;
+            document.getElementById('view-ticket-label').innerText = texts.ticketLabel;
+            document.getElementById('view-save-note').innerText = texts.saveNotePre;
+            document.getElementById('btn-dl-text').innerText = texts.btnSave;
+        }
 
         function populateCountries() {
             const select = document.getElementById('country-code');
@@ -270,7 +325,7 @@
             if(opt) { document.getElementById('country-code-display').textContent = opt.getAttribute('data-short'); }
         }
 
-        let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc" };
+        let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc", language: "vi" };
 
         window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
@@ -350,12 +405,16 @@
             document.getElementById('cfg-font').value = cfg.fontFamily;
             document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
             
+            // Cập nhật giá trị Select Box ngôn ngữ & Dịch giao diện
+            document.getElementById('cfg-language').value = cfg.language || 'vi';
+            applyLanguage(cfg.language || 'vi');
+            
             if (cfg.logoUrl) {
                 document.getElementById('logo-preview').src = cfg.logoUrl;
                 document.getElementById('view-logo').src = cfg.logoUrl;
                 document.getElementById('ticket-logo').src = cfg.logoUrl;
                 
-                // Tự động đóng khung vuông cho Favicon để chống bóp méo ảnh ngang
+                // Tự động đóng khung vuông cho Favicon
                 const img = new Image();
                 img.src = cfg.logoUrl;
                 img.onload = function() {
@@ -364,14 +423,12 @@
                     const ctx = canvas.getContext('2d');
                     
                     let drawW = 64, drawH = 64;
-                    // Tính toán tỷ lệ giữ form nguyên bản
                     if (img.width > img.height) { 
                         drawH = (img.height / img.width) * 64; 
                     } else { 
                         drawW = (img.width / img.height) * 64; 
                     }
                     
-                    // Căn giữa logo trong khung vuông
                     ctx.drawImage(img, (64 - drawW) / 2, (64 - drawH) / 2, drawW, drawH);
                     
                     let favicon = document.getElementById('dynamic-favicon');
@@ -442,6 +499,7 @@
             const payload = {
                 action: "updateSettings", 
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
+                language: document.getElementById('cfg-language').value,
                 primaryColor: document.getElementById('cfg-color').value, 
                 fontFamily: document.getElementById('cfg-font').value,
                 logoUrl: currentLogoBase64 || currentSettings.logoUrl, 
@@ -520,9 +578,11 @@
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const btnText = document.getElementById('btn-dl-text');
+            const lang = currentSettings.language || 'vi';
             
             const originalText = btnText.innerText;
-            btnText.innerHTML = '<span class="opacity-60">ĐANG XỬ LÝ...</span>';
+            // Áp dụng từ điển cho chữ Loading
+            btnText.innerHTML = `<span class="opacity-60">${i18n[lang].processing}</span>`;
             document.getElementById('action-area').style.pointerEvents = 'none';
 
             const w = captureArea.offsetWidth;
