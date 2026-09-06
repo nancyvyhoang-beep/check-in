@@ -89,10 +89,10 @@
         <div class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Cấu Hình Giao Diện Check-in</h1>
-                <p class="text-sm text-gray-500">Thiết kế form, ngôn ngữ & hình nền</p>
+                <p class="text-sm text-gray-500">Thiết kế form, mã QR động, ngôn ngữ & hình nền</p>
             </div>
             <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg text-sm hover:bg-gray-300 transition">
-                Xem Trang Khách $\rightarrow$
+                Xem Trang Khách &rarr;
             </a>
         </div>
 
@@ -105,17 +105,21 @@
                         <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Ngôn ngữ Web (Language)</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Mã sự kiện (Đổi mã sẽ đổi mã QR)</label>
+                        <input type="text" id="cfg-event-code" oninput="updateAdminQR()" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono uppercase" placeholder="VD: YEP2026">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Ngôn ngữ Web</label>
                         <select id="cfg-language" class="w-full h-12 px-3 border rounded-lg text-sm bg-white">
                             <option value="vi">Tiếng Việt (VI)</option>
                             <option value="en">English (EN)</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Màu nút / Chữ nhấn mạnh</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Màu chủ đạo</label>
                         <input type="color" id="cfg-color" class="w-full h-12 p-1 border rounded cursor-pointer">
                     </div>
                     <div>
@@ -171,9 +175,9 @@
             </div>
 
             <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center h-fit">
-                <h3 class="font-bold text-gray-800 mb-2">QR Code Sự Kiện</h3>
-                <p class="text-xs text-gray-500 mb-6 text-center">In mã này ra Standee đặt tại cửa check-in</p>
-                <div id="qrcode" class="p-4 bg-white border rounded-xl shadow-sm mb-6"></div>
+                <h3 class="font-bold text-gray-800 mb-1">QR Code Sự Kiện</h3>
+                <p id="qr-target-url" class="text-[11px] text-gray-400 mb-4 text-center font-mono break-all max-w-[200px]"></p>
+                <div id="qrcode" class="p-4 bg-white border rounded-xl shadow-sm mb-6 flex justify-center items-center"></div>
                 <button onclick="downloadQR()" class="px-5 py-2.5 bg-gray-800 text-white text-sm font-semibold rounded-lg hover:bg-black transition w-full">
                     TẢI MÃ QR (PNG)
                 </button>
@@ -259,9 +263,6 @@
 
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
 
-        // ==============================================
-        // TỪ ĐIỂN ĐA NGÔN NGỮ (I18N)
-        // ==============================================
         const i18n = {
             vi: {
                 subtitle: "Vui lòng điền thông tin",
@@ -325,7 +326,16 @@
             if(opt) { document.getElementById('country-code-display').textContent = opt.getAttribute('data-short'); }
         }
 
-        let currentSettings = { eventName: "Check-in Sự Kiện", primaryColor: "#2563EB", fontFamily: "Inter", logoUrl: "", bgType: "solid", bgValue: "#f8fafc", language: "vi" };
+        let currentSettings = { 
+            eventName: "Check-in Sự Kiện", 
+            eventCode: "EVENT_01",
+            primaryColor: "#2563EB", 
+            fontFamily: "Inter", 
+            logoUrl: "", 
+            bgType: "solid", 
+            bgValue: "#f8fafc", 
+            language: "vi" 
+        };
 
         window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
@@ -342,7 +352,6 @@
                 await fetchSettings();
                 hideLoader();
             }
-            generateQRCode();
         });
 
         function hideLoader() {
@@ -357,6 +366,7 @@
             if (window.location.hash === '#admin') {
                 document.getElementById('admin-panel').classList.remove('hidden'); document.getElementById('client-app').classList.add('hidden');
                 document.body.style.background = '#f3f4f6';
+                updateAdminQR();
             } else {
                 document.getElementById('admin-panel').classList.add('hidden'); document.getElementById('client-app').classList.remove('hidden');
                 document.body.style.background = '#0f172a';
@@ -401,11 +411,12 @@
                 document.getElementById('view-event-name').innerText = cfg.eventName;
             }
 
+            document.getElementById('cfg-event-code').value = cfg.eventCode || 'EVENT_01';
             document.getElementById('cfg-color').value = cfg.primaryColor;
             document.getElementById('cfg-font').value = cfg.fontFamily;
-            document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; toggleBgType();
+            document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; 
+            toggleBgType();
             
-            // Cập nhật giá trị Select Box ngôn ngữ & Dịch giao diện
             document.getElementById('cfg-language').value = cfg.language || 'vi';
             applyLanguage(cfg.language || 'vi');
             
@@ -414,7 +425,6 @@
                 document.getElementById('view-logo').src = cfg.logoUrl;
                 document.getElementById('ticket-logo').src = cfg.logoUrl;
                 
-                // Tự động đóng khung vuông cho Favicon
                 const img = new Image();
                 img.src = cfg.logoUrl;
                 img.onload = function() {
@@ -435,6 +445,8 @@
                     if (favicon) { favicon.href = canvas.toDataURL('image/png'); }
                 };
             }
+
+            updateAdminQR();
         }
 
         function compressImage(file, maxWidth, format, quality, callback) {
@@ -499,6 +511,7 @@
             const payload = {
                 action: "updateSettings", 
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
+                eventCode: document.getElementById('cfg-event-code').value.trim().toUpperCase() || "EVENT_01",
                 language: document.getElementById('cfg-language').value,
                 primaryColor: document.getElementById('cfg-color').value, 
                 fontFamily: document.getElementById('cfg-font').value,
@@ -522,7 +535,7 @@
                 currentSettings = payload; 
                 localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); 
                 applyTheme(currentSettings); 
-                alert("Đã áp dụng Theme thành công!");
+                alert("Đã áp dụng Theme và cập nhật mã QR thành công!");
             } catch (e) { alert("Lỗi khi lưu cấu hình, vui lòng thử lại."); } finally { spinner.style.display = 'none'; }
         }
 
@@ -562,15 +575,25 @@
             const fullPhone = countryCode + " " + rawPhone;
             btn.disabled = true; spinner.style.display = 'block';
 
+            // Nhận diện mã sự kiện từ URL hoặc từ bộ cài đặt
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeEventCode = urlParams.get('e') || currentSettings.eventCode || 'DEFAULT';
+
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ name: name, phone: fullPhone }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ name: name, phone: fullPhone, event: activeEventCode }), 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                });
                 const result = await res.json();
                 
                 if (result.status === "error") {
                     alert(result.message);
                 } else if (result.status === "success") {
-                    document.getElementById('display-name').innerText = name; document.getElementById('display-id').innerText = result.id;
-                    document.getElementById('form-screen').classList.add('hidden'); document.getElementById('success-screen').classList.remove('hidden');
+                    document.getElementById('display-name').innerText = name; 
+                    document.getElementById('display-id').innerText = result.id;
+                    document.getElementById('form-screen').classList.add('hidden'); 
+                    document.getElementById('success-screen').classList.remove('hidden');
                 }
             } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
@@ -581,7 +604,6 @@
             const lang = currentSettings.language || 'vi';
             
             const originalText = btnText.innerText;
-            // Áp dụng từ điển cho chữ Loading
             btnText.innerHTML = `<span class="opacity-60">${i18n[lang].processing}</span>`;
             document.getElementById('action-area').style.pointerEvents = 'none';
 
@@ -637,14 +659,37 @@
             });
         }
 
-        function generateQRCode() {
-            const qrContainer = document.getElementById("qrcode"); qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: window.location.href.split('#')[0], width: 140, height: 140, colorDark: "#000000", colorLight: "#ffffff" });
+        // ==========================================
+        // QUẢN LÝ MÃ QR ĐỘNG THEO SỰ KIỆN
+        // ==========================================
+        function updateAdminQR() {
+            const rawCode = document.getElementById('cfg-event-code').value.trim();
+            const eventCode = encodeURIComponent(rawCode || 'EVENT_01');
+            const baseUrl = window.location.origin + window.location.pathname;
+            const finalUrl = `${baseUrl}?e=${eventCode}`;
+
+            document.getElementById('qr-target-url').innerText = finalUrl;
+
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, {
+                text: finalUrl,
+                width: 140,
+                height: 140,
+                colorDark: "#000000",
+                colorLight: "#ffffff"
+            });
         }
 
         function downloadQR() {
             const img = document.querySelector('#qrcode img');
-            if (img && img.src) { const a = document.createElement('a'); a.href = img.src; a.download = 'QR_Code.png'; a.click(); }
+            const eventCode = document.getElementById('cfg-event-code').value.trim() || 'EVENT';
+            if (img && img.src) {
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = `QR_${eventCode}.png`;
+                a.click();
+            }
         }
     </script>
 </body>
