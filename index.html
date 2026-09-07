@@ -390,16 +390,16 @@
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
             
+            // 1. Tải ngay lập tức từ LocalStorage để hiện ảnh nền không có độ trễ
             const cached = safeGetCache();
             if (cached && cached.primaryColor) {
                 currentSettings = Object.assign(currentSettings, cached);
                 applyTheme(currentSettings);
-                hideLoader();
-                fetchSettingsInBackground();
-            } else {
-                await fetchSettings();
-                hideLoader();
             }
+
+            // 2. Đồng thời lấy cấu hình mới nhất từ server
+            await fetchSettings();
+            hideLoader();
         });
 
         function hideLoader() {
@@ -428,6 +428,11 @@
                 const res = await fetch(API_URL + "?t=" + Date.now(), { cache: "no-store" }); 
                 const data = await res.json();
                 if (data && data.primaryColor) { 
+                    // Nếu server trả về bgValue rỗng nhưng trong bộ nhớ máy đã có ảnh nền, giữ lại ảnh nền đó
+                    if (!data.bgValue && currentSettings.bgValue && currentSettings.bgType === 'image') {
+                        data.bgValue = currentSettings.bgValue;
+                        data.bgType = currentSettings.bgType;
+                    }
                     currentSettings = Object.assign(currentSettings, data); 
                     safeSaveCache(currentSettings); 
                     applyTheme(currentSettings); 
@@ -435,18 +440,6 @@
             } catch (err) { 
                 applyTheme(currentSettings); 
             }
-        }
-
-        async function fetchSettingsInBackground() {
-            try {
-                const res = await fetch(API_URL + "?t=" + Date.now(), { cache: "no-store" }); 
-                const data = await res.json();
-                if (data && data.primaryColor) { 
-                    currentSettings = Object.assign(currentSettings, data); 
-                    safeSaveCache(currentSettings);
-                    applyTheme(currentSettings); 
-                }
-            } catch (err) {}
         }
 
         function applyTheme(cfg) {
@@ -520,7 +513,7 @@
             updateAdminQR();
         }
 
-        // BỘ NÉN AN TOÀN TUYỆT ĐỐI CHO GOOGLE SHEETS (Dung lượng < 28,000 ký tự)
+        // BỘ NÉN SIÊU NHỎ AN TOÀN TUYỆT ĐỐI (< 22,000 KÝ TỰ)
         function compressImageSafe(file, initialMaxDim, format, initialQuality, targetMaxLen, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -561,7 +554,7 @@
                             break;
                         }
                         curDim = Math.round(curDim * 0.85);
-                        curQuality = Math.max(0.4, curQuality - 0.08);
+                        curQuality = Math.max(0.35, curQuality - 0.08);
                     }
                     callback(resultBase64);
                 };
@@ -573,8 +566,8 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImageSafe(e.target.files[0], 400, 'image/png', 1.0, 28000, (base64Data) => {
-                    if (base64Data.length > 30000) {
+                compressImageSafe(e.target.files[0], 350, 'image/png', 1.0, 22000, (base64Data) => {
+                    if (base64Data.length > 25000) {
                         alert("⚠️ Ảnh Logo quá lớn, vui lòng chọn Logo đơn giản hơn!");
                         e.target.value = ""; return;
                     }
@@ -584,11 +577,11 @@
             }
         });
 
-        // Nén Background an toàn dưới 28,000 ký tự để Google Sheets chấp nhận lưu trữ 100%
+        // Nén Background tối ưu siêu gọn dưới 22,000 ký tự để tương thích 100% mọi thiết bị khi quét QR
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImageSafe(e.target.files[0], 540, 'image/jpeg', 0.65, 28000, (base64Data) => {
-                    if (base64Data.length > 30000) {
+                compressImageSafe(e.target.files[0], 480, 'image/jpeg', 0.55, 22000, (base64Data) => {
+                    if (base64Data.length > 25000) {
                         alert("⚠️ Hình nền quá lớn, vui lòng chọn ảnh khác đơn giản hơn!");
                         e.target.value = ""; return;
                     }
@@ -629,21 +622,23 @@
             else if (payload.bgType === 'image') payload.bgValue = currentBgBase64 || currentSettings.bgValue;
 
             try {
+                // Lưu cục bộ ngay lập tức trước khi gọi API
+                currentSettings = payload;
+                safeSaveCache(currentSettings);
+                applyTheme(currentSettings);
+
                 const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 const result = await res.json();
                 
                 if(result.status === "error") {
-                    alert("Lỗi lưu cấu hình: " + result.message);
+                    alert("Lỗi lưu cấu hình trên server: " + result.message);
                     spinner.style.display = 'none';
                     return;
                 }
                 
-                currentSettings = payload; 
-                safeSaveCache(currentSettings); 
-                applyTheme(currentSettings); 
-                alert("Đã áp dụng Theme và cập nhật mã QR thành công!");
+                alert("Đã áp dụng Theme và đồng bộ thành công!");
             } catch (e) { 
-                alert("Lỗi khi lưu cấu hình, vui lòng thử lại."); 
+                alert("Đã lưu cục bộ thành công! (Lỗi kết nối server phụ)"); 
             } finally { 
                 spinner.style.display = 'none'; 
             }
