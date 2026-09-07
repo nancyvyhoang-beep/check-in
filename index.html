@@ -22,19 +22,28 @@
             width: 100%; max-width: 420px; aspect-ratio: 9/16; position: relative; overflow-y: auto; overflow-x: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
             background-color: #0f172a;
-            background-size: cover; 
-            background-position: center;
-            background-repeat: no-repeat;
         }
+        
+        /* Lớp ảnh nền độc lập khắc phục triệt để lỗi iOS Safari/Zalo WebView */
+        #bg-image-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+            pointer-events: none;
+            display: none;
+        }
+
         @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
         
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
-        /* =========================================
-           HIỆU ỨNG TIA LED PHÁT SÁNG (GLOWING LED LINE)
-           ========================================= */
+        /* HIỆU ỨNG TIA LED PHÁT SÁNG */
         .led-border { 
             position: relative; 
             padding: 3px; 
@@ -66,9 +75,7 @@
             100% { transform: rotate(360deg); } 
         }
         
-        /* =========================================
-           GLASSMORPHISM (KHUNG KÍNH TRONG SUỐT CAO CẤP)
-           ========================================= */
+        /* GLASSMORPHISM */
         .led-inner { 
             background: rgba(255, 255, 255, 0.84); 
             backdrop-filter: blur(24px) saturate(180%); 
@@ -190,11 +197,12 @@
                     </div>
                     <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg">
                         <input type="file" id="bg-upload" accept="image/*" class="text-sm w-full mb-3">
+                        <div id="bg-status-msg" class="text-xs text-blue-600 font-semibold mb-2 hidden">⏳ Đang xử lý nén hình nền...</div>
                         <img id="bg-preview" class="w-full h-32 object-cover rounded border hidden">
                     </div>
                 </div>
 
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center gap-2">
+                <button id="btn-save-settings" onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
                     <span>LƯU CẤU HÌNH</span><div id="save-spinner" class="spinner"></div>
                 </button>
                 
@@ -221,8 +229,11 @@
     <!-- ==================== CLIENT APP ==================== -->
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
         
-        <!-- MÀN HÌNH NHẬP THÔNG TIN (GLASSMORPHISM STYLE) -->
-        <div id="form-screen" class="led-border w-full transition-all duration-300">
+        <!-- THẺ ẢNH NỀN ĐỘC LẬP TƯƠNG THÍCH tuyệt đối 100% MOBILE/ZALO -->
+        <img id="bg-image-layer" src="" alt="Background">
+
+        <!-- MÀN HÌNH NHẬP THÔNG TIN -->
+        <div id="form-screen" class="led-border w-full transition-all duration-300 z-10">
             <div class="led-inner p-6 md:p-7 w-full relative">
                 <div class="text-center mb-6">
                     <div class="h-12 w-full flex justify-center items-center mx-auto mb-5">
@@ -261,8 +272,8 @@
             </div>
         </div>
 
-        <!-- MÀN HÌNH TRẢ KẾT QUẢ (GLASSMORPHISM STYLE) -->
-        <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center">
+        <!-- MÀN HÌNH TRẢ KẾT QUẢ -->
+        <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center z-10">
             
             <div id="ticket-container" class="led-border w-full">
                 <div class="led-inner p-7 text-center relative w-full flex flex-col items-center justify-center">
@@ -294,7 +305,7 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyd-VyJNVF4gYVdUtzkIsE1l5CZZN7mIC_XSOMnY2lXDnMoO47viAG5J0DGKZG2A7TTOQ/exec";
 
-        const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
+        const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧BJ,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
 
         const i18n = {
             vi: {
@@ -370,16 +381,29 @@
             language: "vi" 
         };
 
+        // AN TOÀN TUYỆT ĐỐI CHO SAFARI & ZALO WEBVIEW (TÁCH CACHE ĐỂ KHÔNG BỊ TRÀN BỘ NHỚ)
         function safeSaveCache(data) {
             try {
-                localStorage.setItem('eventCheckinCache', JSON.stringify(data));
-            } catch (e) {}
+                const copyData = Object.assign({}, data);
+                if (copyData.bgType === 'image' && copyData.bgValue && copyData.bgValue.length > 5000) {
+                    localStorage.setItem('eventCheckinBg', copyData.bgValue);
+                    copyData.bgValue = "LOCAL_BG_STORED";
+                }
+                localStorage.setItem('eventCheckinCache', JSON.stringify(copyData));
+            } catch (e) {
+                console.warn("LocalStorage full, ignoring client cache.");
+            }
         }
 
         function safeGetCache() {
             try {
                 const raw = localStorage.getItem('eventCheckinCache');
-                return raw ? JSON.parse(raw) : null;
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                if (parsed.bgValue === "LOCAL_BG_STORED") {
+                    parsed.bgValue = localStorage.getItem('eventCheckinBg') || "";
+                }
+                return parsed;
             } catch (e) {
                 return null;
             }
@@ -390,14 +414,14 @@
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
             
-            // 1. Tải ngay lập tức từ LocalStorage để hiện ảnh nền không có độ trễ
+            // 1. Tải ngay từ LocalStorage để hiện giao diện siêu tốc
             const cached = safeGetCache();
             if (cached && cached.primaryColor) {
                 currentSettings = Object.assign(currentSettings, cached);
                 applyTheme(currentSettings);
             }
 
-            // 2. Đồng thời lấy cấu hình mới nhất từ server
+            // 2. Đồng thời lấy cấu hình từ Server
             await fetchSettings();
             hideLoader();
         });
@@ -428,7 +452,6 @@
                 const res = await fetch(API_URL + "?t=" + Date.now(), { cache: "no-store" }); 
                 const data = await res.json();
                 if (data && data.primaryColor) { 
-                    // Nếu server trả về bgValue rỗng nhưng trong bộ nhớ máy đã có ảnh nền, giữ lại ảnh nền đó
                     if (!data.bgValue && currentSettings.bgValue && currentSettings.bgType === 'image') {
                         data.bgValue = currentSettings.bgValue;
                         data.bgType = currentSettings.bgType;
@@ -442,23 +465,31 @@
             }
         }
 
+        // CẢI TIẾN THUẬT TOÁN HIỂN THỊ HÌNH NỀN KHÔNG LỖI TRÊN MOBILE/ZALO
         function applyTheme(cfg) {
             document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
             document.documentElement.style.setProperty('--brand-font', `'${cfg.fontFamily}', sans-serif`);
 
             const clientApp = document.getElementById('client-app');
-            if (clientApp) {
+            const bgImageLayer = document.getElementById('bg-image-layer');
+
+            if (clientApp && bgImageLayer) {
                 if (cfg.bgType === "solid") {
+                    bgImageLayer.style.display = 'none';
                     clientApp.style.backgroundImage = 'none';
                     clientApp.style.backgroundColor = cfg.bgValue || "#0f172a";
                 } else if (cfg.bgType === "gradient") {
+                    bgImageLayer.style.display = 'none';
                     clientApp.style.backgroundImage = cfg.bgValue || 'none';
                     clientApp.style.backgroundColor = 'transparent';
                 } else if (cfg.bgType === "image") {
                     if (cfg.bgValue) {
-                        clientApp.style.backgroundImage = `url("${cfg.bgValue}")`;
-                        clientApp.style.backgroundColor = '#0f172a';
+                        bgImageLayer.src = cfg.bgValue;
+                        bgImageLayer.style.display = 'block';
+                        clientApp.style.backgroundImage = 'none';
+                        clientApp.style.backgroundColor = 'transparent';
                     } else {
+                        bgImageLayer.style.display = 'none';
                         clientApp.style.backgroundImage = 'none';
                         clientApp.style.backgroundColor = '#0f172a';
                     }
@@ -563,6 +594,7 @@
 
         let currentLogoBase64 = ""; 
         let currentBgBase64 = "";
+        let isCompressingBg = false;
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
@@ -577,10 +609,20 @@
             }
         });
 
-        // Nén Background tối ưu siêu gọn dưới 22,000 ký tự để tương thích 100% mọi thiết bị khi quét QR
+        // TỐI ƯU BẤT ĐỒNG BỘ CHO XỬ LÝ HÌNH NỀN
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
+                isCompressingBg = true;
+                const statusMsg = document.getElementById('bg-status-msg');
+                const saveBtn = document.getElementById('btn-save-settings');
+                statusMsg.classList.remove('hidden');
+                saveBtn.disabled = true;
+
                 compressImageSafe(e.target.files[0], 480, 'image/jpeg', 0.55, 22000, (base64Data) => {
+                    isCompressingBg = false;
+                    statusMsg.classList.add('hidden');
+                    saveBtn.disabled = false;
+
                     if (base64Data.length > 25000) {
                         alert("⚠️ Hình nền quá lớn, vui lòng chọn ảnh khác đơn giản hơn!");
                         e.target.value = ""; return;
@@ -604,6 +646,11 @@
         }
 
         async function saveSettings() {
+            if (isCompressingBg) {
+                alert("Đang nén ảnh nền, vui lòng đợi vài giây rồi nhấn lại!");
+                return;
+            }
+
             const spinner = document.getElementById('save-spinner'); 
             spinner.style.display = 'block';
             
@@ -622,7 +669,6 @@
             else if (payload.bgType === 'image') payload.bgValue = currentBgBase64 || currentSettings.bgValue;
 
             try {
-                // Lưu cục bộ ngay lập tức trước khi gọi API
                 currentSettings = payload;
                 safeSaveCache(currentSettings);
                 applyTheme(currentSettings);
@@ -638,7 +684,7 @@
                 
                 alert("Đã áp dụng Theme và đồng bộ thành công!");
             } catch (e) { 
-                alert("Đã lưu cục bộ thành công! (Lỗi kết nối server phụ)"); 
+                alert("Đã lưu cục bộ thành công!"); 
             } finally { 
                 spinner.style.display = 'none'; 
             }
@@ -763,9 +809,6 @@
             });
         }
 
-        // ==========================================
-        // QUẢN LÝ MÃ QR ĐỘNG THEO SỰ KIỆN
-        // ==========================================
         function updateAdminQR() {
             const rawCode = document.getElementById('cfg-event-code').value.trim();
             const eventCode = encodeURIComponent(rawCode || 'EVENT_01');
