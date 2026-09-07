@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
     <style>
         :root { --primary-color: #2563EB; --brand-font: 'Inter', sans-serif; --bg-value: #f8fafc; }
@@ -34,11 +34,11 @@
         .led-border { 
             position: relative; 
             padding: 3px; 
-            border-radius: 1.15rem; 
+            border-radius: 1.5rem; 
             overflow: hidden; 
             z-index: 1; 
-            background-color: rgba(0, 0, 0, 0.15); 
-            box-shadow: 0 15px 35px -5px rgba(0,0,0,0.2);
+            background-color: rgba(255, 255, 255, 0.12); 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.35);
         }
         
         .led-border::before, .led-border::after { 
@@ -62,18 +62,49 @@
             100% { transform: rotate(360deg); } 
         }
         
+        /* =========================================
+           GLASSMORPHISM (KHUNG KÍNH TRONG SUỐT CAO CẤP)
+           ========================================= */
         .led-inner { 
-            background: rgba(255, 255, 255, 0.98); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: calc(1.15rem - 3px); 
+            background: rgba(255, 255, 255, 0.84); 
+            backdrop-filter: blur(24px) saturate(180%); 
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: calc(1.5rem - 3px); 
             width: 100%; height: 100%; 
             position: relative; 
             z-index: 2; 
+            box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        /* Glass inputs */
+        .glass-input {
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.04);
+        }
+        .glass-input:focus-within, .glass-input:focus {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        /* Glass ticket box */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.72) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8);
         }
 
         .capture-mode .led-border { padding: 0 !important; background: transparent !important; box-shadow: none !important;}
         .capture-mode .led-border::before, .capture-mode .led-border::after { display: none !important; animation: none !important; }
-        .capture-mode .led-inner { border-radius: 1rem; border: 1px solid rgba(255,255,255,0.6); }
+        .capture-mode .led-inner { 
+            border-radius: 1.25rem; 
+            background: rgba(255, 255, 255, 0.92) !important; 
+            border: 1px solid rgba(255,255,255,0.7); 
+        }
     </style>
 </head>
 <body>
@@ -188,78 +219,77 @@
     <!-- ==================== CLIENT APP ==================== -->
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
         
-        <!-- MÀN HÌNH NHẬP THÔNG TIN -->
+        <!-- MÀN HÌNH NHẬP THÔNG TIN (GLASSMORPHISM STYLE) -->
         <div id="form-screen" class="led-border w-full transition-all duration-300">
-            <div class="led-inner p-6 w-full relative">
+            <div class="led-inner p-6 md:p-7 w-full relative">
                 <div class="text-center mb-6">
-                    <div class="h-11 w-full flex justify-center items-center mx-auto mb-5">
-                        <img id="view-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
+                    <div class="h-12 w-full flex justify-center items-center mx-auto mb-5">
+                        <img id="view-logo" src="" class="max-h-full max-w-[80%] object-contain drop-shadow-sm">
                     </div>
                     
-                    <h1 id="view-event-name" class="text-xl font-bold text-gray-800 leading-tight">Check-in Sự Kiện</h1>
-                    <p id="view-subtitle" class="text-gray-500 text-sm mt-1">Vui lòng điền thông tin</p>
+                    <h1 id="view-event-name" class="text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">Check-in Sự Kiện</h1>
+                    <p id="view-subtitle" class="text-gray-600 text-sm mt-1 font-medium">Vui lòng điền thông tin</p>
                 </div>
                 
                 <div class="space-y-4">
                     <div>
-                        <input type="text" id="input-name" placeholder="Họ và tên" class="w-full px-4 h-[48px] rounded-lg border border-gray-300 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
                     
                     <div>
-                        <div id="phone-wrapper" class="flex items-center w-full h-[48px] rounded-lg border border-gray-300 shadow-sm bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all overflow-hidden">
+                        <div id="phone-wrapper" class="glass-input flex items-center w-full h-[50px] rounded-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
                             
-                            <div class="relative w-[110px] h-full flex-shrink-0 bg-gray-50 border-r border-gray-200 transition-colors hover:bg-gray-100">
-                                <div id="country-code-display" class="absolute inset-0 flex items-center justify-center text-gray-800 font-medium text-sm pointer-events-none z-10">
+                            <div class="relative w-[110px] h-full flex-shrink-0 bg-black/5 border-r border-black/10 transition-colors hover:bg-black/10">
+                                <div id="country-code-display" class="absolute inset-0 flex items-center justify-center text-gray-900 font-semibold text-sm pointer-events-none z-10">
                                     🇻🇳 +84
                                 </div>
                                 <select id="country-code" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 outline-none" onchange="updateCountryDisplay(this)"></select>
                             </div>
                             
-                            <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full h-full px-4 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-800 placeholder-gray-400 min-w-0">
+                            <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full h-full px-4 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 font-medium min-w-0">
                         </div>
                         
-                        <p id="error-msg" class="text-red-500 text-xs mt-1.5 hidden ml-1">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
+                        <p id="error-msg" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
                     </div>
 
-                    <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[48px] rounded-lg mt-3 flex justify-center items-center gap-2 shadow-lg active:scale-95 transition">
-                        <span id="btn-text">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
+                    <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl mt-3 flex justify-center items-center gap-2 shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
+                        <span id="btn-text" class="tracking-wide">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- MÀN HÌNH TRẢ KẾT QUẢ -->
+        <!-- MÀN HÌNH TRẢ KẾT QUẢ (GLASSMORPHISM STYLE) -->
         <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center">
             
             <div id="ticket-container" class="led-border w-full">
                 <div class="led-inner p-7 text-center relative w-full flex flex-col items-center justify-center">
                     
-                    <div class="h-10 w-full flex justify-center items-center mx-auto mb-4">
-                        <img id="ticket-logo" src="" class="max-h-full max-w-[75%] object-contain drop-shadow-sm">
+                    <div class="h-11 w-full flex justify-center items-center mx-auto mb-4">
+                        <img id="ticket-logo" src="" class="max-h-full max-w-[80%] object-contain drop-shadow-sm">
                     </div>
                     
-                    <h2 class="text-base font-semibold text-gray-700 mb-1 leading-tight"><span id="view-hello">Xin chào,</span> <br><span id="display-name" class="dynamic-text text-xl font-bold"></span>!</h2>
-                    <p id="view-success-sub" class="text-xs text-gray-500 mb-6">Bạn đã check-in thành công</p>
+                    <h2 class="text-base font-semibold text-gray-800 mb-1 leading-tight"><span id="view-hello">Xin chào,</span> <br><span id="display-name" class="dynamic-text text-2xl font-extrabold"></span>!</h2>
+                    <p id="view-success-sub" class="text-xs text-gray-600 mb-6 font-medium">Bạn đã check-in thành công</p>
                     
-                    <div class="bg-white/95 rounded-2xl py-8 px-4 shadow-sm border border-gray-100 flex flex-col justify-center items-center w-full min-h-[160px]">
-                        <p id="view-ticket-label" class="text-gray-500 font-bold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ CỦA BẠN</p>
+                    <div class="glass-box rounded-2xl py-8 px-4 flex flex-col justify-center items-center w-full min-h-[160px]">
+                        <p id="view-ticket-label" class="text-gray-600 font-bold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ CỦA BẠN</p>
                         <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-[0.8] block w-full text-center m-0 p-0">000</span>
                     </div>
                     
-                    <p class="mt-6 text-xs font-medium text-gray-600 leading-relaxed"><span id="view-save-note">Vui lòng lưu ảnh này để tham gia </span><b class="dynamic-text">Lucky Draw</b></p>
+                    <p class="mt-6 text-xs font-semibold text-gray-700 leading-relaxed"><span id="view-save-note">Vui lòng lưu ảnh này để tham gia </span><b class="dynamic-text">Lucky Draw</b></p>
                 </div>
             </div>
             
             <div id="action-area" class="w-full mt-6">
-                <button onclick="downloadTicket()" class="w-full dynamic-bg text-white font-bold h-[48px] rounded-lg shadow-xl active:scale-95 transition border border-white/20">
-                    <span id="btn-dl-text">LƯU ẢNH VỀ MÁY</span>
+                <button onclick="downloadTicket()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
+                    <span id="btn-dl-text" class="tracking-wide">LƯU ẢNH VỀ MÁY</span>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // API URL MỚI ĐÃ ĐƯỢC CẬP NHẬT
         const API_URL = "https://script.google.com/macros/s/AKfycbyd-VyJNVF4gYVdUtzkIsE1l5CZZN7mIC_XSOMnY2lXDnMoO47viAG5J0DGKZG2A7TTOQ/exec";
 
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
@@ -450,34 +480,65 @@
             updateAdminQR();
         }
 
-        function compressImage(file, maxWidth, format, quality, callback) {
-            const reader = new FileReader(); reader.readAsDataURL(file);
+        // ==========================================
+        // BỘ NÉN THÔNG MINH ĐỘ NÉT CAO (HIGH-RES ADAPTIVE)
+        // ==========================================
+        function compressImageAdaptive(file, initialMaxDim, format, initialQuality, targetMaxLen, callback) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
             reader.onload = function(e) {
-                const img = new Image(); img.src = e.target.result;
+                const img = new Image();
+                img.src = e.target.result;
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width; let height = img.height;
-                    const maxH = maxWidth; 
-                    if (width > maxWidth || height > maxH) {
+                    let curDim = initialMaxDim;
+                    let curQuality = initialQuality;
+                    let resultBase64 = "";
+
+                    // Lặp tối đa 5 lần để tìm kích thước nét nhất trong phạm vi an toàn
+                    for (let attempt = 0; attempt < 5; attempt++) {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
                         if (width > height) {
-                            height = Math.round((height * maxWidth) / width); width = maxWidth;
+                            if (width > curDim) {
+                                height = Math.round((height * curDim) / width);
+                                width = curDim;
+                            }
                         } else {
-                            width = Math.round((width * maxH) / height); height = maxH;
+                            if (height > curDim) {
+                                width = Math.round((width * curDim) / height);
+                                height = curDim;
+                            }
                         }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        resultBase64 = canvas.toDataURL(format, curQuality);
+                        if (resultBase64.length <= targetMaxLen) {
+                            break;
+                        }
+                        // Nếu vẫn còn vượt kích thước, giảm nhẹ 12% để đạt độ nét cao nhất có thể
+                        curDim = Math.round(curDim * 0.88);
+                        curQuality = Math.max(0.45, curQuality - 0.08);
                     }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    callback(canvas.toDataURL(format, quality));
-                }
-            }
+                    callback(resultBase64);
+                };
+            };
         }
 
-        let currentLogoBase64 = ""; let currentBgBase64 = "";
+        let currentLogoBase64 = ""; 
+        let currentBgBase64 = "";
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImage(e.target.files[0], 500, 'image/png', 1.0, (base64Data) => {
-                    if (base64Data.length > 45000) {
+                compressImageAdaptive(e.target.files[0], 500, 'image/png', 1.0, 45000, (base64Data) => {
+                    if (base64Data.length > 48000) {
                         alert("⚠️ Ảnh Logo có quá nhiều chi tiết khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn!");
                         e.target.value = ""; return;
                     }
@@ -487,15 +548,18 @@
             }
         });
 
+        // Nâng cấp độ nét Background: Kích thước lên tới 750px (gấp đôi bản cũ), định dạng webp/jpeg nét cao
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImage(e.target.files[0], 400, 'image/jpeg', 0.4, (base64Data) => {
-                    if (base64Data.length > 45000) {
+                compressImageAdaptive(e.target.files[0], 750, 'image/jpeg', 0.72, 45000, (base64Data) => {
+                    if (base64Data.length > 48000) {
                         alert("⚠️ Hình nền quá nặng, vượt mức cho phép của Google Sheets. Vui lòng chọn ảnh khác đơn giản hơn!");
                         e.target.value = ""; return;
                     }
                     currentBgBase64 = base64Data;
-                    const preview = document.getElementById('bg-preview'); preview.src = base64Data; preview.classList.remove('hidden');
+                    const preview = document.getElementById('bg-preview'); 
+                    preview.src = base64Data; 
+                    preview.classList.remove('hidden');
                 });
             }
         });
@@ -576,7 +640,6 @@
             const fullPhone = countryCode + " " + rawPhone;
             btn.disabled = true; spinner.style.display = 'block';
 
-            // Nhận diện mã sự kiện từ URL hoặc từ bộ cài đặt
             const urlParams = new URLSearchParams(window.location.search);
             const activeEventCode = urlParams.get('e') || currentSettings.eventCode || 'DEFAULT';
 
