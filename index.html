@@ -370,17 +370,10 @@
             language: "vi" 
         };
 
-        // Quản lý lưu trữ an toàn tránh lỗi QuotaExceeded trên Safari iOS
         function safeSaveCache(data) {
             try {
                 localStorage.setItem('eventCheckinCache', JSON.stringify(data));
-            } catch (e) {
-                try {
-                    // Nếu dung lượng đầy, xóa bớt trường ảnh nền và lưu lại
-                    const lightData = Object.assign({}, data, { bgValue: "" });
-                    localStorage.setItem('eventCheckinCache', JSON.stringify(lightData));
-                } catch(ign) {}
-            }
+            } catch (e) {}
         }
 
         function safeGetCache() {
@@ -401,10 +394,7 @@
             if (cached && cached.primaryColor) {
                 currentSettings = Object.assign(currentSettings, cached);
                 applyTheme(currentSettings);
-                // Nếu cache đã có đầy đủ ảnh nền thì ẩn loader ngay, còn không thì chờ fetch
-                if (currentSettings.bgType !== 'image' || currentSettings.bgValue) {
-                    hideLoader();
-                }
+                hideLoader();
                 fetchSettingsInBackground();
             } else {
                 await fetchSettings();
@@ -459,9 +449,6 @@
             } catch (err) {}
         }
 
-        // ==========================================
-        // ÁP DỤNG THEME - GÁN NỀN TRỰC TIẾP CHỐNG LỖI SAFARI
-        // ==========================================
         function applyTheme(cfg) {
             document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
             document.documentElement.style.setProperty('--brand-font', `'${cfg.fontFamily}', sans-serif`);
@@ -477,6 +464,9 @@
                 } else if (cfg.bgType === "image") {
                     if (cfg.bgValue) {
                         clientApp.style.backgroundImage = `url("${cfg.bgValue}")`;
+                        clientApp.style.backgroundColor = '#0f172a';
+                    } else {
+                        clientApp.style.backgroundImage = 'none';
                         clientApp.style.backgroundColor = '#0f172a';
                     }
                 }
@@ -530,7 +520,8 @@
             updateAdminQR();
         }
 
-        function compressImageAdaptive(file, initialMaxDim, format, initialQuality, targetMaxLen, callback) {
+        // BỘ NÉN AN TOÀN TUYỆT ĐỐI CHO GOOGLE SHEETS (Dung lượng < 28,000 ký tự)
+        function compressImageSafe(file, initialMaxDim, format, initialQuality, targetMaxLen, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = function(e) {
@@ -541,7 +532,7 @@
                     let curQuality = initialQuality;
                     let resultBase64 = "";
 
-                    for (let attempt = 0; attempt < 5; attempt++) {
+                    for (let attempt = 0; attempt < 6; attempt++) {
                         const canvas = document.createElement('canvas');
                         let width = img.width;
                         let height = img.height;
@@ -569,8 +560,8 @@
                         if (resultBase64.length <= targetMaxLen) {
                             break;
                         }
-                        curDim = Math.round(curDim * 0.88);
-                        curQuality = Math.max(0.45, curQuality - 0.08);
+                        curDim = Math.round(curDim * 0.85);
+                        curQuality = Math.max(0.4, curQuality - 0.08);
                     }
                     callback(resultBase64);
                 };
@@ -582,9 +573,9 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImageAdaptive(e.target.files[0], 500, 'image/png', 1.0, 45000, (base64Data) => {
-                    if (base64Data.length > 48000) {
-                        alert("⚠️ Ảnh Logo có quá nhiều chi tiết khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn!");
+                compressImageSafe(e.target.files[0], 400, 'image/png', 1.0, 28000, (base64Data) => {
+                    if (base64Data.length > 30000) {
+                        alert("⚠️ Ảnh Logo quá lớn, vui lòng chọn Logo đơn giản hơn!");
                         e.target.value = ""; return;
                     }
                     currentLogoBase64 = base64Data; 
@@ -593,11 +584,12 @@
             }
         });
 
+        // Nén Background an toàn dưới 28,000 ký tự để Google Sheets chấp nhận lưu trữ 100%
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImageAdaptive(e.target.files[0], 750, 'image/jpeg', 0.72, 45000, (base64Data) => {
-                    if (base64Data.length > 48000) {
-                        alert("⚠️ Hình nền quá nặng, vượt mức cho phép của Google Sheets. Vui lòng chọn ảnh khác đơn giản hơn!");
+                compressImageSafe(e.target.files[0], 540, 'image/jpeg', 0.65, 28000, (base64Data) => {
+                    if (base64Data.length > 30000) {
+                        alert("⚠️ Hình nền quá lớn, vui lòng chọn ảnh khác đơn giản hơn!");
                         e.target.value = ""; return;
                     }
                     currentBgBase64 = base64Data;
