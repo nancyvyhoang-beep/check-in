@@ -22,19 +22,9 @@
             width: 100%; max-width: 420px; aspect-ratio: 9/16; position: relative; overflow-y: auto; overflow-x: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
             background-color: #0f172a;
-        }
-        
-        /* Lớp ảnh nền độc lập khắc phục triệt để lỗi iOS Safari/Zalo WebView */
-        #bg-image-layer {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            z-index: 0;
-            pointer-events: none;
-            display: none;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
         }
 
         @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
@@ -228,9 +218,6 @@
 
     <!-- ==================== CLIENT APP ==================== -->
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
-        
-        <!-- THẺ ẢNH NỀN TỰ ĐỘNG ẨN NẾU CHƯA CÓ SRC HOẶC BỊ LỖI -->
-        <img id="bg-image-layer" src="" alt="" onerror="this.style.display='none'">
 
         <!-- MÀN HÌNH NHẬP THÔNG TIN -->
         <div id="form-screen" class="led-border w-full transition-all duration-300 z-10">
@@ -381,29 +368,16 @@
             language: "vi" 
         };
 
-        // BẢO VỆ LOCALSTORAGE TRÁNH TRÀN BỘ NHỚ TRÊN SAFARI & ZALO WEBVIEW
         function safeSaveCache(data) {
             try {
-                const copyData = Object.assign({}, data);
-                if (copyData.bgType === 'image' && copyData.bgValue && copyData.bgValue.length > 5000) {
-                    localStorage.setItem('eventCheckinBg', copyData.bgValue);
-                    copyData.bgValue = "LOCAL_BG_STORED";
-                }
-                localStorage.setItem('eventCheckinCache', JSON.stringify(copyData));
-            } catch (e) {
-                console.warn("LocalStorage full, ignoring client cache.");
-            }
+                localStorage.setItem('eventCheckinCache', JSON.stringify(data));
+            } catch (e) {}
         }
 
         function safeGetCache() {
             try {
                 const raw = localStorage.getItem('eventCheckinCache');
-                if (!raw) return null;
-                const parsed = JSON.parse(raw);
-                if (parsed.bgValue === "LOCAL_BG_STORED") {
-                    parsed.bgValue = localStorage.getItem('eventCheckinBg') || "";
-                }
-                return parsed;
+                return raw ? JSON.parse(raw) : null;
             } catch (e) {
                 return null;
             }
@@ -414,14 +388,14 @@
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
             
-            // 1. Tải ngay lập tức từ LocalStorage để hiện giao diện cực nhanh
+            // 1. Tải ngay từ LocalStorage để hiện giao diện mượt mà
             const cached = safeGetCache();
             if (cached && cached.primaryColor) {
                 currentSettings = Object.assign(currentSettings, cached);
                 applyTheme(currentSettings);
             }
 
-            // 2. Đồng thời lấy cấu hình chuẩn nhất từ Server
+            // 2. Lấy cấu hình chuẩn từ Server
             await fetchSettings();
             hideLoader();
         });
@@ -465,36 +439,25 @@
             }
         }
 
-        // HÀM HIỂN THỊ GIAO DIỆN & HÌNH NỀN KHÔNG LỖI VỠ ẢNH
+        // HÀM HIỂN THỊ HÌNH NỀN CHUẨN ĐẸP TRÊN MỌI THIẾT BỊ DI ĐỘNG
         function applyTheme(cfg) {
             document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
             document.documentElement.style.setProperty('--brand-font', `'${cfg.fontFamily}', sans-serif`);
 
             const clientApp = document.getElementById('client-app');
-            const bgImageLayer = document.getElementById('bg-image-layer');
 
-            if (clientApp && bgImageLayer) {
+            if (clientApp) {
                 if (cfg.bgType === "solid") {
-                    bgImageLayer.style.display = 'none';
-                    bgImageLayer.src = "";
                     clientApp.style.backgroundImage = 'none';
                     clientApp.style.backgroundColor = cfg.bgValue || "#0f172a";
                 } else if (cfg.bgType === "gradient") {
-                    bgImageLayer.style.display = 'none';
-                    bgImageLayer.src = "";
                     clientApp.style.backgroundImage = cfg.bgValue || 'none';
                     clientApp.style.backgroundColor = 'transparent';
                 } else if (cfg.bgType === "image") {
-                    // Chỉ hiển thị thẻ img khi đã có chuỗi base64 hoặc URL hoàn chỉnh
-                    if (cfg.bgValue && cfg.bgValue.length > 20 && cfg.bgValue !== "LOCAL_BG_STORED") {
-                        bgImageLayer.src = cfg.bgValue;
-                        bgImageLayer.style.display = 'block';
-                        clientApp.style.backgroundImage = 'none';
+                    if (cfg.bgValue && cfg.bgValue.length > 20) {
+                        clientApp.style.backgroundImage = `url("${cfg.bgValue}")`;
                         clientApp.style.backgroundColor = 'transparent';
                     } else {
-                        // Tự động ẩn thẻ img để tránh icon vỡ ảnh, trả về phông tối mặc định
-                        bgImageLayer.style.display = 'none';
-                        bgImageLayer.src = "";
                         clientApp.style.backgroundImage = 'none';
                         clientApp.style.backgroundColor = '#0f172a';
                     }
@@ -549,7 +512,7 @@
             updateAdminQR();
         }
 
-        // BỘ NÉN SIÊU NHỎ AN TOÀN TUYỆT ĐỐI (< 22,000 KÝ TỰ)
+        // BỘ NÉN ẢNH NỀN SIÊU TỐI ƯU NHẸ (< 15KB) ĐẢM BẢO TRUYỀN TẢI NGUYÊN VẸN KHÔNG LỖI
         function compressImageSafe(file, initialMaxDim, format, initialQuality, targetMaxLen, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -590,7 +553,7 @@
                             break;
                         }
                         curDim = Math.round(curDim * 0.85);
-                        curQuality = Math.max(0.35, curQuality - 0.08);
+                        curQuality = Math.max(0.3, curQuality - 0.1);
                     }
                     callback(resultBase64);
                 };
@@ -603,11 +566,7 @@
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             if(e.target.files[0]) {
-                compressImageSafe(e.target.files[0], 350, 'image/png', 1.0, 22000, (base64Data) => {
-                    if (base64Data.length > 25000) {
-                        alert("⚠️ Ảnh Logo quá lớn, vui lòng chọn Logo đơn giản hơn!");
-                        e.target.value = ""; return;
-                    }
+                compressImageSafe(e.target.files[0], 300, 'image/png', 0.9, 15000, (base64Data) => {
                     currentLogoBase64 = base64Data; 
                     document.getElementById('logo-preview').src = base64Data;
                 });
@@ -622,15 +581,12 @@
                 statusMsg.classList.remove('hidden');
                 saveBtn.disabled = true;
 
-                compressImageSafe(e.target.files[0], 480, 'image/jpeg', 0.55, 22000, (base64Data) => {
+                // Nén ảnh nền chiều rộng 600px, chất lượng 45% (~15KB) truyền tải server siêu ổn định
+                compressImageSafe(e.target.files[0], 600, 'image/jpeg', 0.45, 18000, (base64Data) => {
                     isCompressingBg = false;
                     statusMsg.classList.add('hidden');
                     saveBtn.disabled = false;
 
-                    if (base64Data.length > 25000) {
-                        alert("⚠️ Hình nền quá lớn, vui lòng chọn ảnh khác đơn giản hơn!");
-                        e.target.value = ""; return;
-                    }
                     currentBgBase64 = base64Data;
                     const preview = document.getElementById('bg-preview'); 
                     preview.src = base64Data; 
