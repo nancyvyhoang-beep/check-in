@@ -13,14 +13,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
     <style>
-        :root { --primary-color: #2563EB; --brand-font: 'Inter', sans-serif; --bg-value: #f8fafc; }
+        :root { --primary-color: #2563EB; --brand-font: 'Inter', sans-serif; --bg-value: #0f172a; }
         body { background-color: #0f172a; font-family: var(--brand-font); margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow-x: hidden;}
         .dynamic-bg { background-color: var(--primary-color) !important; }
         .dynamic-text { color: var(--primary-color) !important; }
         
         #client-app {
             width: 100%; max-width: 420px; aspect-ratio: 9/16; position: relative; overflow-y: auto; overflow-x: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); background: var(--bg-value); background-size: cover; background-position: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            background: var(--bg-value);
+            background-size: cover; 
+            background-position: center;
+            background-repeat: no-repeat;
         }
         @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
         
@@ -77,7 +81,6 @@
             box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-        /* Glass inputs */
         .glass-input {
             background: rgba(255, 255, 255, 0.75) !important;
             backdrop-filter: blur(8px);
@@ -89,7 +92,6 @@
             background: rgba(255, 255, 255, 0.95) !important;
         }
 
-        /* Glass ticket box */
         .glass-box {
             background: rgba(255, 255, 255, 0.72) !important;
             backdrop-filter: blur(16px);
@@ -179,20 +181,37 @@
                     <div class="flex gap-4 mb-4">
                         <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="solid" checked onchange="toggleBgType()"> Màu Solid</label>
                         <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="gradient" onchange="toggleBgType()"> Màu Gradient</label>
-                        <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="image" onchange="toggleBgType()"> Tải hình nền</label>
+                        <label class="flex items-center gap-2 text-sm"><input type="radio" name="bg-type" value="image" onchange="toggleBgType()"> Hình nền (Image)</label>
                     </div>
-                    <div id="bg-panel-solid" class="p-4 bg-gray-50 rounded-lg"><input type="color" id="bg-color-solid" class="w-full h-10 p-0 border rounded cursor-pointer"></div>
+                    
+                    <div id="bg-panel-solid" class="p-4 bg-gray-50 rounded-lg">
+                        <label class="text-xs text-gray-500 block mb-1">Chọn màu nền:</label>
+                        <input type="color" id="bg-color-solid" value="#0f172a" class="w-full h-10 p-0 border rounded cursor-pointer">
+                    </div>
+                    
                     <div id="bg-panel-gradient" class="hidden p-4 bg-gray-50 rounded-lg flex gap-4">
-                        <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu trên</label><input type="color" id="bg-grad-1" value="#ff7e5f" class="w-full h-10 border rounded"></div>
-                        <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu dưới</label><input type="color" id="bg-grad-2" value="#feb47b" class="w-full h-10 border rounded"></div>
+                        <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu trên</label><input type="color" id="bg-grad-1" value="#1e3a8a" class="w-full h-10 border rounded"></div>
+                        <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu dưới</label><input type="color" id="bg-grad-2" value="#0f172a" class="w-full h-10 border rounded"></div>
                     </div>
-                    <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg">
-                        <input type="file" id="bg-upload" accept="image/*" class="text-sm w-full mb-3">
-                        <img id="bg-preview" class="w-full h-32 object-cover rounded border hidden">
+                    
+                    <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-blue-700 mb-1">Cách 1: Dán Link ảnh trực tiếp (Khuyên dùng - Nét 4K/Full HD, nhẹ nhất)</label>
+                            <input type="url" id="bg-url-input" oninput="handleBgUrlInput(this.value)" placeholder="Dán link ảnh tại đây (VD: https://...)" class="w-full h-10 px-3 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-[11px] text-gray-400 mt-1">Mẹo: Bạn có thể up ảnh lên <b>postimages.org</b> hoặc <b>imgbb.com</b> rồi dán link trực tiếp vào đây để ảnh đạt độ nét 100% không bị nén.</p>
+                        </div>
+                        <div class="border-t border-gray-200 pt-3">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Cách 2: Tải file ảnh từ máy (Tự động nén tỷ lệ 9:16 chuẩn Retina)</label>
+                            <input type="file" id="bg-upload" accept="image/*" class="text-sm w-full">
+                        </div>
+                        <div id="bg-preview-container" class="hidden pt-2">
+                            <p class="text-xs font-semibold text-gray-500 mb-1">Xem trước hình nền:</p>
+                            <img id="bg-preview" class="w-full h-36 object-cover rounded-lg border border-gray-300 shadow-sm">
+                        </div>
                     </div>
                 </div>
 
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center gap-2">
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center gap-2 shadow-lg active:scale-95">
                     <span>LƯU CẤU HÌNH</span><div id="save-spinner" class="spinner"></div>
                 </button>
                 
@@ -364,18 +383,52 @@
             fontFamily: "Inter", 
             logoUrl: "", 
             bgType: "solid", 
-            bgValue: "#f8fafc", 
+            bgValue: "#0f172a", 
             language: "vi" 
         };
+
+        // Bóc tách dữ liệu đóng gói kép (Double-packing resolver)
+        function parseSettings(data) {
+            if (!data) return {};
+            const res = Object.assign({}, data);
+            if (res.bgType && typeof res.bgType === 'string' && res.bgType.includes("|||")) {
+                const parts = res.bgType.split("|||");
+                res.bgType = parts[0];
+                res.bgValue = parts.slice(1).join("|||");
+            }
+            return res;
+        }
+
+        function safeSaveCache(data) {
+            try {
+                localStorage.setItem('eventCheckinCache', JSON.stringify(data));
+            } catch (e) {
+                try {
+                    const light = Object.assign({}, data);
+                    if (light.bgValue && light.bgValue.startsWith('data:')) light.bgValue = "";
+                    if (light.logoUrl && light.logoUrl.startsWith('data:')) light.logoUrl = "";
+                    localStorage.setItem('eventCheckinCache', JSON.stringify(light));
+                } catch(ign) {}
+            }
+        }
+
+        function safeGetCache() {
+            try {
+                const raw = localStorage.getItem('eventCheckinCache');
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
             
-            const cachedData = localStorage.getItem('eventCheckinCache');
+            const cachedData = safeGetCache();
             if (cachedData) {
-                currentSettings = JSON.parse(cachedData);
+                currentSettings = Object.assign(currentSettings, parseSettings(cachedData));
                 applyTheme(currentSettings);
                 hideLoader(); 
                 fetchSettingsInBackground(); 
@@ -389,52 +442,88 @@
             const loader = document.getElementById('initial-loader');
             if (loader) {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 500); 
+                setTimeout(() => loader.remove(), 400); 
             }
         }
 
         function handleRouting() {
             if (window.location.hash === '#admin') {
-                document.getElementById('admin-panel').classList.remove('hidden'); document.getElementById('client-app').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden'); 
+                document.getElementById('client-app').classList.add('hidden');
                 document.body.style.background = '#f3f4f6';
                 updateAdminQR();
             } else {
-                document.getElementById('admin-panel').classList.add('hidden'); document.getElementById('client-app').classList.remove('hidden');
+                document.getElementById('admin-panel').classList.add('hidden'); 
+                document.getElementById('client-app').classList.remove('hidden');
                 document.body.style.background = '#0f172a';
             }
         }
 
         async function fetchSettings() {
             try {
-                const res = await fetch(API_URL + "?t=" + new Date().getTime(), { cache: "no-store" }); 
-                const data = await res.json();
-                if (data.primaryColor) { 
+                const res = await fetch(API_URL + "?t=" + Date.now(), { cache: "no-store" }); 
+                const rawData = await res.json();
+                if (rawData && (rawData.primaryColor || rawData.eventName || rawData.bgType)) { 
+                    const data = parseSettings(rawData);
                     currentSettings = Object.assign(currentSettings, data); 
-                    localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); 
+                    safeSaveCache(currentSettings); 
                     applyTheme(currentSettings); 
                 }
-            } catch (err) { applyTheme(currentSettings); }
+            } catch (err) { 
+                applyTheme(currentSettings); 
+            }
         }
 
         async function fetchSettingsInBackground() {
             try {
-                const res = await fetch(API_URL + "?t=" + new Date().getTime(), { cache: "no-store" }); 
-                const data = await res.json();
-                if (data.primaryColor) { 
+                const res = await fetch(API_URL + "?t=" + Date.now(), { cache: "no-store" }); 
+                const rawData = await res.json();
+                if (rawData && (rawData.primaryColor || rawData.eventName || rawData.bgType)) { 
+                    const data = parseSettings(rawData);
                     currentSettings = Object.assign(currentSettings, data); 
-                    localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings));
+                    safeSaveCache(currentSettings);
                     applyTheme(currentSettings); 
                 }
             } catch (err) {}
         }
 
+        // ==========================================
+        // ÁP DỤNG GIAO DIỆN & ĐỒNG BỘ TRỰC TIẾP
+        // ==========================================
         function applyTheme(cfg) {
             document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
             document.documentElement.style.setProperty('--brand-font', `'${cfg.fontFamily}', sans-serif`);
-            let bgCss = cfg.bgValue;
-            if (cfg.bgType === "gradient") bgCss = cfg.bgValue;
-            else if (cfg.bgType === "image") bgCss = `url('${cfg.bgValue}')`;
-            document.documentElement.style.setProperty('--bg-value', bgCss);
+
+            const clientApp = document.getElementById('client-app');
+            const bgType = cfg.bgType || 'solid';
+            const bgValue = cfg.bgValue || '#0f172a';
+
+            // Áp dụng trực tiếp vào phần tử để chống lỗi cache CSS Variable trên Safari
+            if (clientApp) {
+                if (bgType === "solid") {
+                    clientApp.style.backgroundImage = 'none';
+                    clientApp.style.backgroundColor = bgValue;
+                    document.documentElement.style.setProperty('--bg-value', bgValue);
+                } else if (bgType === "gradient") {
+                    clientApp.style.backgroundImage = bgValue;
+                    clientApp.style.backgroundColor = 'transparent';
+                    document.documentElement.style.setProperty('--bg-value', bgValue);
+                } else if (bgType === "image") {
+                    if (bgValue && bgValue.trim()) {
+                        let finalUrl = bgValue.trim();
+                        if (!finalUrl.startsWith('url(')) {
+                            finalUrl = `url("${finalUrl}")`;
+                        }
+                        clientApp.style.backgroundImage = finalUrl;
+                        clientApp.style.backgroundColor = '#0f172a';
+                        document.documentElement.style.setProperty('--bg-value', finalUrl);
+                    } else {
+                        clientApp.style.backgroundImage = 'none';
+                        clientApp.style.backgroundColor = '#0f172a';
+                        document.documentElement.style.setProperty('--bg-value', '#0f172a');
+                    }
+                }
+            }
 
             if(cfg.eventName) {
                 document.title = cfg.eventName; 
@@ -445,8 +534,34 @@
             document.getElementById('cfg-event-code').value = cfg.eventCode || 'EVENT_01';
             document.getElementById('cfg-color').value = cfg.primaryColor;
             document.getElementById('cfg-font').value = cfg.fontFamily;
-            document.querySelector(`input[name="bg-type"][value="${cfg.bgType}"]`).checked = true; 
-            toggleBgType();
+            
+            // Khôi phục giá trị điều khiển trong Admin Panel
+            const bgRadio = document.querySelector(`input[name="bg-type"][value="${bgType}"]`);
+            if (bgRadio) {
+                bgRadio.checked = true; 
+                toggleBgType();
+            }
+
+            if (bgType === 'solid' && bgValue.startsWith('#')) {
+                document.getElementById('bg-color-solid').value = bgValue;
+            } else if (bgType === 'gradient' && bgValue.includes('linear-gradient')) {
+                const hexMatches = bgValue.match(/#[0-9a-fA-F]{6}/g);
+                if (hexMatches && hexMatches.length >= 2) {
+                    document.getElementById('bg-grad-1').value = hexMatches[0];
+                    document.getElementById('bg-grad-2').value = hexMatches[1];
+                }
+            } else if (bgType === 'image') {
+                const preview = document.getElementById('bg-preview');
+                const previewContainer = document.getElementById('bg-preview-container');
+                const urlInput = document.getElementById('bg-url-input');
+                if (bgValue && preview && previewContainer) {
+                    preview.src = bgValue;
+                    previewContainer.classList.remove('hidden');
+                    if (urlInput && !bgValue.startsWith('data:')) {
+                        urlInput.value = bgValue;
+                    }
+                }
+            }
             
             document.getElementById('cfg-language').value = cfg.language || 'vi';
             applyLanguage(cfg.language || 'vi');
@@ -481,53 +596,64 @@
         }
 
         // ==========================================
-        // BỘ NÉN THÔNG MINH ĐỘ NÉT CAO (HIGH-RES ADAPTIVE)
+        // BỘ NÉN ẢNH NỀN 9:16 SIÊU NÉT (RETINA HD)
         // ==========================================
-        function compressImageAdaptive(file, initialMaxDim, format, initialQuality, targetMaxLen, callback) {
+        function compressBackgroundHD(file, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = function(e) {
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = function() {
-                    let curDim = initialMaxDim;
-                    let curQuality = initialQuality;
-                    let resultBase64 = "";
+                    // Chuẩn hóa tỷ lệ dọc 9:16 điện thoại (720x1280px)
+                    const targetW = 720;
+                    const targetH = 1280;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
 
-                    // Lặp tối đa 5 lần để tìm kích thước nét nhất trong phạm vi an toàn
-                    for (let attempt = 0; attempt < 5; attempt++) {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
+                    // Cắt trung tâm (Center Crop) không bị méo hình
+                    const srcAspect = img.width / img.height;
+                    const targetAspect = targetW / targetH;
+                    let sx = 0, sy = 0, sw = img.width, sh = img.height;
 
-                        if (width > height) {
-                            if (width > curDim) {
-                                height = Math.round((height * curDim) / width);
-                                width = curDim;
-                            }
-                        } else {
-                            if (height > curDim) {
-                                width = Math.round((width * curDim) / height);
-                                height = curDim;
-                            }
-                        }
+                    if (srcAspect > targetAspect) {
+                        sw = img.height * targetAspect;
+                        sx = (img.width - sw) / 2;
+                    } else {
+                        sh = img.width / targetAspect;
+                        sy = (img.height - sh) / 2;
+                    }
 
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+
+                    // Kiểm tra hỗ trợ WebP
+                    const testWebp = canvas.toDataURL('image/webp', 0.5);
+                    const format = (testWebp.indexOf('data:image/webp') === 0) ? 'image/webp' : 'image/jpeg';
+                    
+                    let result = "";
+                    for (let q of [0.75, 0.65, 0.55, 0.45]) {
+                        result = canvas.toDataURL(format, q);
+                        if (result.length <= 44000) break;
+                    }
+
+                    // Nếu ảnh quá nhiều chi tiết hạt, giảm nhẹ xuống 600x1067
+                    if (result.length > 44000) {
+                        canvas.width = 600;
+                        canvas.height = 1067;
                         ctx.imageSmoothingEnabled = true;
                         ctx.imageSmoothingQuality = 'high';
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        resultBase64 = canvas.toDataURL(format, curQuality);
-                        if (resultBase64.length <= targetMaxLen) {
-                            break;
+                        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 600, 1067);
+                        for (let q of [0.70, 0.58, 0.48]) {
+                            result = canvas.toDataURL(format, q);
+                            if (result.length <= 44000) break;
                         }
-                        // Nếu vẫn còn vượt kích thước, giảm nhẹ 12% để đạt độ nét cao nhất có thể
-                        curDim = Math.round(curDim * 0.88);
-                        curQuality = Math.max(0.45, curQuality - 0.08);
                     }
-                    callback(resultBase64);
+
+                    callback(result);
                 };
             };
         }
@@ -536,43 +662,93 @@
         let currentBgBase64 = "";
         
         document.getElementById('logo-upload').addEventListener('change', function(e) {
-            if(e.target.files[0]) {
-                compressImageAdaptive(e.target.files[0], 500, 'image/png', 1.0, 45000, (base64Data) => {
-                    if (base64Data.length > 48000) {
-                        alert("⚠️ Ảnh Logo có quá nhiều chi tiết khiến dung lượng vượt mức cho phép của Google Sheets. Vui lòng chọn Logo đơn giản hơn!");
-                        e.target.value = ""; return;
-                    }
-                    currentLogoBase64 = base64Data; 
-                    document.getElementById('logo-preview').src = base64Data;
-                });
+            if(e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.readAsDataURL(e.target.files[0]);
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.src = evt.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > 500) { h = Math.round((h * 500) / w); w = 500; }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const b64 = canvas.toDataURL('image/png', 1.0);
+                        if (b64.length > 45000) {
+                            alert("⚠️ Logo chi tiết quá nặng, vui lòng dùng logo đơn giản hơn!");
+                            e.target.value = ""; return;
+                        }
+                        currentLogoBase64 = b64;
+                        document.getElementById('logo-preview').src = b64;
+                    };
+                };
             }
         });
 
-        // Nâng cấp độ nét Background: Kích thước lên tới 750px (gấp đôi bản cũ), định dạng webp/jpeg nét cao
+        // Xử lý tải ảnh từ máy tính/điện thoại
         document.getElementById('bg-upload').addEventListener('change', function(e) {
-            if(e.target.files[0]) {
-                compressImageAdaptive(e.target.files[0], 750, 'image/jpeg', 0.72, 45000, (base64Data) => {
-                    if (base64Data.length > 48000) {
-                        alert("⚠️ Hình nền quá nặng, vượt mức cho phép của Google Sheets. Vui lòng chọn ảnh khác đơn giản hơn!");
-                        e.target.value = ""; return;
+            if(e.target.files && e.target.files[0]) {
+                compressBackgroundHD(e.target.files[0], (base64Data) => {
+                    if (!base64Data || base64Data.length > 45000) {
+                        alert("⚠️ File ảnh quá nặng. Bạn hãy dùng 'Cách 1: Dán link ảnh' (tải lên Postimages/ImgBB rồi dán link) để giữ nguyên độ nét 4K nhé!");
+                        e.target.value = ""; 
+                        return;
                     }
                     currentBgBase64 = base64Data;
+                    document.getElementById('bg-url-input').value = "";
                     const preview = document.getElementById('bg-preview'); 
+                    const previewContainer = document.getElementById('bg-preview-container');
                     preview.src = base64Data; 
-                    preview.classList.remove('hidden');
+                    previewContainer.classList.remove('hidden');
                 });
             }
         });
 
+        // Xử lý dán link ảnh trực tiếp
+        function handleBgUrlInput(val) {
+            const preview = document.getElementById('bg-preview');
+            const previewContainer = document.getElementById('bg-preview-container');
+            if (val && val.trim()) {
+                currentBgBase64 = ""; 
+                document.getElementById('bg-upload').value = ""; 
+                preview.src = val.trim();
+                previewContainer.classList.remove('hidden');
+            } else {
+                if (!currentBgBase64) {
+                    previewContainer.classList.add('hidden');
+                }
+            }
+        }
+
         function toggleBgType() {
-            const type = document.querySelector('input[name="bg-type"]:checked').value;
-            document.getElementById('bg-panel-solid').classList.add('hidden'); document.getElementById('bg-panel-gradient').classList.add('hidden'); document.getElementById('bg-panel-image').classList.add('hidden');
-            document.getElementById(`bg-panel-${type}`).classList.remove('hidden');
+            const checked = document.querySelector('input[name="bg-type"]:checked');
+            if (!checked) return;
+            const type = checked.value;
+            document.getElementById('bg-panel-solid').classList.add('hidden'); 
+            document.getElementById('bg-panel-gradient').classList.add('hidden'); 
+            document.getElementById('bg-panel-image').classList.add('hidden');
+            const target = document.getElementById(`bg-panel-${type}`);
+            if (target) target.classList.remove('hidden');
         }
 
         async function saveSettings() {
-            const spinner = document.getElementById('save-spinner'); spinner.style.display = 'block';
+            const spinner = document.getElementById('save-spinner'); 
+            spinner.style.display = 'block';
             
+            const bgType = document.querySelector('input[name="bg-type"]:checked').value;
+            let bgValue = "";
+            if (bgType === 'solid') {
+                bgValue = document.getElementById('bg-color-solid').value;
+            } else if (bgType === 'gradient') {
+                bgValue = `linear-gradient(135deg, ${document.getElementById('bg-grad-1').value}, ${document.getElementById('bg-grad-2').value})`;
+            } else if (bgType === 'image') {
+                const urlInput = document.getElementById('bg-url-input');
+                const urlVal = urlInput ? urlInput.value.trim() : "";
+                bgValue = currentBgBase64 || urlVal || currentSettings.bgValue || "";
+            }
+
             const payload = {
                 action: "updateSettings", 
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
@@ -580,28 +756,35 @@
                 language: document.getElementById('cfg-language').value,
                 primaryColor: document.getElementById('cfg-color').value, 
                 fontFamily: document.getElementById('cfg-font').value,
-                logoUrl: currentLogoBase64 || currentSettings.logoUrl, 
-                bgType: document.querySelector('input[name="bg-type"]:checked').value,
+                logoUrl: currentLogoBase64 || currentSettings.logoUrl || "", 
+                // Đóng gói kép bgType = "type|||value" để đảm bảo các thiết bị khác luôn nhận được dữ liệu
+                bgType: `${bgType}|||${bgValue}`,
+                bgValue: bgValue
             };
-            if (payload.bgType === 'solid') payload.bgValue = document.getElementById('bg-color-solid').value;
-            else if (payload.bgType === 'gradient') payload.bgValue = `linear-gradient(135deg, ${document.getElementById('bg-grad-1').value}, ${document.getElementById('bg-grad-2').value})`;
-            else if (payload.bgType === 'image') payload.bgValue = currentBgBase64 || currentSettings.bgValue;
 
             try {
-                const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(payload) 
+                });
                 const result = await res.json();
                 
-                if(result.status === "error") {
+                if (result.status === "error") {
                     alert("Lỗi lưu cấu hình: " + result.message);
                     spinner.style.display = 'none';
                     return;
                 }
                 
-                currentSettings = payload; 
-                localStorage.setItem('eventCheckinCache', JSON.stringify(currentSettings)); 
+                currentSettings = Object.assign({}, payload, { bgType: bgType, bgValue: bgValue }); 
+                safeSaveCache(currentSettings); 
                 applyTheme(currentSettings); 
-                alert("Đã áp dụng Theme và cập nhật mã QR thành công!");
-            } catch (e) { alert("Lỗi khi lưu cấu hình, vui lòng thử lại."); } finally { spinner.style.display = 'none'; }
+                alert("Đã áp dụng Theme và đồng bộ toàn bộ thiết bị thành công!");
+            } catch (e) { 
+                alert("Lỗi khi lưu cấu hình, vui lòng thử lại."); 
+            } finally { 
+                spinner.style.display = 'none'; 
+            }
         }
 
         async function resetData() {
@@ -723,9 +906,6 @@
             });
         }
 
-        // ==========================================
-        // QUẢN LÝ MÃ QR ĐỘNG THEO SỰ KIỆN
-        // ==========================================
         function updateAdminQR() {
             const rawCode = document.getElementById('cfg-event-code').value.trim();
             const eventCode = encodeURIComponent(rawCode || 'EVENT_01');
