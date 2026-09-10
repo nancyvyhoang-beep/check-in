@@ -122,7 +122,7 @@
         <div class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Cấu Hình Giao Diện Check-in</h1>
-                <p class="text-sm text-gray-500">Thiết kế form, mã QR động, ngôn ngữ & hình nền</p>
+                <p class="text-sm text-gray-500">Thiết kế form, hạng mục điền, mã QR động, ngôn ngữ & hình nền</p>
             </div>
             <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg text-sm hover:bg-gray-300 transition">
                 Xem Trang Khách &rarr;
@@ -164,6 +164,30 @@
                             <option value="Playfair Display">Playfair (Gala, Sang trọng)</option>
                         </select>
                     </div>
+                </div>
+
+                <!-- MỤC TÙY BIẾN HẠNG MỤC FILL DỮ LIỆU (CUSTOM FIELDS) -->
+                <div class="border-t pt-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Form Fields)</label>
+                            <p class="text-xs text-gray-500">Mặc định đã có <b>Họ tên</b> và <b>SĐT</b>. Thêm các ô dưới đây nếu sự kiện yêu cầu:</p>
+                        </div>
+                        <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200 self-start sm:self-auto flex items-center gap-1">
+                            <span>+ Thêm ô nhập</span>
+                        </button>
+                    </div>
+
+                    <!-- Nút thêm nhanh -->
+                    <div class="flex flex-wrap items-center gap-2 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                        <span class="text-xs font-semibold text-gray-500">Thêm nhanh:</span>
+                        <button type="button" onclick="quickAddField('Công ty / Doanh nghiệp', 'Nhập tên công ty', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Công ty</button>
+                        <button type="button" onclick="quickAddField('Chức vụ / Chức danh', 'VD: Trưởng phòng, Quản lý', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Chức vụ</button>
+                        <button type="button" onclick="quickAddField('Số bàn / Bàn tiệc', 'VD: Bàn 08, VIP 1', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Số bàn</button>
+                    </div>
+
+                    <!-- Danh sách các trường động -->
+                    <div id="custom-fields-list" class="space-y-2.5"></div>
                 </div>
 
                 <div class="border-t pt-4">
@@ -250,26 +274,26 @@
                     <p id="view-subtitle" class="text-gray-600 text-sm mt-1 font-medium">Vui lòng điền thông tin</p>
                 </div>
                 
-                <div class="space-y-4">
+                <div class="space-y-3.5">
                     <div>
                         <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
                     
                     <div>
                         <div id="phone-wrapper" class="glass-input flex items-center w-full h-[50px] rounded-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
-                            
                             <div class="relative w-[110px] h-full flex-shrink-0 bg-black/5 border-r border-black/10 transition-colors hover:bg-black/10">
                                 <div id="country-code-display" class="absolute inset-0 flex items-center justify-center text-gray-900 font-semibold text-sm pointer-events-none z-10">
                                     🇻🇳 +84
                                 </div>
                                 <select id="country-code" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 outline-none" onchange="updateCountryDisplay(this)"></select>
                             </div>
-                            
                             <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full h-full px-4 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 font-medium min-w-0">
                         </div>
-                        
                         <p id="error-msg" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
                     </div>
+
+                    <!-- KHU VỰC CHỨA CÁC Ô NHẬP LIỆU BỔ SUNG (DYNAMIC FIELDS) -->
+                    <div id="custom-fields-client-container" class="space-y-3.5"></div>
 
                     <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl mt-3 flex justify-center items-center gap-2 shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
                         <span id="btn-text" class="tracking-wide">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
@@ -288,8 +312,13 @@
                         <img id="ticket-logo" src="" class="max-h-full max-w-[80%] object-contain drop-shadow-sm">
                     </div>
                     
-                    <h2 class="text-base font-semibold text-gray-800 mb-1 leading-tight"><span id="view-hello">Xin chào,</span> <br><span id="display-name" class="dynamic-text text-2xl font-extrabold"></span>!</h2>
-                    <p id="view-success-sub" class="text-xs text-gray-600 mb-6 font-medium">Bạn đã check-in thành công</p>
+                    <h2 class="text-base font-semibold text-gray-800 mb-0.5 leading-tight">
+                        <span id="view-hello">Xin chào,</span> <br>
+                        <span id="display-name" class="dynamic-text text-2xl font-extrabold"></span>!
+                    </h2>
+                    <!-- Thông tin công ty / vị trí hiển thị trên vé -->
+                    <p id="display-sub-info" class="text-xs font-bold text-gray-500 uppercase tracking-wide hidden mb-1"></p>
+                    <p id="view-success-sub" class="text-xs text-gray-600 mb-5 font-medium">Bạn đã check-in thành công</p>
                     
                     <div class="glass-box rounded-2xl py-8 px-4 flex flex-col justify-center items-center w-full min-h-[160px]">
                         <p id="view-ticket-label" class="text-gray-600 font-bold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ CỦA BẠN</p>
@@ -325,7 +354,8 @@
                 ticketLabel: "MÃ SỐ CỦA BẠN",
                 saveNotePre: "Vui lòng lưu ảnh này để tham gia ",
                 btnSave: "LƯU ẢNH VỀ MÁY",
-                processing: "ĐANG XỬ LÝ..."
+                processing: "ĐANG XỬ LÝ...",
+                requiredField: "Vui lòng điền thông tin: "
             },
             en: {
                 subtitle: "Please fill in your information",
@@ -338,7 +368,8 @@
                 ticketLabel: "YOUR TICKET NUMBER",
                 saveNotePre: "Please save this image to join the ",
                 btnSave: "SAVE IMAGE",
-                processing: "PROCESSING..."
+                processing: "PROCESSING...",
+                requiredField: "Please fill in: "
             }
         };
 
@@ -384,17 +415,39 @@
             logoUrl: "", 
             bgType: "solid", 
             bgValue: "#0f172a", 
-            language: "vi" 
+            language: "vi",
+            customFields: [] // Danh sách trường mở rộng
         };
 
-        // Bóc tách dữ liệu đóng gói kép (Double-packing resolver)
+        // Bóc tách cấu hình thông minh (Double-packing resolver)
         function parseSettings(data) {
             if (!data) return {};
             const res = Object.assign({}, data);
+            
+            // Giải nén background kép
             if (res.bgType && typeof res.bgType === 'string' && res.bgType.includes("|||")) {
                 const parts = res.bgType.split("|||");
                 res.bgType = parts[0];
                 res.bgValue = parts.slice(1).join("|||");
+            }
+
+            // Giải nén Custom Fields từ eventCode kép
+            if (res.eventCode && typeof res.eventCode === 'string' && res.eventCode.includes("|||")) {
+                const parts = res.eventCode.split("|||");
+                res.eventCode = parts[0];
+                try {
+                    res.customFields = JSON.parse(decodeURIComponent(parts[1]));
+                } catch(e) {}
+            } else if (typeof res.customFields === 'string') {
+                try {
+                    res.customFields = JSON.parse(res.customFields);
+                } catch(e) {
+                    res.customFields = [];
+                }
+            }
+
+            if (!Array.isArray(res.customFields)) {
+                res.customFields = [];
             }
             return res;
         }
@@ -430,6 +483,8 @@
             if (cachedData) {
                 currentSettings = Object.assign(currentSettings, parseSettings(cachedData));
                 applyTheme(currentSettings);
+                renderCustomFieldsAdmin();
+                renderCustomFieldsClient();
                 hideLoader(); 
                 fetchSettingsInBackground(); 
             } else {
@@ -451,11 +506,13 @@
                 document.getElementById('admin-panel').classList.remove('hidden'); 
                 document.getElementById('client-app').classList.add('hidden');
                 document.body.style.background = '#f3f4f6';
+                renderCustomFieldsAdmin();
                 updateAdminQR();
             } else {
                 document.getElementById('admin-panel').classList.add('hidden'); 
                 document.getElementById('client-app').classList.remove('hidden');
                 document.body.style.background = '#0f172a';
+                renderCustomFieldsClient();
             }
         }
 
@@ -468,6 +525,8 @@
                     currentSettings = Object.assign(currentSettings, data); 
                     safeSaveCache(currentSettings); 
                     applyTheme(currentSettings); 
+                    renderCustomFieldsAdmin();
+                    renderCustomFieldsClient();
                 }
             } catch (err) { 
                 applyTheme(currentSettings); 
@@ -483,8 +542,107 @@
                     currentSettings = Object.assign(currentSettings, data); 
                     safeSaveCache(currentSettings);
                     applyTheme(currentSettings); 
+                    renderCustomFieldsAdmin();
+                    renderCustomFieldsClient();
                 }
             } catch (err) {}
+        }
+
+        // ==========================================
+        // QUẢN LÝ CÁC TRƯỜNG TÙY BIẾN (CUSTOM FIELDS)
+        // ==========================================
+        function addCustomFieldRow(label = "", placeholder = "", required = false) {
+            const id = 'f_' + Date.now() + Math.random().toString(36).substr(2, 4);
+            currentSettings.customFields.push({ id, label, placeholder, required });
+            renderCustomFieldsAdmin();
+        }
+
+        function quickAddField(label, placeholder, required) {
+            // Kiểm tra nếu đã tồn tại thì không thêm lặp
+            const exists = currentSettings.customFields.some(f => f.label.toLowerCase() === label.toLowerCase());
+            if (exists) {
+                alert(`Trường "${label}" đã có trong danh sách!`);
+                return;
+            }
+            addCustomFieldRow(label, placeholder, required);
+        }
+
+        function removeCustomFieldRow(id) {
+            currentSettings.customFields = currentSettings.customFields.filter(f => f.id !== id);
+            renderCustomFieldsAdmin();
+        }
+
+        function updateCustomFieldProp(id, prop, value) {
+            const item = currentSettings.customFields.find(f => f.id === id);
+            if (item) {
+                item[prop] = value;
+            }
+        }
+
+        function renderCustomFieldsAdmin() {
+            const container = document.getElementById('custom-fields-list');
+            if (!container) return;
+            container.innerHTML = "";
+
+            if (currentSettings.customFields.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 px-3 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-xs text-gray-400">
+                        Chưa có hạng mục bổ sung nào. Bạn có thể bấm các nút <b>"Thêm nhanh"</b> ở trên hoặc nút <b>"+ Thêm ô nhập"</b>.
+                    </div>
+                `;
+                return;
+            }
+
+            currentSettings.customFields.forEach((field, index) => {
+                const row = document.createElement('div');
+                row.className = "flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2.5 bg-gray-50 border border-gray-200 rounded-xl";
+                row.innerHTML = `
+                    <div class="flex-1">
+                        <input type="text" value="${escapeHtml(field.label)}" placeholder="Tên ô (VD: Công ty)" onchange="updateCustomFieldProp('${field.id}', 'label', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex-1">
+                        <input type="text" value="${escapeHtml(field.placeholder)}" placeholder="Gợi ý nhập (VD: Nhập tên công ty)" onchange="updateCustomFieldProp('${field.id}', 'placeholder', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-start gap-3 px-1">
+                        <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none">
+                            <input type="checkbox" ${field.required ? 'checked' : ''} onchange="updateCustomFieldProp('${field.id}', 'required', this.checked)" class="rounded text-blue-600 focus:ring-0">
+                            Bắt buộc
+                        </label>
+                        <button type="button" onclick="removeCustomFieldRow('${field.id}')" class="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition" title="Xóa ô này">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function renderCustomFieldsClient() {
+            const container = document.getElementById('custom-fields-client-container');
+            if (!container) return;
+            container.innerHTML = "";
+
+            currentSettings.customFields.forEach(field => {
+                if (!field.label || !field.label.trim()) return;
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = `
+                    <div>
+                        <input type="text" 
+                               id="input-custom-${field.id}" 
+                               data-field-id="${field.id}"
+                               data-field-label="${escapeHtml(field.label)}"
+                               data-required="${field.required ? 'true' : 'false'}"
+                               placeholder="${escapeHtml(field.placeholder || field.label)}${field.required ? ' *' : ''}" 
+                               class="glass-input custom-dyn-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <p id="error-custom-${field.id}" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng điền ${escapeHtml(field.label)}.</p>
+                    </div>
+                `;
+                container.appendChild(wrapper);
+            });
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/"/g, '&quot;');
         }
 
         // ==========================================
@@ -498,7 +656,6 @@
             const bgType = cfg.bgType || 'solid';
             const bgValue = cfg.bgValue || '#0f172a';
 
-            // Áp dụng trực tiếp vào phần tử để chống lỗi cache CSS Variable trên Safari
             if (clientApp) {
                 if (bgType === "solid") {
                     clientApp.style.backgroundImage = 'none';
@@ -535,7 +692,6 @@
             document.getElementById('cfg-color').value = cfg.primaryColor;
             document.getElementById('cfg-font').value = cfg.fontFamily;
             
-            // Khôi phục giá trị điều khiển trong Admin Panel
             const bgRadio = document.querySelector(`input[name="bg-type"][value="${bgType}"]`);
             if (bgRadio) {
                 bgRadio.checked = true; 
@@ -605,7 +761,6 @@
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = function() {
-                    // Chuẩn hóa tỷ lệ dọc 9:16 điện thoại (720x1280px)
                     const targetW = 720;
                     const targetH = 1280;
                     const canvas = document.createElement('canvas');
@@ -615,7 +770,6 @@
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
 
-                    // Cắt trung tâm (Center Crop) không bị méo hình
                     const srcAspect = img.width / img.height;
                     const targetAspect = targetW / targetH;
                     let sx = 0, sy = 0, sw = img.width, sh = img.height;
@@ -630,7 +784,6 @@
 
                     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
 
-                    // Kiểm tra hỗ trợ WebP
                     const testWebp = canvas.toDataURL('image/webp', 0.5);
                     const format = (testWebp.indexOf('data:image/webp') === 0) ? 'image/webp' : 'image/jpeg';
                     
@@ -640,7 +793,6 @@
                         if (result.length <= 44000) break;
                     }
 
-                    // Nếu ảnh quá nhiều chi tiết hạt, giảm nhẹ xuống 600x1067
                     if (result.length > 44000) {
                         canvas.width = 600;
                         canvas.height = 1067;
@@ -687,12 +839,11 @@
             }
         });
 
-        // Xử lý tải ảnh từ máy tính/điện thoại
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files && e.target.files[0]) {
                 compressBackgroundHD(e.target.files[0], (base64Data) => {
                     if (!base64Data || base64Data.length > 45000) {
-                        alert("⚠️ File ảnh quá nặng. Bạn hãy dùng 'Cách 1: Dán link ảnh' (tải lên Postimages/ImgBB rồi dán link) để giữ nguyên độ nét 4K nhé!");
+                        alert("⚠️ File ảnh quá nặng. Bạn hãy dùng 'Cách 1: Dán link ảnh' để giữ nguyên độ nét 4K nhé!");
                         e.target.value = ""; 
                         return;
                     }
@@ -706,7 +857,6 @@
             }
         });
 
-        // Xử lý dán link ảnh trực tiếp
         function handleBgUrlInput(val) {
             const preview = document.getElementById('bg-preview');
             const previewContainer = document.getElementById('bg-preview-container');
@@ -749,17 +899,23 @@
                 bgValue = currentBgBase64 || urlVal || currentSettings.bgValue || "";
             }
 
+            const rawEventCode = document.getElementById('cfg-event-code').value.trim().toUpperCase() || "EVENT_01";
+            // Lọc các trường có nhãn hợp lệ
+            const validCustomFields = currentSettings.customFields.filter(f => f.label && f.label.trim());
+
             const payload = {
                 action: "updateSettings", 
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
-                eventCode: document.getElementById('cfg-event-code').value.trim().toUpperCase() || "EVENT_01",
+                // Đóng gói kép customFields vào eventCode để đảm bảo các thiết bị khác luôn nhận diện được
+                eventCode: `${rawEventCode}|||${encodeURIComponent(JSON.stringify(validCustomFields))}`,
                 language: document.getElementById('cfg-language').value,
                 primaryColor: document.getElementById('cfg-color').value, 
                 fontFamily: document.getElementById('cfg-font').value,
                 logoUrl: currentLogoBase64 || currentSettings.logoUrl || "", 
-                // Đóng gói kép bgType = "type|||value" để đảm bảo các thiết bị khác luôn nhận được dữ liệu
+                // Đóng gói kép background
                 bgType: `${bgType}|||${bgValue}`,
-                bgValue: bgValue
+                bgValue: bgValue,
+                customFields: validCustomFields
             };
 
             try {
@@ -776,10 +932,17 @@
                     return;
                 }
                 
-                currentSettings = Object.assign({}, payload, { bgType: bgType, bgValue: bgValue }); 
+                currentSettings = Object.assign({}, payload, { 
+                    eventCode: rawEventCode,
+                    bgType: bgType, 
+                    bgValue: bgValue, 
+                    customFields: validCustomFields 
+                }); 
                 safeSaveCache(currentSettings); 
                 applyTheme(currentSettings); 
-                alert("Đã áp dụng Theme và đồng bộ toàn bộ thiết bị thành công!");
+                renderCustomFieldsAdmin();
+                renderCustomFieldsClient();
+                alert("Đã áp dụng cấu hình và đồng bộ toàn bộ thiết bị thành công!");
             } catch (e) { 
                 alert("Lỗi khi lưu cấu hình, vui lòng thử lại."); 
             } finally { 
@@ -808,6 +971,7 @@
             const spinner = document.getElementById('loading-spinner');
             const errorMsg = document.getElementById('error-msg');
             const phoneWrapper = document.getElementById('phone-wrapper');
+            const lang = currentSettings.language || 'vi';
 
             if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
 
@@ -820,6 +984,37 @@
                 errorMsg.classList.add('hidden');
             }
 
+            // Kiểm tra tính hợp lệ của các trường tùy biến
+            const dynInputs = document.querySelectorAll('.custom-dyn-input');
+            const customData = {};
+            const summaryParts = [];
+            let hasCustomError = false;
+            let firstCustomVal = "";
+
+            dynInputs.forEach(input => {
+                const fieldId = input.getAttribute('data-field-id');
+                const fieldLabel = input.getAttribute('data-field-label');
+                const isRequired = input.getAttribute('data-required') === 'true';
+                const errElem = document.getElementById(`error-custom-${fieldId}`);
+                const val = input.value.trim();
+
+                if (isRequired && !val) {
+                    input.classList.add('!border-red-500', 'ring-1', 'ring-red-500');
+                    if (errElem) errElem.classList.remove('hidden');
+                    hasCustomError = true;
+                } else {
+                    input.classList.remove('!border-red-500', 'ring-1', 'ring-red-500');
+                    if (errElem) errElem.classList.add('hidden');
+                    if (val) {
+                        customData[fieldLabel] = val;
+                        summaryParts.push(`${val} (${fieldLabel})`);
+                        if (!firstCustomVal) firstCustomVal = val;
+                    }
+                }
+            });
+
+            if (hasCustomError) return;
+
             const fullPhone = countryCode + " " + rawPhone;
             btn.disabled = true; spinner.style.display = 'block';
 
@@ -829,7 +1024,13 @@
             try {
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
-                    body: JSON.stringify({ name: name, phone: fullPhone, event: activeEventCode }), 
+                    body: JSON.stringify({ 
+                        name: name, 
+                        phone: fullPhone, 
+                        event: activeEventCode,
+                        customData: customData,
+                        note: summaryParts.join(" | ")
+                    }), 
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
                 });
                 const result = await res.json();
@@ -839,6 +1040,16 @@
                 } else if (result.status === "success") {
                     document.getElementById('display-name').innerText = name; 
                     document.getElementById('display-id').innerText = result.id;
+
+                    // Hiển thị công ty hoặc trường bổ sung đầu tiên lên thẻ (nếu có)
+                    const subInfoElem = document.getElementById('display-sub-info');
+                    if (firstCustomVal) {
+                        subInfoElem.innerText = firstCustomVal;
+                        subInfoElem.classList.remove('hidden');
+                    } else {
+                        subInfoElem.classList.add('hidden');
+                    }
+
                     document.getElementById('form-screen').classList.add('hidden'); 
                     document.getElementById('success-screen').classList.remove('hidden');
                 }
