@@ -170,8 +170,8 @@
                 <div class="border-t pt-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                         <div>
-                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Đồng bộ VI / EN)</label>
-                            <p class="text-xs text-gray-500">Các ô này sẽ xuất hiện <b>nằm trên số điện thoại</b> và tự động dịch theo ngôn ngữ sự kiện.</p>
+                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Tự động thêm cột vào Sheet)</label>
+                            <p class="text-xs text-gray-500">Các ô này nằm <b>ở trên số điện thoại</b> và tự động tạo thành từng cột trên Google Sheets.</p>
                         </div>
                         <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200 self-start sm:self-auto flex items-center gap-1">
                             <span>+ Thêm ô nhập</span>
@@ -280,7 +280,7 @@
                         <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
 
-                    <!-- 2. CÁC TRƯỜNG TÙY BIẾN ĐƯỢC CHUYỂN NẰM TRÊN TRƯỜNG SĐT -->
+                    <!-- 2. CÁC TRƯỜNG TÙY BIẾN NẰM TRÊN SỐ ĐIỆN THOẠI -->
                     <div id="custom-fields-client-container" class="space-y-3.5"></div>
                     
                     <!-- 3. SỐ ĐIỆN THOẠI -->
@@ -319,7 +319,6 @@
                         <span id="view-hello">Xin chào,</span> <br>
                         <span id="display-name" class="dynamic-text text-2xl font-extrabold"></span>!
                     </h2>
-                    <!-- Thông tin công ty / vị trí hiển thị trên vé -->
                     <p id="display-sub-info" class="text-xs font-bold text-gray-500 uppercase tracking-wide hidden mb-1"></p>
                     <p id="view-success-sub" class="text-xs text-gray-600 mb-5 font-medium">Bạn đã check-in thành công</p>
                     
@@ -387,7 +386,6 @@
             document.getElementById('view-save-note').innerText = texts.saveNotePre;
             document.getElementById('btn-dl-text').innerText = texts.btnSave;
             
-            // Cập nhật lại các trường tùy biến theo ngôn ngữ mới
             renderCustomFieldsClient();
         }
 
@@ -423,19 +421,16 @@
             customFields: []
         };
 
-        // Bóc tách cấu hình thông minh (Double-packing resolver)
         function parseSettings(data) {
             if (!data) return {};
             const res = Object.assign({}, data);
             
-            // Giải nén background kép
             if (res.bgType && typeof res.bgType === 'string' && res.bgType.includes("|||")) {
                 const parts = res.bgType.split("|||");
                 res.bgType = parts[0];
                 res.bgValue = parts.slice(1).join("|||");
             }
 
-            // Giải nén Custom Fields từ eventCode kép
             if (res.eventCode && typeof res.eventCode === 'string' && res.eventCode.includes("|||")) {
                 const parts = res.eventCode.split("|||");
                 res.eventCode = parts[0];
@@ -483,7 +478,6 @@
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
 
-            // Lắng nghe sự kiện đổi ngôn ngữ ngay trong trang Admin để cập nhật trực tiếp
             const langSelect = document.getElementById('cfg-language');
             if (langSelect) {
                 langSelect.addEventListener('change', function() {
@@ -561,9 +555,6 @@
             } catch (err) {}
         }
 
-        // ==========================================
-        // QUẢN LÝ CÁC TRƯỜNG TÙY BIẾN ĐA NGÔN NGỮ (VI / EN)
-        // ==========================================
         function addCustomFieldRow(label_vi = "", label_en = "", placeholder_vi = "", placeholder_en = "", required = false) {
             const id = 'f_' + Date.now() + Math.random().toString(36).substr(2, 4);
             currentSettings.customFields.push({ id, label_vi, label_en, placeholder_vi, placeholder_en, required });
@@ -617,7 +608,7 @@
                 row.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-600 mb-1">🇻🇳 Tên ô (Tiếng Việt)</label>
+                            <label class="block text-[11px] font-bold text-gray-600 mb-1">🇻🇳 Tên ô (Cột hiển thị trên Sheet)</label>
                             <input type="text" value="${escapeHtml(field.label_vi || field.label || '')}" placeholder="VD: Công ty" oninput="updateCustomFieldProp('${field.id}', 'label_vi', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
@@ -655,11 +646,13 @@
             const lang = currentSettings.language || 'vi';
 
             currentSettings.customFields.forEach(field => {
-                // Lấy nhãn và placeholder theo ngôn ngữ hiện hành
-                let label = (lang === 'en' ? (field.label_en || field.label_vi || field.label) : (field.label_vi || field.label || field.label_en)) || '';
+                let displayLabel = (lang === 'en' ? (field.label_en || field.label_vi || field.label) : (field.label_vi || field.label || field.label_en)) || '';
                 let placeholder = (lang === 'en' ? (field.placeholder_en || field.placeholder_vi || field.placeholder) : (field.placeholder_vi || field.placeholder || field.placeholder_en)) || '';
+                
+                // Key chuẩn gửi về Google Sheets luôn ưu tiên tên tiếng Việt để đồng nhất 1 cột duy nhất
+                let columnKey = (field.label_vi || field.label || field.label_en || '').trim();
 
-                if (!label.trim()) return;
+                if (!displayLabel.trim()) return;
 
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `
@@ -667,12 +660,13 @@
                         <input type="text" 
                                id="input-custom-${field.id}" 
                                data-field-id="${field.id}"
-                               data-field-label="${escapeHtml(label)}"
+                               data-column-key="${escapeHtml(columnKey)}"
+                               data-field-label="${escapeHtml(displayLabel)}"
                                data-required="${field.required ? 'true' : 'false'}"
-                               placeholder="${escapeHtml(placeholder || label)}${field.required ? ' *' : ''}" 
+                               placeholder="${escapeHtml(placeholder || displayLabel)}${field.required ? ' *' : ''}" 
                                class="glass-input custom-dyn-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         <p id="error-custom-${field.id}" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">
-                            ${lang === 'en' ? `Please fill in ${escapeHtml(label)}.` : `Vui lòng điền ${escapeHtml(label)}.`}
+                            ${lang === 'en' ? `Please fill in ${escapeHtml(displayLabel)}.` : `Vui lòng điền ${escapeHtml(displayLabel)}.`}
                         </p>
                     </div>
                 `;
@@ -684,9 +678,6 @@
             return (str || '').replace(/"/g, '&quot;');
         }
 
-        // ==========================================
-        // ÁP DỤNG GIAO DIỆN & ĐỒNG BỘ TRỰC TIẾP
-        // ==========================================
         function applyTheme(cfg) {
             document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
             document.documentElement.style.setProperty('--brand-font', `'${cfg.fontFamily}', sans-serif`);
@@ -790,9 +781,6 @@
             updateAdminQR();
         }
 
-        // ==========================================
-        // BỘ NÉN ẢNH NỀN 9:16 SIÊU NÉT (RETINA HD)
-        // ==========================================
         function compressBackgroundHD(file, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -939,19 +927,16 @@
             }
 
             const rawEventCode = document.getElementById('cfg-event-code').value.trim().toUpperCase() || "EVENT_01";
-            // Lọc các trường có nhãn hợp lệ (ít nhất có label tiếng Việt hoặc tiếng Anh)
             const validCustomFields = currentSettings.customFields.filter(f => (f.label_vi && f.label_vi.trim()) || (f.label_en && f.label_en.trim()) || (f.label && f.label.trim()));
 
             const payload = {
                 action: "updateSettings", 
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
-                // Đóng gói kép customFields vào eventCode để đảm bảo các thiết bị khác luôn nhận diện được
                 eventCode: `${rawEventCode}|||${encodeURIComponent(JSON.stringify(validCustomFields))}`,
                 language: document.getElementById('cfg-language').value,
                 primaryColor: document.getElementById('cfg-color').value, 
                 fontFamily: document.getElementById('cfg-font').value,
                 logoUrl: currentLogoBase64 || currentSettings.logoUrl || "", 
-                // Đóng gói kép background
                 bgType: `${bgType}|||${bgValue}`,
                 bgValue: bgValue,
                 customFields: validCustomFields
@@ -1012,15 +997,15 @@
             const phoneWrapper = document.getElementById('phone-wrapper');
             const lang = currentSettings.language || 'vi';
 
-            // Kiểm tra tính hợp lệ của các trường tùy biến (nằm trước SĐT)
+            // Thu thập dữ liệu từ các ô tùy biến
             const dynInputs = document.querySelectorAll('.custom-dyn-input');
             const customData = {};
-            const summaryParts = [];
             let hasCustomError = false;
             let firstCustomVal = "";
 
             dynInputs.forEach(input => {
                 const fieldId = input.getAttribute('data-field-id');
+                const columnKey = input.getAttribute('data-column-key'); // Tên cột chuẩn trên Sheet
                 const fieldLabel = input.getAttribute('data-field-label');
                 const isRequired = input.getAttribute('data-required') === 'true';
                 const errElem = document.getElementById(`error-custom-${fieldId}`);
@@ -1036,9 +1021,9 @@
                 } else {
                     input.classList.remove('!border-red-500', 'ring-1', 'ring-red-500');
                     if (errElem) errElem.classList.add('hidden');
-                    if (val) {
-                        customData[fieldLabel] = val;
-                        summaryParts.push(`${val} (${fieldLabel})`);
+                    if (val && columnKey) {
+                        // Gán giá trị vào đúng cột
+                        customData[columnKey] = val;
                         if (!firstCustomVal) firstCustomVal = val;
                     }
                 }
@@ -1070,8 +1055,7 @@
                         name: name, 
                         phone: fullPhone, 
                         event: activeEventCode,
-                        customData: customData,
-                        note: summaryParts.join(" | ")
+                        customData: customData // Đẩy toàn bộ các trường tùy biến về Backend
                     }), 
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
                 });
@@ -1083,7 +1067,6 @@
                     document.getElementById('display-name').innerText = name; 
                     document.getElementById('display-id').innerText = result.id;
 
-                    // Hiển thị công ty hoặc trường bổ sung đầu tiên lên thẻ
                     const subInfoElem = document.getElementById('display-sub-info');
                     if (firstCustomVal) {
                         subInfoElem.innerText = firstCustomVal;
