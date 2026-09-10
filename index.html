@@ -166,12 +166,12 @@
                     </div>
                 </div>
 
-                <!-- MỤC TÙY BIẾN HẠNG MỤC FILL DỮ LIỆU (CUSTOM FIELDS) -->
+                <!-- MỤC TÙY BIẾN HẠNG MỤC FILL DỮ LIỆU ĐỒNG BỘ ĐA NGÔN NGỮ -->
                 <div class="border-t pt-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                         <div>
-                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Form Fields)</label>
-                            <p class="text-xs text-gray-500">Mặc định đã có <b>Họ tên</b> và <b>SĐT</b>. Thêm các ô dưới đây nếu sự kiện yêu cầu:</p>
+                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Đồng bộ VI / EN)</label>
+                            <p class="text-xs text-gray-500">Các ô này sẽ xuất hiện <b>nằm trên số điện thoại</b> và tự động dịch theo ngôn ngữ sự kiện.</p>
                         </div>
                         <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200 self-start sm:self-auto flex items-center gap-1">
                             <span>+ Thêm ô nhập</span>
@@ -181,13 +181,13 @@
                     <!-- Nút thêm nhanh -->
                     <div class="flex flex-wrap items-center gap-2 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                         <span class="text-xs font-semibold text-gray-500">Thêm nhanh:</span>
-                        <button type="button" onclick="quickAddField('Công ty / Doanh nghiệp', 'Nhập tên công ty', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Công ty</button>
-                        <button type="button" onclick="quickAddField('Chức vụ / Chức danh', 'VD: Trưởng phòng, Quản lý', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Chức vụ</button>
-                        <button type="button" onclick="quickAddField('Số bàn / Bàn tiệc', 'VD: Bàn 08, VIP 1', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Số bàn</button>
+                        <button type="button" onclick="quickAddField('Công ty', 'Company', 'Nhập tên công ty', 'Enter company name', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Công ty</button>
+                        <button type="button" onclick="quickAddField('Chức vụ', 'Job Title', 'VD: Quản lý, Trưởng phòng', 'E.g. Manager, Director', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Chức vụ</button>
+                        <button type="button" onclick="quickAddField('Số bàn', 'Table No.', 'VD: Bàn 08, VIP 1', 'E.g. Table 08, VIP 1', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Số bàn</button>
                     </div>
 
                     <!-- Danh sách các trường động -->
-                    <div id="custom-fields-list" class="space-y-2.5"></div>
+                    <div id="custom-fields-list" class="space-y-3"></div>
                 </div>
 
                 <div class="border-t pt-4">
@@ -275,10 +275,15 @@
                 </div>
                 
                 <div class="space-y-3.5">
+                    <!-- 1. HỌ VÀ TÊN -->
                     <div>
                         <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
+
+                    <!-- 2. CÁC TRƯỜNG TÙY BIẾN ĐƯỢC CHUYỂN NẰM TRÊN TRƯỜNG SĐT -->
+                    <div id="custom-fields-client-container" class="space-y-3.5"></div>
                     
+                    <!-- 3. SỐ ĐIỆN THOẠI -->
                     <div>
                         <div id="phone-wrapper" class="glass-input flex items-center w-full h-[50px] rounded-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
                             <div class="relative w-[110px] h-full flex-shrink-0 bg-black/5 border-r border-black/10 transition-colors hover:bg-black/10">
@@ -292,9 +297,7 @@
                         <p id="error-msg" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
                     </div>
 
-                    <!-- KHU VỰC CHỨA CÁC Ô NHẬP LIỆU BỔ SUNG (DYNAMIC FIELDS) -->
-                    <div id="custom-fields-client-container" class="space-y-3.5"></div>
-
+                    <!-- 4. NÚT GỬI THÔNG TIN -->
                     <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl mt-3 flex justify-center items-center gap-2 shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
                         <span id="btn-text" class="tracking-wide">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
                     </button>
@@ -354,8 +357,7 @@
                 ticketLabel: "MÃ SỐ CỦA BẠN",
                 saveNotePre: "Vui lòng lưu ảnh này để tham gia ",
                 btnSave: "LƯU ẢNH VỀ MÁY",
-                processing: "ĐANG XỬ LÝ...",
-                requiredField: "Vui lòng điền thông tin: "
+                processing: "ĐANG XỬ LÝ..."
             },
             en: {
                 subtitle: "Please fill in your information",
@@ -368,8 +370,7 @@
                 ticketLabel: "YOUR TICKET NUMBER",
                 saveNotePre: "Please save this image to join the ",
                 btnSave: "SAVE IMAGE",
-                processing: "PROCESSING...",
-                requiredField: "Please fill in: "
+                processing: "PROCESSING..."
             }
         };
 
@@ -385,6 +386,9 @@
             document.getElementById('view-ticket-label').innerText = texts.ticketLabel;
             document.getElementById('view-save-note').innerText = texts.saveNotePre;
             document.getElementById('btn-dl-text').innerText = texts.btnSave;
+            
+            // Cập nhật lại các trường tùy biến theo ngôn ngữ mới
+            renderCustomFieldsClient();
         }
 
         function populateCountries() {
@@ -416,7 +420,7 @@
             bgType: "solid", 
             bgValue: "#0f172a", 
             language: "vi",
-            customFields: [] // Danh sách trường mở rộng
+            customFields: []
         };
 
         // Bóc tách cấu hình thông minh (Double-packing resolver)
@@ -478,6 +482,15 @@
             populateCountries(); 
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
+
+            // Lắng nghe sự kiện đổi ngôn ngữ ngay trong trang Admin để cập nhật trực tiếp
+            const langSelect = document.getElementById('cfg-language');
+            if (langSelect) {
+                langSelect.addEventListener('change', function() {
+                    currentSettings.language = this.value;
+                    applyLanguage(this.value);
+                });
+            }
             
             const cachedData = safeGetCache();
             if (cachedData) {
@@ -549,33 +562,38 @@
         }
 
         // ==========================================
-        // QUẢN LÝ CÁC TRƯỜNG TÙY BIẾN (CUSTOM FIELDS)
+        // QUẢN LÝ CÁC TRƯỜNG TÙY BIẾN ĐA NGÔN NGỮ (VI / EN)
         // ==========================================
-        function addCustomFieldRow(label = "", placeholder = "", required = false) {
+        function addCustomFieldRow(label_vi = "", label_en = "", placeholder_vi = "", placeholder_en = "", required = false) {
             const id = 'f_' + Date.now() + Math.random().toString(36).substr(2, 4);
-            currentSettings.customFields.push({ id, label, placeholder, required });
+            currentSettings.customFields.push({ id, label_vi, label_en, placeholder_vi, placeholder_en, required });
             renderCustomFieldsAdmin();
+            renderCustomFieldsClient();
         }
 
-        function quickAddField(label, placeholder, required) {
-            // Kiểm tra nếu đã tồn tại thì không thêm lặp
-            const exists = currentSettings.customFields.some(f => f.label.toLowerCase() === label.toLowerCase());
+        function quickAddField(label_vi, label_en, placeholder_vi, placeholder_en, required) {
+            const exists = currentSettings.customFields.some(f => 
+                (f.label_vi && f.label_vi.toLowerCase() === label_vi.toLowerCase()) ||
+                (f.label_en && f.label_en.toLowerCase() === label_en.toLowerCase())
+            );
             if (exists) {
-                alert(`Trường "${label}" đã có trong danh sách!`);
+                alert(`Trường "${label_vi} / ${label_en}" đã có trong danh sách!`);
                 return;
             }
-            addCustomFieldRow(label, placeholder, required);
+            addCustomFieldRow(label_vi, label_en, placeholder_vi, placeholder_en, required);
         }
 
         function removeCustomFieldRow(id) {
             currentSettings.customFields = currentSettings.customFields.filter(f => f.id !== id);
             renderCustomFieldsAdmin();
+            renderCustomFieldsClient();
         }
 
         function updateCustomFieldProp(id, prop, value) {
             const item = currentSettings.customFields.find(f => f.id === id);
             if (item) {
                 item[prop] = value;
+                renderCustomFieldsClient();
             }
         }
 
@@ -595,21 +613,33 @@
 
             currentSettings.customFields.forEach((field, index) => {
                 const row = document.createElement('div');
-                row.className = "flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2.5 bg-gray-50 border border-gray-200 rounded-xl";
+                row.className = "p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-2.5";
                 row.innerHTML = `
-                    <div class="flex-1">
-                        <input type="text" value="${escapeHtml(field.label)}" placeholder="Tên ô (VD: Công ty)" onchange="updateCustomFieldProp('${field.id}', 'label', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 mb-1">🇻🇳 Tên ô (Tiếng Việt)</label>
+                            <input type="text" value="${escapeHtml(field.label_vi || field.label || '')}" placeholder="VD: Công ty" oninput="updateCustomFieldProp('${field.id}', 'label_vi', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 mb-1">🇬🇧 Label (English)</label>
+                            <input type="text" value="${escapeHtml(field.label_en || '')}" placeholder="E.g. Company" oninput="updateCustomFieldProp('${field.id}', 'label_en', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <input type="text" value="${escapeHtml(field.placeholder)}" placeholder="Gợi ý nhập (VD: Nhập tên công ty)" onchange="updateCustomFieldProp('${field.id}', 'placeholder', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <input type="text" value="${escapeHtml(field.placeholder_vi || field.placeholder || '')}" placeholder="Gợi ý điền (VI) - VD: Nhập tên công ty" oninput="updateCustomFieldProp('${field.id}', 'placeholder_vi', this.value)" class="w-full h-8 px-3 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none text-gray-600">
+                        </div>
+                        <div>
+                            <input type="text" value="${escapeHtml(field.placeholder_en || '')}" placeholder="Placeholder (EN) - E.g. Enter company name" oninput="updateCustomFieldProp('${field.id}', 'placeholder_en', this.value)" class="w-full h-8 px-3 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none text-gray-600">
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between sm:justify-start gap-3 px-1">
-                        <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none">
+                    <div class="flex items-center justify-between pt-1.5 border-t border-gray-200/70">
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer select-none font-medium">
                             <input type="checkbox" ${field.required ? 'checked' : ''} onchange="updateCustomFieldProp('${field.id}', 'required', this.checked)" class="rounded text-blue-600 focus:ring-0">
-                            Bắt buộc
+                            Bắt buộc điền (Required)
                         </label>
-                        <button type="button" onclick="removeCustomFieldRow('${field.id}')" class="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition" title="Xóa ô này">
-                            ✕
+                        <button type="button" onclick="removeCustomFieldRow('${field.id}')" class="text-xs text-red-500 hover:text-red-700 font-semibold px-2 py-1 rounded hover:bg-red-50 transition flex items-center gap-1">
+                            <span>✕ Xóa ô</span>
                         </button>
                     </div>
                 `;
@@ -622,19 +652,28 @@
             if (!container) return;
             container.innerHTML = "";
 
+            const lang = currentSettings.language || 'vi';
+
             currentSettings.customFields.forEach(field => {
-                if (!field.label || !field.label.trim()) return;
+                // Lấy nhãn và placeholder theo ngôn ngữ hiện hành
+                let label = (lang === 'en' ? (field.label_en || field.label_vi || field.label) : (field.label_vi || field.label || field.label_en)) || '';
+                let placeholder = (lang === 'en' ? (field.placeholder_en || field.placeholder_vi || field.placeholder) : (field.placeholder_vi || field.placeholder || field.placeholder_en)) || '';
+
+                if (!label.trim()) return;
+
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `
                     <div>
                         <input type="text" 
                                id="input-custom-${field.id}" 
                                data-field-id="${field.id}"
-                               data-field-label="${escapeHtml(field.label)}"
+                               data-field-label="${escapeHtml(label)}"
                                data-required="${field.required ? 'true' : 'false'}"
-                               placeholder="${escapeHtml(field.placeholder || field.label)}${field.required ? ' *' : ''}" 
+                               placeholder="${escapeHtml(placeholder || label)}${field.required ? ' *' : ''}" 
                                class="glass-input custom-dyn-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                        <p id="error-custom-${field.id}" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng điền ${escapeHtml(field.label)}.</p>
+                        <p id="error-custom-${field.id}" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">
+                            ${lang === 'en' ? `Please fill in ${escapeHtml(label)}.` : `Vui lòng điền ${escapeHtml(label)}.`}
+                        </p>
                     </div>
                 `;
                 container.appendChild(wrapper);
@@ -900,8 +939,8 @@
             }
 
             const rawEventCode = document.getElementById('cfg-event-code').value.trim().toUpperCase() || "EVENT_01";
-            // Lọc các trường có nhãn hợp lệ
-            const validCustomFields = currentSettings.customFields.filter(f => f.label && f.label.trim());
+            // Lọc các trường có nhãn hợp lệ (ít nhất có label tiếng Việt hoặc tiếng Anh)
+            const validCustomFields = currentSettings.customFields.filter(f => (f.label_vi && f.label_vi.trim()) || (f.label_en && f.label_en.trim()) || (f.label && f.label.trim()));
 
             const payload = {
                 action: "updateSettings", 
@@ -973,18 +1012,7 @@
             const phoneWrapper = document.getElementById('phone-wrapper');
             const lang = currentSettings.language || 'vi';
 
-            if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
-
-            if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
-                phoneWrapper.classList.add('!border-red-500', 'ring-1', 'ring-red-500'); 
-                errorMsg.classList.remove('hidden');
-                return;
-            } else {
-                phoneWrapper.classList.remove('!border-red-500', 'ring-1', 'ring-red-500'); 
-                errorMsg.classList.add('hidden');
-            }
-
-            // Kiểm tra tính hợp lệ của các trường tùy biến
+            // Kiểm tra tính hợp lệ của các trường tùy biến (nằm trước SĐT)
             const dynInputs = document.querySelectorAll('.custom-dyn-input');
             const customData = {};
             const summaryParts = [];
@@ -1000,7 +1028,10 @@
 
                 if (isRequired && !val) {
                     input.classList.add('!border-red-500', 'ring-1', 'ring-red-500');
-                    if (errElem) errElem.classList.remove('hidden');
+                    if (errElem) {
+                        errElem.innerText = (lang === 'en' ? `Please fill in ${fieldLabel}.` : `Vui lòng điền ${fieldLabel}.`);
+                        errElem.classList.remove('hidden');
+                    }
                     hasCustomError = true;
                 } else {
                     input.classList.remove('!border-red-500', 'ring-1', 'ring-red-500');
@@ -1012,6 +1043,17 @@
                     }
                 }
             });
+
+            if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
+
+            if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
+                phoneWrapper.classList.add('!border-red-500', 'ring-1', 'ring-red-500'); 
+                errorMsg.classList.remove('hidden');
+                return;
+            } else {
+                phoneWrapper.classList.remove('!border-red-500', 'ring-1', 'ring-red-500'); 
+                errorMsg.classList.add('hidden');
+            }
 
             if (hasCustomError) return;
 
@@ -1041,7 +1083,7 @@
                     document.getElementById('display-name').innerText = name; 
                     document.getElementById('display-id').innerText = result.id;
 
-                    // Hiển thị công ty hoặc trường bổ sung đầu tiên lên thẻ (nếu có)
+                    // Hiển thị công ty hoặc trường bổ sung đầu tiên lên thẻ
                     const subInfoElem = document.getElementById('display-sub-info');
                     if (firstCustomVal) {
                         subInfoElem.innerText = firstCustomVal;
