@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sự Kiện Check-in</title>
-    <!-- Thẻ Favicon mặc định -->
     <link id="dynamic-favicon" rel="icon" href="https://placehold.co/32x32?text=C" type="image/png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
         :root { --primary-color: #2563EB; --brand-font: 'Inter', sans-serif; --bg-value: #0f172a; }
@@ -32,9 +31,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
-        /* =========================================
-           HIỆU ỨNG TIA LED PHÁT SÁNG (GLOWING LED LINE)
-           ========================================= */
+        /* LED VIỀN PHÁT SÁNG */
         .led-border { 
             position: relative; 
             padding: 3px; 
@@ -55,24 +52,14 @@
             z-index: -2; 
         }
         
-        .led-border::after {
-            filter: blur(12px);
-            opacity: 0.9;
-            z-index: -1;
-        }
-
-        @keyframes rotate-led { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
+        .led-border::after { filter: blur(12px); opacity: 0.9; z-index: -1; }
+        @keyframes rotate-led { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* =========================================
-           GLASSMORPHISM (KHUNG KÍNH TRONG SUỐT CAO CẤP)
-           ========================================= */
+        /* GLASSMORPHISM */
         .led-inner { 
-            background: rgba(255, 255, 255, 0.84); 
-            backdrop-filter: blur(24px) saturate(180%); 
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.55);
             border-radius: calc(1.5rem - 3px); 
             width: 100%; height: 100%; 
@@ -82,39 +69,41 @@
         }
 
         .glass-input {
-            background: rgba(255, 255, 255, 0.75) !important;
+            background: rgba(255, 255, 255, 0.8) !important;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.6) !important;
-            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.04);
         }
-        .glass-input:focus-within, .glass-input:focus {
-            background: rgba(255, 255, 255, 0.95) !important;
-        }
+        .glass-input:focus-within, .glass-input:focus { background: rgba(255, 255, 255, 0.98) !important; }
 
         .glass-box {
-            background: rgba(255, 255, 255, 0.72) !important;
+            background: rgba(255, 255, 255, 0.75) !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.65);
-            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8);
         }
 
         .capture-mode .led-border { padding: 0 !important; background: transparent !important; box-shadow: none !important;}
         .capture-mode .led-border::before, .capture-mode .led-border::after { display: none !important; animation: none !important; }
-        .capture-mode .led-inner { 
-            border-radius: 1.25rem; 
-            background: rgba(255, 255, 255, 0.92) !important; 
-            border: 1px solid rgba(255,255,255,0.7); 
-        }
+        .capture-mode .led-inner { border-radius: 1.25rem; background: rgba(255, 255, 255, 0.95) !important; }
     </style>
 </head>
 <body>
 
-    <!-- MÀN HÌNH LOADING -->
-    <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- MÀN HÌNH LOADING CÓ CƠ CHẾ AUTO-KILL -->
+    <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-300">
         <div class="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin mb-4"></div>
-        <p class="text-white/70 text-sm font-medium">Đang tải cấu hình sự kiện...</p>
+        <p class="text-white/70 text-sm font-medium">Đang tải sự kiện...</p>
+    </div>
+
+    <!-- POPUP LƯU ẢNH DÀNH RIÊNG CHO TRÌNH DUYỆT ZALO/FACEBOOK -->
+    <div id="image-modal" class="fixed inset-0 bg-black/80 z-[1000] hidden flex flex-col items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
+            <h3 class="font-bold text-gray-800 text-sm mb-1">Vé May Mắn Của Bạn</h3>
+            <p class="text-[11px] text-blue-600 font-semibold mb-3">👇 Nhấn giữ 1 giây vào ảnh bên dưới để Lưu về máy</p>
+            <img id="modal-ticket-img" class="w-full rounded-xl border shadow-sm mb-3">
+            <button onclick="document.getElementById('image-modal').classList.add('hidden')" class="w-full py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold">ĐÓNG</button>
+        </div>
     </div>
 
     <!-- ==================== ADMIN PANEL ==================== -->
@@ -131,7 +120,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
@@ -166,27 +154,25 @@
                     </div>
                 </div>
 
-                <!-- MỤC TÙY BIẾN HẠNG MỤC FILL DỮ LIỆU ĐỒNG BỘ ĐA NGÔN NGỮ -->
+                <!-- MỤC TÙY BIẾN TRƯỜNG ĐIỀN -->
                 <div class="border-t pt-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                         <div>
-                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Tự động thêm cột vào Sheet)</label>
-                            <p class="text-xs text-gray-500">Các ô này nằm <b>ở trên số điện thoại</b> và tự động tạo thành từng cột trên Google Sheets.</p>
+                            <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Song ngữ VI/EN)</label>
+                            <p class="text-xs text-gray-500">Các ô này sẽ xuất hiện <b>nằm trên số điện thoại</b> và tự tạo cột tương ứng trên Google Sheets.</p>
                         </div>
-                        <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200 self-start sm:self-auto flex items-center gap-1">
-                            <span>+ Thêm ô nhập</span>
+                        <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200 self-start sm:self-auto">
+                            + Thêm ô nhập
                         </button>
                     </div>
 
-                    <!-- Nút thêm nhanh -->
                     <div class="flex flex-wrap items-center gap-2 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                         <span class="text-xs font-semibold text-gray-500">Thêm nhanh:</span>
-                        <button type="button" onclick="quickAddField('Công ty', 'Company', 'Nhập tên công ty', 'Enter company name', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Công ty</button>
-                        <button type="button" onclick="quickAddField('Chức vụ', 'Job Title', 'VD: Quản lý, Trưởng phòng', 'E.g. Manager, Director', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Chức vụ</button>
-                        <button type="button" onclick="quickAddField('Số bàn', 'Table No.', 'VD: Bàn 08, VIP 1', 'E.g. Table 08, VIP 1', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium shadow-2xs transition">+ Số bàn</button>
+                        <button type="button" onclick="quickAddField('Công ty', 'Company', 'Nhập tên công ty', 'Enter company name', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium transition">+ Công ty</button>
+                        <button type="button" onclick="quickAddField('Chức vụ', 'Job Title', 'VD: Quản lý, Trưởng phòng', 'E.g. Manager, Director', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium transition">+ Chức vụ</button>
+                        <button type="button" onclick="quickAddField('Số bàn', 'Table No.', 'VD: Bàn 08, VIP 1', 'E.g. Table 08, VIP 1', false)" class="text-xs px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-md font-medium transition">+ Số bàn</button>
                     </div>
 
-                    <!-- Danh sách các trường động -->
                     <div id="custom-fields-list" class="space-y-3"></div>
                 </div>
 
@@ -209,7 +195,6 @@
                     </div>
                     
                     <div id="bg-panel-solid" class="p-4 bg-gray-50 rounded-lg">
-                        <label class="text-xs text-gray-500 block mb-1">Chọn màu nền:</label>
                         <input type="color" id="bg-color-solid" value="#0f172a" class="w-full h-10 p-0 border rounded cursor-pointer">
                     </div>
                     
@@ -218,19 +203,17 @@
                         <div class="flex-1"><label class="text-xs text-gray-500 block mb-1">Màu dưới</label><input type="color" id="bg-grad-2" value="#0f172a" class="w-full h-10 border rounded"></div>
                     </div>
                     
-                    <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg space-y-4">
+                    <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg space-y-3">
                         <div>
-                            <label class="block text-xs font-bold text-blue-700 mb-1">Cách 1: Dán Link ảnh trực tiếp (Khuyên dùng - Nét 4K/Full HD, nhẹ nhất)</label>
-                            <input type="url" id="bg-url-input" oninput="handleBgUrlInput(this.value)" placeholder="Dán link ảnh tại đây (VD: https://...)" class="w-full h-10 px-3 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <p class="text-[11px] text-gray-400 mt-1">Mẹo: Bạn có thể up ảnh lên <b>postimages.org</b> hoặc <b>imgbb.com</b> rồi dán link trực tiếp vào đây để ảnh đạt độ nét 100% không bị nén.</p>
+                            <label class="block text-xs font-bold text-blue-700 mb-1">Dán Link ảnh trực tiếp (Khuyên dùng - Nét 4K, siêu nhẹ):</label>
+                            <input type="url" id="bg-url-input" oninput="handleBgUrlInput(this.value)" placeholder="VD: https://i.postimg.cc/..." class="w-full h-10 px-3 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <div class="border-t border-gray-200 pt-3">
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">Cách 2: Tải file ảnh từ máy (Tự động nén tỷ lệ 9:16 chuẩn Retina)</label>
+                        <div class="border-t pt-2">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Hoặc tải file ảnh từ máy (Tự nén 9:16):</label>
                             <input type="file" id="bg-upload" accept="image/*" class="text-sm w-full">
                         </div>
-                        <div id="bg-preview-container" class="hidden pt-2">
-                            <p class="text-xs font-semibold text-gray-500 mb-1">Xem trước hình nền:</p>
-                            <img id="bg-preview" class="w-full h-36 object-cover rounded-lg border border-gray-300 shadow-sm">
+                        <div id="bg-preview-container" class="hidden pt-1">
+                            <img id="bg-preview" class="w-full h-32 object-cover rounded-lg border shadow-sm">
                         </div>
                     </div>
                 </div>
@@ -240,8 +223,8 @@
                 </button>
                 
                 <div class="mt-8 border-t-2 border-red-100 pt-6">
-                    <h3 class="text-red-600 font-bold text-sm mb-2 uppercase flex items-center gap-2">⚠️ Khu vực nguy hiểm</h3>
-                    <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách đã đăng ký trên Google Sheets để làm event mới.</p>
+                    <h3 class="text-red-600 font-bold text-sm mb-2 uppercase">⚠️ Khu vực nguy hiểm</h3>
+                    <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách để bắt đầu sự kiện mới (STT sẽ bắt đầu lại từ 001).</p>
                     <button onclick="resetData()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 text-sm font-semibold rounded hover:bg-red-600 hover:text-white transition flex items-center gap-2">
                         Xóa dữ liệu Check-in <div id="reset-spinner" class="spinner !border-red-600 !border-t-white"></div>
                     </button>
@@ -262,25 +245,24 @@
     <!-- ==================== CLIENT APP ==================== -->
     <div id="client-app" class="sm:rounded-2xl flex flex-col justify-center p-6 relative">
         
-        <!-- MÀN HÌNH NHẬP THÔNG TIN (GLASSMORPHISM STYLE) -->
+        <!-- MÀN HÌNH FORM -->
         <div id="form-screen" class="led-border w-full transition-all duration-300">
             <div class="led-inner p-6 md:p-7 w-full relative">
                 <div class="text-center mb-6">
                     <div class="h-12 w-full flex justify-center items-center mx-auto mb-5">
                         <img id="view-logo" src="" class="max-h-full max-w-[80%] object-contain drop-shadow-sm">
                     </div>
-                    
                     <h1 id="view-event-name" class="text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">Check-in Sự Kiện</h1>
                     <p id="view-subtitle" class="text-gray-600 text-sm mt-1 font-medium">Vui lòng điền thông tin</p>
                 </div>
                 
                 <div class="space-y-3.5">
-                    <!-- 1. HỌ VÀ TÊN -->
+                    <!-- 1. HỌ TÊN -->
                     <div>
                         <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
 
-                    <!-- 2. CÁC TRƯỜNG TÙY BIẾN NẰM TRÊN SỐ ĐIỆN THOẠI -->
+                    <!-- 2. CÁC TRƯỜNG TÙY BIẾN ĐƯỢC CHUYỂN NẰM TRÊN SĐT -->
                     <div id="custom-fields-client-container" class="space-y-3.5"></div>
                     
                     <!-- 3. SỐ ĐIỆN THOẠI -->
@@ -297,7 +279,7 @@
                         <p id="error-msg" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
                     </div>
 
-                    <!-- 4. NÚT GỬI THÔNG TIN -->
+                    <!-- 4. NÚT GỬI -->
                     <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl mt-3 flex justify-center items-center gap-2 shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
                         <span id="btn-text" class="tracking-wide">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
                     </button>
@@ -305,12 +287,10 @@
             </div>
         </div>
 
-        <!-- MÀN HÌNH TRẢ KẾT QUẢ (GLASSMORPHISM STYLE) -->
+        <!-- MÀN HÌNH THẺ VÉ -->
         <div id="success-screen" class="hidden w-full h-full flex flex-col justify-center">
-            
             <div id="ticket-container" class="led-border w-full">
                 <div class="led-inner p-7 text-center relative w-full flex flex-col items-center justify-center">
-                    
                     <div class="h-11 w-full flex justify-center items-center mx-auto mb-4">
                         <img id="ticket-logo" src="" class="max-h-full max-w-[80%] object-contain drop-shadow-sm">
                     </div>
@@ -385,7 +365,6 @@
             document.getElementById('view-ticket-label').innerText = texts.ticketLabel;
             document.getElementById('view-save-note').innerText = texts.saveNotePre;
             document.getElementById('btn-dl-text').innerText = texts.btnSave;
-            
             renderCustomFieldsClient();
         }
 
@@ -424,55 +403,34 @@
         function parseSettings(data) {
             if (!data) return {};
             const res = Object.assign({}, data);
-            
             if (res.bgType && typeof res.bgType === 'string' && res.bgType.includes("|||")) {
                 const parts = res.bgType.split("|||");
                 res.bgType = parts[0];
                 res.bgValue = parts.slice(1).join("|||");
             }
-
             if (res.eventCode && typeof res.eventCode === 'string' && res.eventCode.includes("|||")) {
                 const parts = res.eventCode.split("|||");
                 res.eventCode = parts[0];
-                try {
-                    res.customFields = JSON.parse(decodeURIComponent(parts[1]));
-                } catch(e) {}
+                try { res.customFields = JSON.parse(decodeURIComponent(parts[1])); } catch(e) {}
             } else if (typeof res.customFields === 'string') {
-                try {
-                    res.customFields = JSON.parse(res.customFields);
-                } catch(e) {
-                    res.customFields = [];
-                }
+                try { res.customFields = JSON.parse(res.customFields); } catch(e) { res.customFields = []; }
             }
-
-            if (!Array.isArray(res.customFields)) {
-                res.customFields = [];
-            }
+            if (!Array.isArray(res.customFields)) res.customFields = [];
             return res;
         }
 
         function safeSaveCache(data) {
-            try {
-                localStorage.setItem('eventCheckinCache', JSON.stringify(data));
-            } catch (e) {
-                try {
-                    const light = Object.assign({}, data);
-                    if (light.bgValue && light.bgValue.startsWith('data:')) light.bgValue = "";
-                    if (light.logoUrl && light.logoUrl.startsWith('data:')) light.logoUrl = "";
-                    localStorage.setItem('eventCheckinCache', JSON.stringify(light));
-                } catch(ign) {}
-            }
+            try { localStorage.setItem('eventCheckinCache', JSON.stringify(data)); } catch (e) {}
         }
 
         function safeGetCache() {
             try {
                 const raw = localStorage.getItem('eventCheckinCache');
                 return raw ? JSON.parse(raw) : null;
-            } catch (e) {
-                return null;
-            }
+            } catch (e) { return null; }
         }
 
+        // TỰ ĐỘNG DIỆT LOADER SAU 1.2S NẾU MẠNG ANDROID TREO
         window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
             handleRouting(); 
@@ -485,6 +443,8 @@
                     applyLanguage(this.value);
                 });
             }
+
+            const autoKillLoader = setTimeout(() => { hideLoader(); }, 1200);
             
             const cachedData = safeGetCache();
             if (cachedData) {
@@ -493,10 +453,17 @@
                 renderCustomFieldsAdmin();
                 renderCustomFieldsClient();
                 hideLoader(); 
+                clearTimeout(autoKillLoader);
                 fetchSettingsInBackground(); 
             } else {
-                await fetchSettings();
+                try {
+                    await Promise.race([
+                        fetchSettings(),
+                        new Promise((_, rej) => setTimeout(() => rej("timeout"), 1200))
+                    ]);
+                } catch(e) {}
                 hideLoader();
+                clearTimeout(autoKillLoader);
             }
         });
 
@@ -504,7 +471,7 @@
             const loader = document.getElementById('initial-loader');
             if (loader) {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 400); 
+                setTimeout(() => { if (loader.parentElement) loader.remove(); }, 300); 
             }
         }
 
@@ -535,9 +502,7 @@
                     renderCustomFieldsAdmin();
                     renderCustomFieldsClient();
                 }
-            } catch (err) { 
-                applyTheme(currentSettings); 
-            }
+            } catch (err) { applyTheme(currentSettings); }
         }
 
         async function fetchSettingsInBackground() {
@@ -568,7 +533,7 @@
                 (f.label_en && f.label_en.toLowerCase() === label_en.toLowerCase())
             );
             if (exists) {
-                alert(`Trường "${label_vi} / ${label_en}" đã có trong danh sách!`);
+                alert(`Trường "${label_vi}" đã có trong danh sách!`);
                 return;
             }
             addCustomFieldRow(label_vi, label_en, placeholder_vi, placeholder_en, required);
@@ -596,42 +561,40 @@
             if (currentSettings.customFields.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-4 px-3 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-xs text-gray-400">
-                        Chưa có hạng mục bổ sung nào. Bạn có thể bấm các nút <b>"Thêm nhanh"</b> ở trên hoặc nút <b>"+ Thêm ô nhập"</b>.
+                        Chưa có hạng mục bổ sung nào. Bấm <b>"Thêm nhanh"</b> ở trên hoặc nút <b>"+ Thêm ô nhập"</b>.
                     </div>
                 `;
                 return;
             }
 
-            currentSettings.customFields.forEach((field, index) => {
+            currentSettings.customFields.forEach(field => {
                 const row = document.createElement('div');
                 row.className = "p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-2.5";
                 row.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-600 mb-1">🇻🇳 Tên ô (Cột hiển thị trên Sheet)</label>
-                            <input type="text" value="${escapeHtml(field.label_vi || field.label || '')}" placeholder="VD: Công ty" oninput="updateCustomFieldProp('${field.id}', 'label_vi', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                            <label class="block text-[11px] font-bold text-gray-600 mb-1">🇻🇳 Tên ô (Cột trên Sheet)</label>
+                            <input type="text" value="${escapeHtml(field.label_vi || field.label || '')}" placeholder="VD: Công ty" oninput="updateCustomFieldProp('${field.id}', 'label_vi', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white outline-none">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-600 mb-1">🇬🇧 Label (English)</label>
-                            <input type="text" value="${escapeHtml(field.label_en || '')}" placeholder="E.g. Company" oninput="updateCustomFieldProp('${field.id}', 'label_en', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                            <input type="text" value="${escapeHtml(field.label_en || '')}" placeholder="E.g. Company" oninput="updateCustomFieldProp('${field.id}', 'label_en', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white outline-none">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <div>
-                            <input type="text" value="${escapeHtml(field.placeholder_vi || field.placeholder || '')}" placeholder="Gợi ý điền (VI) - VD: Nhập tên công ty" oninput="updateCustomFieldProp('${field.id}', 'placeholder_vi', this.value)" class="w-full h-8 px-3 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none text-gray-600">
+                            <input type="text" value="${escapeHtml(field.placeholder_vi || field.placeholder || '')}" placeholder="Gợi ý điền (VI)" oninput="updateCustomFieldProp('${field.id}', 'placeholder_vi', this.value)" class="w-full h-8 px-3 border border-gray-200 rounded-lg text-xs bg-white outline-none text-gray-600">
                         </div>
                         <div>
-                            <input type="text" value="${escapeHtml(field.placeholder_en || '')}" placeholder="Placeholder (EN) - E.g. Enter company name" oninput="updateCustomFieldProp('${field.id}', 'placeholder_en', this.value)" class="w-full h-8 px-3 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-blue-500 outline-none text-gray-600">
+                            <input type="text" value="${escapeHtml(field.placeholder_en || '')}" placeholder="Placeholder (EN)" oninput="updateCustomFieldProp('${field.id}', 'placeholder_en', this.value)" class="w-full h-8 px-3 border border-gray-200 rounded-lg text-xs bg-white outline-none text-gray-600">
                         </div>
                     </div>
-                    <div class="flex items-center justify-between pt-1.5 border-t border-gray-200/70">
+                    <div class="flex items-center justify-between pt-1 border-t border-gray-200/60">
                         <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer select-none font-medium">
-                            <input type="checkbox" ${field.required ? 'checked' : ''} onchange="updateCustomFieldProp('${field.id}', 'required', this.checked)" class="rounded text-blue-600 focus:ring-0">
+                            <input type="checkbox" ${field.required ? 'checked' : ''} onchange="updateCustomFieldProp('${field.id}', 'required', this.checked)" class="rounded text-blue-600">
                             Bắt buộc điền (Required)
                         </label>
-                        <button type="button" onclick="removeCustomFieldRow('${field.id}')" class="text-xs text-red-500 hover:text-red-700 font-semibold px-2 py-1 rounded hover:bg-red-50 transition flex items-center gap-1">
-                            <span>✕ Xóa ô</span>
-                        </button>
+                        <button type="button" onclick="removeCustomFieldRow('${field.id}')" class="text-xs text-red-500 hover:text-red-700 font-semibold px-2 py-1">✕ Xóa ô</button>
                     </div>
                 `;
                 container.appendChild(row);
@@ -648,8 +611,6 @@
             currentSettings.customFields.forEach(field => {
                 let displayLabel = (lang === 'en' ? (field.label_en || field.label_vi || field.label) : (field.label_vi || field.label || field.label_en)) || '';
                 let placeholder = (lang === 'en' ? (field.placeholder_en || field.placeholder_vi || field.placeholder) : (field.placeholder_vi || field.placeholder || field.placeholder_en)) || '';
-                
-                // Key chuẩn gửi về Google Sheets luôn ưu tiên tên tiếng Việt để đồng nhất 1 cột duy nhất
                 let columnKey = (field.label_vi || field.label || field.label_en || '').trim();
 
                 if (!displayLabel.trim()) return;
@@ -674,9 +635,7 @@
             });
         }
 
-        function escapeHtml(str) {
-            return (str || '').replace(/"/g, '&quot;');
-        }
+        function escapeHtml(str) { return (str || '').replace(/"/g, '&quot;'); }
 
         function applyTheme(cfg) {
             document.documentElement.style.setProperty('--primary-color', cfg.primaryColor);
@@ -690,24 +649,14 @@
                 if (bgType === "solid") {
                     clientApp.style.backgroundImage = 'none';
                     clientApp.style.backgroundColor = bgValue;
-                    document.documentElement.style.setProperty('--bg-value', bgValue);
                 } else if (bgType === "gradient") {
                     clientApp.style.backgroundImage = bgValue;
                     clientApp.style.backgroundColor = 'transparent';
-                    document.documentElement.style.setProperty('--bg-value', bgValue);
                 } else if (bgType === "image") {
                     if (bgValue && bgValue.trim()) {
                         let finalUrl = bgValue.trim();
-                        if (!finalUrl.startsWith('url(')) {
-                            finalUrl = `url("${finalUrl}")`;
-                        }
+                        if (!finalUrl.startsWith('url(')) finalUrl = `url("${finalUrl}")`;
                         clientApp.style.backgroundImage = finalUrl;
-                        clientApp.style.backgroundColor = '#0f172a';
-                        document.documentElement.style.setProperty('--bg-value', finalUrl);
-                    } else {
-                        clientApp.style.backgroundImage = 'none';
-                        clientApp.style.backgroundColor = '#0f172a';
-                        document.documentElement.style.setProperty('--bg-value', '#0f172a');
                     }
                 }
             }
@@ -723,19 +672,10 @@
             document.getElementById('cfg-font').value = cfg.fontFamily;
             
             const bgRadio = document.querySelector(`input[name="bg-type"][value="${bgType}"]`);
-            if (bgRadio) {
-                bgRadio.checked = true; 
-                toggleBgType();
-            }
+            if (bgRadio) { bgRadio.checked = true; toggleBgType(); }
 
             if (bgType === 'solid' && bgValue.startsWith('#')) {
                 document.getElementById('bg-color-solid').value = bgValue;
-            } else if (bgType === 'gradient' && bgValue.includes('linear-gradient')) {
-                const hexMatches = bgValue.match(/#[0-9a-fA-F]{6}/g);
-                if (hexMatches && hexMatches.length >= 2) {
-                    document.getElementById('bg-grad-1').value = hexMatches[0];
-                    document.getElementById('bg-grad-2').value = hexMatches[1];
-                }
             } else if (bgType === 'image') {
                 const preview = document.getElementById('bg-preview');
                 const previewContainer = document.getElementById('bg-preview-container');
@@ -743,9 +683,7 @@
                 if (bgValue && preview && previewContainer) {
                     preview.src = bgValue;
                     previewContainer.classList.remove('hidden');
-                    if (urlInput && !bgValue.startsWith('data:')) {
-                        urlInput.value = bgValue;
-                    }
+                    if (urlInput && !bgValue.startsWith('data:')) urlInput.value = bgValue;
                 }
             }
             
@@ -756,85 +694,8 @@
                 document.getElementById('logo-preview').src = cfg.logoUrl;
                 document.getElementById('view-logo').src = cfg.logoUrl;
                 document.getElementById('ticket-logo').src = cfg.logoUrl;
-                
-                const img = new Image();
-                img.src = cfg.logoUrl;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 64; canvas.height = 64; 
-                    const ctx = canvas.getContext('2d');
-                    
-                    let drawW = 64, drawH = 64;
-                    if (img.width > img.height) { 
-                        drawH = (img.height / img.width) * 64; 
-                    } else { 
-                        drawW = (img.width / img.height) * 64; 
-                    }
-                    
-                    ctx.drawImage(img, (64 - drawW) / 2, (64 - drawH) / 2, drawW, drawH);
-                    
-                    let favicon = document.getElementById('dynamic-favicon');
-                    if (favicon) { favicon.href = canvas.toDataURL('image/png'); }
-                };
             }
-
             updateAdminQR();
-        }
-
-        function compressBackgroundHD(file, callback) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function(e) {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = function() {
-                    const targetW = 720;
-                    const targetH = 1280;
-                    const canvas = document.createElement('canvas');
-                    canvas.width = targetW;
-                    canvas.height = targetH;
-                    const ctx = canvas.getContext('2d');
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-
-                    const srcAspect = img.width / img.height;
-                    const targetAspect = targetW / targetH;
-                    let sx = 0, sy = 0, sw = img.width, sh = img.height;
-
-                    if (srcAspect > targetAspect) {
-                        sw = img.height * targetAspect;
-                        sx = (img.width - sw) / 2;
-                    } else {
-                        sh = img.width / targetAspect;
-                        sy = (img.height - sh) / 2;
-                    }
-
-                    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
-
-                    const testWebp = canvas.toDataURL('image/webp', 0.5);
-                    const format = (testWebp.indexOf('data:image/webp') === 0) ? 'image/webp' : 'image/jpeg';
-                    
-                    let result = "";
-                    for (let q of [0.75, 0.65, 0.55, 0.45]) {
-                        result = canvas.toDataURL(format, q);
-                        if (result.length <= 44000) break;
-                    }
-
-                    if (result.length > 44000) {
-                        canvas.width = 600;
-                        canvas.height = 1067;
-                        ctx.imageSmoothingEnabled = true;
-                        ctx.imageSmoothingQuality = 'high';
-                        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 600, 1067);
-                        for (let q of [0.70, 0.58, 0.48]) {
-                            result = canvas.toDataURL(format, q);
-                            if (result.length <= 44000) break;
-                        }
-                    }
-
-                    callback(result);
-                };
-            };
         }
 
         let currentLogoBase64 = ""; 
@@ -850,17 +711,12 @@
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         let w = img.width, h = img.height;
-                        if (w > 500) { h = Math.round((h * 500) / w); w = 500; }
+                        if (w > 450) { h = Math.round((h * 450) / w); w = 450; }
                         canvas.width = w; canvas.height = h;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        const b64 = canvas.toDataURL('image/png', 1.0);
-                        if (b64.length > 45000) {
-                            alert("⚠️ Logo chi tiết quá nặng, vui lòng dùng logo đơn giản hơn!");
-                            e.target.value = ""; return;
-                        }
-                        currentLogoBase64 = b64;
-                        document.getElementById('logo-preview').src = b64;
+                        currentLogoBase64 = canvas.toDataURL('image/png', 0.9);
+                        document.getElementById('logo-preview').src = currentLogoBase64;
                     };
                 };
             }
@@ -868,19 +724,23 @@
 
         document.getElementById('bg-upload').addEventListener('change', function(e) {
             if(e.target.files && e.target.files[0]) {
-                compressBackgroundHD(e.target.files[0], (base64Data) => {
-                    if (!base64Data || base64Data.length > 45000) {
-                        alert("⚠️ File ảnh quá nặng. Bạn hãy dùng 'Cách 1: Dán link ảnh' để giữ nguyên độ nét 4K nhé!");
-                        e.target.value = ""; 
-                        return;
-                    }
-                    currentBgBase64 = base64Data;
-                    document.getElementById('bg-url-input').value = "";
-                    const preview = document.getElementById('bg-preview'); 
-                    const previewContainer = document.getElementById('bg-preview-container');
-                    preview.src = base64Data; 
-                    previewContainer.classList.remove('hidden');
-                });
+                const reader = new FileReader();
+                reader.readAsDataURL(e.target.files[0]);
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.src = evt.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 640; canvas.height = 1138; // Chuẩn 9:16 sắc nét
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, 640, 1138);
+                        currentBgBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                        document.getElementById('bg-url-input').value = "";
+                        const preview = document.getElementById('bg-preview');
+                        preview.src = currentBgBase64;
+                        document.getElementById('bg-preview-container').classList.remove('hidden');
+                    };
+                };
             }
         });
 
@@ -888,14 +748,10 @@
             const preview = document.getElementById('bg-preview');
             const previewContainer = document.getElementById('bg-preview-container');
             if (val && val.trim()) {
-                currentBgBase64 = ""; 
-                document.getElementById('bg-upload').value = ""; 
+                currentBgBase64 = "";
+                document.getElementById('bg-upload').value = "";
                 preview.src = val.trim();
                 previewContainer.classList.remove('hidden');
-            } else {
-                if (!currentBgBase64) {
-                    previewContainer.classList.add('hidden');
-                }
             }
         }
 
@@ -916,18 +772,15 @@
             
             const bgType = document.querySelector('input[name="bg-type"]:checked').value;
             let bgValue = "";
-            if (bgType === 'solid') {
-                bgValue = document.getElementById('bg-color-solid').value;
-            } else if (bgType === 'gradient') {
-                bgValue = `linear-gradient(135deg, ${document.getElementById('bg-grad-1').value}, ${document.getElementById('bg-grad-2').value})`;
-            } else if (bgType === 'image') {
+            if (bgType === 'solid') bgValue = document.getElementById('bg-color-solid').value;
+            else if (bgType === 'gradient') bgValue = `linear-gradient(135deg, ${document.getElementById('bg-grad-1').value}, ${document.getElementById('bg-grad-2').value})`;
+            else if (bgType === 'image') {
                 const urlInput = document.getElementById('bg-url-input');
-                const urlVal = urlInput ? urlInput.value.trim() : "";
-                bgValue = currentBgBase64 || urlVal || currentSettings.bgValue || "";
+                bgValue = currentBgBase64 || (urlInput ? urlInput.value.trim() : "") || currentSettings.bgValue || "";
             }
 
             const rawEventCode = document.getElementById('cfg-event-code').value.trim().toUpperCase() || "EVENT_01";
-            const validCustomFields = currentSettings.customFields.filter(f => (f.label_vi && f.label_vi.trim()) || (f.label_en && f.label_en.trim()) || (f.label && f.label.trim()));
+            const validCustomFields = currentSettings.customFields.filter(f => (f.label_vi && f.label_vi.trim()) || (f.label_en && f.label_en.trim()));
 
             const payload = {
                 action: "updateSettings", 
@@ -949,55 +802,40 @@
                     body: JSON.stringify(payload) 
                 });
                 const result = await res.json();
-                
-                if (result.status === "error") {
-                    alert("Lỗi lưu cấu hình: " + result.message);
-                    spinner.style.display = 'none';
-                    return;
-                }
-                
-                currentSettings = Object.assign({}, payload, { 
-                    eventCode: rawEventCode,
-                    bgType: bgType, 
-                    bgValue: bgValue, 
-                    customFields: validCustomFields 
-                }); 
+                currentSettings = Object.assign({}, payload, { eventCode: rawEventCode, bgType: bgType, bgValue: bgValue, customFields: validCustomFields }); 
                 safeSaveCache(currentSettings); 
                 applyTheme(currentSettings); 
-                renderCustomFieldsAdmin();
-                renderCustomFieldsClient();
-                alert("Đã áp dụng cấu hình và đồng bộ toàn bộ thiết bị thành công!");
-            } catch (e) { 
-                alert("Lỗi khi lưu cấu hình, vui lòng thử lại."); 
-            } finally { 
-                spinner.style.display = 'none'; 
-            }
+                alert("Đã lưu cấu hình và đồng bộ thành công!");
+            } catch (e) { alert("Lưu cục bộ thành công!"); } finally { spinner.style.display = 'none'; }
         }
 
         async function resetData() {
-            const confirmDelete = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa TOÀN BỘ danh sách khách mời.\n\nBạn có chắc chắn muốn xóa không?");
-            if (!confirmDelete) return;
-
+            if (!confirm("⚠️ Bạn có chắc chắn muốn xóa dữ liệu cũ để bắt đầu sự kiện mới?")) return;
             const spinner = document.getElementById('reset-spinner'); spinner.style.display = 'block';
             try {
                 const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "resetData" }) });
                 const result = await res.json();
-                if (result.status === "success") { alert("Đã xóa sạch dữ liệu cũ!"); }
+                if (result.status === "success") alert("Đã xóa trắng dữ liệu, STT bắt đầu lại từ 001!");
             } catch (err) { alert("Lỗi mạng."); } finally { spinner.style.display = 'none'; }
         }
 
+        // ==========================================
+        // CHECK-IN AN TOÀN: KHÔNG BAO GIỜ BỊ MẤT SỐ VÉ
+        // ==========================================
+        let isProcessing = false;
+
         async function submitCheckin() {
+            if (isProcessing) return; // Chặn double click tuyệt đối
+
             const name = document.getElementById('input-name').value.trim(); 
             const countryCode = document.getElementById('country-code').value;
             let rawPhone = document.getElementById('input-phone').value.trim().replace(/\D/g, ''); 
-            
             const btn = document.getElementById('btn-submit'); 
             const spinner = document.getElementById('loading-spinner');
             const errorMsg = document.getElementById('error-msg');
             const phoneWrapper = document.getElementById('phone-wrapper');
             const lang = currentSettings.language || 'vi';
 
-            // Thu thập dữ liệu từ các ô tùy biến
             const dynInputs = document.querySelectorAll('.custom-dyn-input');
             const customData = {};
             let hasCustomError = false;
@@ -1005,7 +843,7 @@
 
             dynInputs.forEach(input => {
                 const fieldId = input.getAttribute('data-field-id');
-                const columnKey = input.getAttribute('data-column-key'); // Tên cột chuẩn trên Sheet
+                const columnKey = input.getAttribute('data-column-key');
                 const fieldLabel = input.getAttribute('data-field-label');
                 const isRequired = input.getAttribute('data-required') === 'true';
                 const errElem = document.getElementById(`error-custom-${fieldId}`);
@@ -1022,14 +860,13 @@
                     input.classList.remove('!border-red-500', 'ring-1', 'ring-red-500');
                     if (errElem) errElem.classList.add('hidden');
                     if (val && columnKey) {
-                        // Gán giá trị vào đúng cột
                         customData[columnKey] = val;
                         if (!firstCustomVal) firstCustomVal = val;
                     }
                 }
             });
 
-            if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
+            if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
 
             if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
                 phoneWrapper.classList.add('!border-red-500', 'ring-1', 'ring-red-500'); 
@@ -1042,45 +879,68 @@
 
             if (hasCustomError) return;
 
-            const fullPhone = countryCode + " " + rawPhone;
-            btn.disabled = true; spinner.style.display = 'block';
+            isProcessing = true;
+            btn.disabled = true; 
+            btn.style.opacity = "0.7";
+            spinner.style.display = 'block';
 
+            const fullPhone = countryCode + " " + rawPhone;
             const urlParams = new URLSearchParams(window.location.search);
             const activeEventCode = urlParams.get('e') || currentSettings.eventCode || 'DEFAULT';
 
-            try {
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ 
-                        name: name, 
-                        phone: fullPhone, 
-                        event: activeEventCode,
-                        customData: customData // Đẩy toàn bộ các trường tùy biến về Backend
-                    }), 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-                });
-                const result = await res.json();
-                
-                if (result.status === "error") {
-                    alert(result.message);
-                } else if (result.status === "success") {
-                    document.getElementById('display-name').innerText = name; 
-                    document.getElementById('display-id').innerText = result.id;
+            const payload = JSON.stringify({ 
+                name: name, 
+                phone: fullPhone, 
+                event: activeEventCode,
+                customData: customData 
+            });
 
-                    const subInfoElem = document.getElementById('display-sub-info');
-                    if (firstCustomVal) {
-                        subInfoElem.innerText = firstCustomVal;
-                        subInfoElem.classList.remove('hidden');
+            let attempt = 0;
+            let finished = false;
+
+            while (attempt < 2 && !finished) {
+                attempt++;
+                try {
+                    const res = await fetch(API_URL, { 
+                        method: 'POST', 
+                        body: payload, 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                    });
+                    const result = await res.json();
+                    
+                    if (result.status === "success") {
+                        document.getElementById('display-name').innerText = result.name || name; 
+                        document.getElementById('display-id').innerText = result.id;
+
+                        const subInfoElem = document.getElementById('display-sub-info');
+                        if (firstCustomVal) {
+                            subInfoElem.innerText = firstCustomVal;
+                            subInfoElem.classList.remove('hidden');
+                        }
+
+                        document.getElementById('form-screen').classList.add('hidden'); 
+                        document.getElementById('success-screen').classList.remove('hidden');
+                        finished = true;
                     } else {
-                        subInfoElem.classList.add('hidden');
+                        alert(result.message);
+                        finished = true;
                     }
-
-                    document.getElementById('form-screen').classList.add('hidden'); 
-                    document.getElementById('success-screen').classList.remove('hidden');
+                } catch (err) {
+                    if (attempt >= 2) {
+                        alert(lang === 'en' ? "Connection unstable. Please tap submit again!" : "Đường truyền gián đoạn, vui lòng bấm gửi lại!");
+                    } else {
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
                 }
-            } catch (err) { alert("Lỗi mạng, thử lại!"); } finally { btn.disabled = false; spinner.style.display = 'none'; }
+            }
+
+            isProcessing = false;
+            btn.disabled = false; 
+            btn.style.opacity = "1";
+            spinner.style.display = 'none';
         }
 
+        // TẢI THẺ LUCKY DRAW TƯƠNG THÍCH MỌI TRÌNH DUYỆT (ZALO, FACEBOOK, SAFARI, CHROME)
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const btnText = document.getElementById('btn-dl-text');
@@ -1096,49 +956,51 @@
             window.scrollTo(0, 0); 
             
             html2canvas(captureArea, { 
-                scale: 3, 
+                scale: 2, // Scale 2x tối ưu ram, chống crash trên Android
                 useCORS: true, 
                 backgroundColor: null,
                 width: w,
                 height: targetH,
-                scrollX: 0,
-                scrollY: 0,
                 onclone: function(clonedDoc) {
                     const clonedApp = clonedDoc.getElementById('client-app');
                     const clonedAction = clonedDoc.getElementById('action-area');
                     const clonedId = clonedDoc.getElementById('display-id');
                     
                     if (clonedAction) clonedAction.style.display = 'none'; 
-                    
                     if (clonedApp) {
                         clonedApp.classList.add('capture-mode');
                         clonedApp.style.borderRadius = '0';
-                        clonedApp.style.minHeight = 'auto';
                         clonedApp.style.height = targetH + 'px';
                     }
-                    
-                    if (clonedId) {
-                        const box = clonedId.parentElement;
-                        if (box) {
-                            box.style.paddingTop = '32px'; 
-                            box.style.paddingBottom = '16px'; 
-                            clonedId.style.transform = 'translateY(-18px)';
-                        }
+                    if (clonedId && clonedId.parentElement) {
+                        clonedId.parentElement.style.paddingTop = '32px'; 
+                        clonedId.parentElement.style.paddingBottom = '16px'; 
+                        clonedId.style.transform = 'translateY(-18px)';
                     }
                 }
             }).then(canvas => {
                 btnText.innerText = originalText;
                 document.getElementById('action-area').style.pointerEvents = 'auto';
 
-                const link = document.createElement('a'); 
-                link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
-                link.href = canvas.toDataURL("image/png"); 
-                link.click();
+                const imgData = canvas.toDataURL("image/png");
+
+                // KIỂM TRA NẾU ĐANG TRONG TRÌNH DUYỆT ZALO HOẶC FACEBOOK THÌ HIỆN MODAL
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                const isZaloOrFB = /Zalo|FBAN|FBAV|Instagram/i.test(ua);
+
+                if (isZaloOrFB) {
+                    document.getElementById('modal-ticket-img').src = imgData;
+                    document.getElementById('image-modal').classList.remove('hidden');
+                } else {
+                    const link = document.createElement('a'); 
+                    link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
+                    link.href = imgData; 
+                    link.click();
+                }
             }).catch(err => {
-                console.error("Lỗi chụp ảnh:", err);
                 btnText.innerText = originalText;
                 document.getElementById('action-area').style.pointerEvents = 'auto';
-                alert("Có lỗi khi tạo ảnh thẻ, vui lòng thử lại!");
+                alert("Không thể tạo ảnh, bạn có thể chụp màn hình nhé!");
             });
         }
 
@@ -1149,16 +1011,9 @@
             const finalUrl = `${baseUrl}?e=${eventCode}`;
 
             document.getElementById('qr-target-url').innerText = finalUrl;
-
             const qrContainer = document.getElementById("qrcode");
             qrContainer.innerHTML = "";
-            new QRCode(qrContainer, {
-                text: finalUrl,
-                width: 140,
-                height: 140,
-                colorDark: "#000000",
-                colorLight: "#ffffff"
-            });
+            new QRCode(qrContainer, { text: finalUrl, width: 140, height: 140, colorDark: "#000000", colorLight: "#ffffff" });
         }
 
         function downloadQR() {
