@@ -4,21 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sự Kiện Check-in</title>
-    <link id="dynamic-favicon" rel="icon" href="https://placehold.co/32x32?text=C" type="image/png">
+    <link id="dynamic-favicon" rel="icon" href="https://placehold.co/64x64?text=EVT" type="image/png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;600;700;800&family=Playfair+Display:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        :root { --primary-color: #2563EB; --brand-font: 'Inter', sans-serif; --bg-value: #0f172a; }
-        body { background-color: #0f172a; font-family: var(--brand-font); margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow-x: hidden;}
+        :root { 
+            --primary-color: #2563EB; 
+            --brand-font: 'Inter', sans-serif; 
+            --bg-value: #0f172a; 
+        }
+        body { 
+            background-color: #0f172a; 
+            font-family: var(--brand-font); 
+            margin: 0; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow-x: hidden;
+        }
         .dynamic-bg { background-color: var(--primary-color) !important; }
         .dynamic-text { color: var(--primary-color) !important; }
         
         #client-app {
-            width: 100%; max-width: 420px; aspect-ratio: 9/16; position: relative; overflow-y: auto; overflow-x: hidden;
+            width: 100%; 
+            max-width: 420px; 
+            aspect-ratio: 9/16; 
+            position: relative; 
+            overflow-y: auto; 
+            overflow-x: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
             background: var(--bg-value);
             background-size: cover; 
@@ -27,11 +45,19 @@
         }
         @media (max-width: 420px) { #client-app { aspect-ratio: auto; min-height: 100vh; } }
         
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
+        .spinner { 
+            border: 3px solid rgba(255,255,255,0.3); 
+            border-radius: 50%; 
+            border-top: 3px solid #fff; 
+            width: 18px; 
+            height: 18px; 
+            animation: spin 1s linear infinite; 
+            display: none; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #country-code { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
-        /* LED VIỀN PHÁT SÁNG */
+        /* HIỆU ỨNG TIA LED PHÁT SÁNG */
         .led-border { 
             position: relative; 
             padding: 3px; 
@@ -39,9 +65,8 @@
             overflow: hidden; 
             z-index: 1; 
             background-color: rgba(255, 255, 255, 0.15); 
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.35);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4);
         }
-        
         .led-border::before, .led-border::after { 
             content: ''; 
             position: absolute; 
@@ -51,15 +76,14 @@
             animation: rotate-led 4.5s linear infinite; 
             z-index: -2; 
         }
-        
         .led-border::after { filter: blur(12px); opacity: 0.9; z-index: -1; }
         @keyframes rotate-led { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* TĂNG ĐỘ ĐỤC LÊN 90% ĐỂ ĐẢM BẢO ĐỘ TƯƠNG PHẢN TUYỆT ĐỐI */
+        /* ĐỘ TƯƠNG PHẢN CAO CHỐNG LOÁ */
         .led-inner { 
-            background: rgba(255, 255, 255, 0.92); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.93); 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.7);
             border-radius: calc(1.5rem - 3px); 
             width: 100%; height: 100%; 
@@ -68,17 +92,18 @@
         }
 
         .glass-input {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border: 1.5px solid rgba(203, 213, 225, 0.8) !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
         }
         .glass-input:focus-within, .glass-input:focus { 
             background: #ffffff !important;
             border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
         }
 
         .glass-box {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255, 255, 255, 0.94) !important;
+            border: 1.5px solid rgba(226, 232, 240, 0.9);
         }
 
         .capture-mode .led-border { padding: 0 !important; background: transparent !important; box-shadow: none !important;}
@@ -88,19 +113,19 @@
 </head>
 <body>
 
-    <!-- LOADER CÓ TỰ SÁT SAU 1.2S NẾU MẠNG KẸT -->
+    <!-- AUTO-KILL LOADER (GIỚI HẠN CỨNG 1.2S) -->
     <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-300">
         <div class="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin mb-4"></div>
         <p class="text-white/70 text-sm font-medium">Đang tải sự kiện...</p>
     </div>
 
-    <!-- MODAL DÀNH CHO ZALO/FB TRÊN ANDROID -->
+    <!-- MODAL DÀNH CHO TRÌNH DUYỆT ZALO/FACEBOOK -->
     <div id="image-modal" class="fixed inset-0 bg-black/80 z-[1000] hidden flex flex-col items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
             <h3 class="font-bold text-gray-900 text-sm mb-1">Vé May Mắn Của Bạn</h3>
             <p class="text-[11px] text-blue-600 font-bold mb-3">👇 Nhấn giữ 1 giây vào ảnh để Lưu về máy</p>
             <img id="modal-ticket-img" class="w-full rounded-xl border shadow-sm mb-3">
-            <button onclick="document.getElementById('image-modal').classList.add('hidden')" class="w-full py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold">ĐÃ LƯU XONG</button>
+            <button onclick="document.getElementById('image-modal').classList.add('hidden')" class="w-full py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold active:scale-95 transition">ĐÃ LƯU XONG</button>
         </div>
     </div>
 
@@ -152,12 +177,12 @@
                     </div>
                 </div>
 
-                <!-- MỤC TÙY BIẾN TRƯỜNG ĐIỀN -->
+                <!-- TÙY BIẾN TRƯỜNG BỔ SUNG -->
                 <div class="border-t pt-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                         <div>
                             <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Song ngữ VI/EN)</label>
-                            <p class="text-xs text-gray-500">Các ô này sẽ xuất hiện <b>nằm trên số điện thoại</b> và tự động lưu về Sheet.</p>
+                            <p class="text-xs text-gray-500">Các ô này nằm <b>trên số điện thoại</b> và tự động sinh cột trên Sheet.</p>
                         </div>
                         <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200">
                             + Thêm ô nhập
@@ -174,8 +199,9 @@
                     <div id="custom-fields-list" class="space-y-3"></div>
                 </div>
 
+                <!-- TẢI LOGO & TỰ TẠO FAVICON -->
                 <div class="border-t pt-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Logo sự kiện (Tự động chuyển thành Favicon tab web)</label>
                     <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
                         <div class="h-12 w-32 flex items-center justify-center">
                             <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="max-h-full max-w-full object-contain">
@@ -184,6 +210,7 @@
                     </div>
                 </div>
 
+                <!-- HÌNH NỀN -->
                 <div class="border-t pt-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-4">Phông nền trang (Background Theme)</label>
                     <div class="flex gap-4 mb-4">
@@ -207,7 +234,7 @@
                             <input type="url" id="bg-url-input" oninput="handleBgUrlInput(this.value)" placeholder="VD: https://i.postimg.cc/..." class="w-full h-10 px-3 border rounded-lg text-sm bg-white outline-none">
                         </div>
                         <div class="border-t pt-2">
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">Hoặc tải file ảnh từ máy (Tự nén 9:16):</label>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Hoặc tải file ảnh từ máy (Tự động nén chuẩn 9:16):</label>
                             <input type="file" id="bg-upload" accept="image/*" class="text-sm w-full">
                         </div>
                         <div id="bg-preview-container" class="hidden pt-1">
@@ -222,7 +249,7 @@
                 
                 <div class="mt-8 border-t-2 border-red-100 pt-6">
                     <h3 class="text-red-600 font-bold text-sm mb-2 uppercase">⚠️ Khu vực nguy hiểm</h3>
-                    <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách để bắt đầu sự kiện mới (STT bắt đầu lại từ 001).</p>
+                    <p class="text-xs text-gray-500 mb-3">Xóa danh sách khách để bắt đầu sự kiện mới (STT quay về 001).</p>
                     <button onclick="resetData()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 text-sm font-semibold rounded hover:bg-red-600 hover:text-white transition flex items-center gap-2">
                         Xóa dữ liệu Check-in <div id="reset-spinner" class="spinner !border-red-600 !border-t-white"></div>
                     </button>
@@ -233,7 +260,7 @@
                 <h3 class="font-bold text-gray-800 mb-1">QR Code Sự Kiện</h3>
                 <p id="qr-target-url" class="text-[11px] text-gray-400 mb-4 text-center font-mono break-all max-w-[200px]"></p>
                 <div id="qrcode" class="p-4 bg-white border rounded-xl shadow-sm mb-6 flex justify-center items-center"></div>
-                <button onclick="downloadQR()" class="px-5 py-2.5 bg-gray-800 text-white text-sm font-semibold rounded-lg hover:bg-black transition w-full">
+                <button onclick="downloadQR()" class="px-5 py-2.5 bg-gray-800 text-white text-sm font-semibold rounded-lg hover:bg-black transition w-full active:scale-95">
                     TẢI MÃ QR (PNG)
                 </button>
             </div>
@@ -260,7 +287,7 @@
                         <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-semibold focus:outline-none transition-all">
                     </div>
 
-                    <!-- CÁC TRƯỜNG TÙY BIẾN -->
+                    <!-- CÁC TRƯỜNG TÙY BIẾN ĐƯỢC CHUYỂN LÊN TRÊN SĐT -->
                     <div id="custom-fields-client-container" class="space-y-3.5"></div>
                     
                     <!-- SỐ ĐIỆN THOẠI -->
@@ -319,7 +346,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyd-VyJNVF4gYVdUtzkIsE1l5CZZN7mIC_XSOMnY2lXDnMoO47viAG5J0DGKZG2A7TTOQ/exec";
-        const SYSTEM_SECRET_TOKEN = "EVT_SECURE_2026"; // Khóa bảo vệ khớp với Code.gs
+        const SYSTEM_SECRET_TOKEN = "EVT_SECURE_2026"; // Khóa bảo mật tương thích với Code.gs
 
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
 
@@ -406,11 +433,15 @@
         function parseSettings(data) {
             if (!data) return {};
             const res = Object.assign({}, data);
+            
+            // Xử lý nạp cấu hình nền
             if (res.bgType && typeof res.bgType === 'string' && res.bgType.includes("|||")) {
                 const parts = res.bgType.split("|||");
                 res.bgType = parts[0];
                 res.bgValue = parts.slice(1).join("|||");
             }
+
+            // Xử lý nạp danh sách custom fields
             if (res.eventCode && typeof res.eventCode === 'string' && res.eventCode.includes("|||")) {
                 const parts = res.eventCode.split("|||");
                 res.eventCode = parts[0];
@@ -433,7 +464,47 @@
             } catch (e) { return null; }
         }
 
-        // TỰ ĐỘNG KHÔI PHỤC VÉ NẾU THIẾT BỊ NÀY ĐÃ TỪNG CHECK-IN TRONG NGÀY
+        // TỰ ĐỘNG ĐỒNG BỘ VÀ ÉP ĐỔI FAVICON THEO LOGO
+        function updateDynamicFavicon(logoUrl) {
+            if (!logoUrl) return;
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64; canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 64, 64);
+                
+                let drawW = 64, drawH = 64;
+                if (img.width > img.height) { 
+                    drawH = (img.height / img.width) * 64; 
+                } else { 
+                    drawW = (img.width / img.height) * 64; 
+                }
+                const offsetX = (64 - drawW) / 2;
+                const offsetY = (64 - drawH) / 2;
+                ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+                
+                try {
+                    const faviconUrl = canvas.toDataURL('image/png');
+                    let oldFavicon = document.getElementById('dynamic-favicon');
+                    const newFavicon = document.createElement('link');
+                    newFavicon.id = 'dynamic-favicon';
+                    newFavicon.rel = 'icon';
+                    newFavicon.type = 'image/png';
+                    newFavicon.href = faviconUrl;
+
+                    if (oldFavicon && oldFavicon.parentNode) {
+                        oldFavicon.parentNode.replaceChild(newFavicon, oldFavicon);
+                    } else {
+                        document.head.appendChild(newFavicon);
+                    }
+                } catch (e) {}
+            };
+            img.src = logoUrl;
+        }
+
+        // PHỤC HỒI VÉ TỰ ĐỘNG NẾU TRÌNH DUYỆT BỊ TẮT ĐỘT NGỘT
         function checkExistingTicketOnDevice() {
             try {
                 const savedTicket = localStorage.getItem('my_event_ticket');
@@ -460,7 +531,7 @@
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
 
-            checkExistingTicketOnDevice(); // Kiểm tra vé cũ
+            checkExistingTicketOnDevice();
 
             const langSelect = document.getElementById('cfg-language');
             if (langSelect) {
@@ -720,6 +791,7 @@
                 document.getElementById('logo-preview').src = cfg.logoUrl;
                 document.getElementById('view-logo').src = cfg.logoUrl;
                 document.getElementById('ticket-logo').src = cfg.logoUrl;
+                updateDynamicFavicon(cfg.logoUrl);
             }
             updateAdminQR();
         }
@@ -743,6 +815,7 @@
                         ctx.drawImage(img, 0, 0, w, h);
                         currentLogoBase64 = canvas.toDataURL('image/png', 0.9);
                         document.getElementById('logo-preview').src = currentLogoBase64;
+                        updateDynamicFavicon(currentLogoBase64);
                     };
                 };
             }
@@ -828,7 +901,7 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify(payload) 
                 });
-                const result = await res.json();
+                await res.json();
                 currentSettings = Object.assign({}, payload, { eventCode: rawEventCode, bgType: bgType, bgValue: bgValue, customFields: validCustomFields }); 
                 safeSaveCache(currentSettings); 
                 applyTheme(currentSettings); 
@@ -901,13 +974,9 @@
                 }
             });
 
-            // Chuẩn hóa số điện thoại thông minh (xử lý triệt để autofill)
-            if (rawPhone.startsWith('84') && rawPhone.length > 9) {
-                rawPhone = rawPhone.substring(2);
-            }
-            if (rawPhone.startsWith('0')) {
-                rawPhone = rawPhone.substring(1);
-            }
+            // Chuẩn hóa số điện thoại thông minh
+            if (rawPhone.startsWith('84') && rawPhone.length > 9) rawPhone = rawPhone.substring(2);
+            if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
 
             if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
                 phoneWrapper.classList.add('!border-red-500', 'ring-1', 'ring-red-500'); 
@@ -926,7 +995,6 @@
             spinner.style.display = 'block';
             btnText.innerText = (i18n[lang] || i18n['vi']).processing;
 
-            // BỘ ĐẾM THỜI GIAN THÔNG BÁO TIẾN ĐỘ TRÁNH KHÁCH HOẢNG LOẠN
             const t1 = setTimeout(() => {
                 if (isProcessing) btnText.innerText = (i18n[lang] || i18n['vi']).waiting1;
             }, 3000);
@@ -964,7 +1032,7 @@
                         subInfoElem.classList.remove('hidden');
                     }
 
-                    // GHI NHỚ VÉ VÀO MÁY KHÁCH (CHỐNG MẤT VÉ KHI TẮT TRÌNH DUYỆT)
+                    // LƯU CỤC BỘ ĐỂ KHÁCH KHÔNG BỊ MẤT VÉ NẾU LỠ TAY ĐÓNG WEB
                     try {
                         localStorage.setItem('my_event_ticket', JSON.stringify({
                             id: result.id,
@@ -992,7 +1060,7 @@
             }
         }
 
-        // TẢI VÉ AN TOÀN TRÊN MỌI THIẾT BỊ VÀ TRÌNH DUYỆT ZALO/FB
+        // TẢI VÉ CHUẨN XÁC TRÊN ZALO, FB VÀ MỌI THIẾT BỊ
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const btnText = document.getElementById('btn-dl-text');
@@ -1037,7 +1105,6 @@
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
                 const isZaloOrFB = /Zalo|FBAN|FBAV|Instagram/i.test(ua);
 
-                // Nếu là trình duyệt trong Zalo/FB thì mở Modal ảnh để bấm giữ lưu
                 if (isZaloOrFB) {
                     document.getElementById('modal-ticket-img').src = imgData;
                     document.getElementById('image-modal').classList.remove('hidden');
