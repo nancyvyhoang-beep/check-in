@@ -38,7 +38,7 @@
             border-radius: 1.5rem; 
             overflow: hidden; 
             z-index: 1; 
-            background-color: rgba(255, 255, 255, 0.12); 
+            background-color: rgba(255, 255, 255, 0.15); 
             box-shadow: 0 20px 40px -10px rgba(0,0,0,0.35);
         }
         
@@ -55,54 +55,52 @@
         .led-border::after { filter: blur(12px); opacity: 0.9; z-index: -1; }
         @keyframes rotate-led { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* GLASSMORPHISM */
+        /* TĂNG ĐỘ ĐỤC LÊN 90% ĐỂ ĐẢM BẢO ĐỘ TƯƠNG PHẢN TUYỆT ĐỐI */
         .led-inner { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(20px) saturate(180%); 
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.92); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
             border-radius: calc(1.5rem - 3px); 
             width: 100%; height: 100%; 
             position: relative; 
             z-index: 2; 
-            box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .glass-input {
-            background: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1.5px solid rgba(203, 213, 225, 0.8) !important;
         }
-        .glass-input:focus-within, .glass-input:focus { background: rgba(255, 255, 255, 0.98) !important; }
+        .glass-input:focus-within, .glass-input:focus { 
+            background: #ffffff !important;
+            border-color: var(--primary-color) !important;
+        }
 
         .glass-box {
-            background: rgba(255, 255, 255, 0.75) !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .capture-mode .led-border { padding: 0 !important; background: transparent !important; box-shadow: none !important;}
         .capture-mode .led-border::before, .capture-mode .led-border::after { display: none !important; animation: none !important; }
-        .capture-mode .led-inner { border-radius: 1.25rem; background: rgba(255, 255, 255, 0.95) !important; }
+        .capture-mode .led-inner { border-radius: 1.25rem; background: #ffffff !important; }
     </style>
 </head>
 <body>
 
-    <!-- MÀN HÌNH LOADING CÓ CƠ CHẾ AUTO-KILL -->
+    <!-- LOADER CÓ TỰ SÁT SAU 1.2S NẾU MẠNG KẸT -->
     <div id="initial-loader" class="fixed inset-0 bg-[#0f172a] z-[999] flex flex-col items-center justify-center transition-opacity duration-300">
         <div class="w-10 h-10 border-4 border-gray-600 border-t-white rounded-full animate-spin mb-4"></div>
         <p class="text-white/70 text-sm font-medium">Đang tải sự kiện...</p>
     </div>
 
-    <!-- POPUP LƯU ẢNH DÀNH RIÊNG CHO TRÌNH DUYỆT ZALO/FACEBOOK -->
+    <!-- MODAL DÀNH CHO ZALO/FB TRÊN ANDROID -->
     <div id="image-modal" class="fixed inset-0 bg-black/80 z-[1000] hidden flex flex-col items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
-            <h3 class="font-bold text-gray-800 text-sm mb-1">Vé May Mắn Của Bạn</h3>
-            <p class="text-[11px] text-blue-600 font-semibold mb-3">👇 Nhấn giữ 1 giây vào ảnh bên dưới để Lưu về máy</p>
+            <h3 class="font-bold text-gray-900 text-sm mb-1">Vé May Mắn Của Bạn</h3>
+            <p class="text-[11px] text-blue-600 font-bold mb-3">👇 Nhấn giữ 1 giây vào ảnh để Lưu về máy</p>
             <img id="modal-ticket-img" class="w-full rounded-xl border shadow-sm mb-3">
-            <button onclick="document.getElementById('image-modal').classList.add('hidden')" class="w-full py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold">ĐÓNG</button>
+            <button onclick="document.getElementById('image-modal').classList.add('hidden')" class="w-full py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold">ĐÃ LƯU XONG</button>
         </div>
     </div>
 
@@ -111,7 +109,7 @@
         <div class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Cấu Hình Giao Diện Check-in</h1>
-                <p class="text-sm text-gray-500">Thiết kế form, hạng mục điền, mã QR động, ngôn ngữ & hình nền</p>
+                <p class="text-sm text-gray-500">Thiết kế form, hạng mục điền, mã QR động & hình nền</p>
             </div>
             <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg text-sm hover:bg-gray-300 transition">
                 Xem Trang Khách &rarr;
@@ -123,11 +121,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Tên sự kiện</label>
-                        <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Year End Party 2026">
+                        <input type="text" id="cfg-event-name" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="VD: Year End Party 2026">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Mã sự kiện (Đổi mã sẽ đổi mã QR)</label>
-                        <input type="text" id="cfg-event-code" oninput="updateAdminQR()" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono uppercase" placeholder="VD: YEP2026">
+                        <input type="text" id="cfg-event-code" oninput="updateAdminQR()" class="w-full h-12 px-4 border rounded-lg text-sm bg-gray-50 font-mono uppercase focus:ring-2 focus:ring-blue-500 outline-none" placeholder="VD: YEP2026">
                     </div>
                 </div>
 
@@ -159,9 +157,9 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                         <div>
                             <label class="block text-sm font-bold text-gray-800">📋 Hạng mục điền bổ sung (Song ngữ VI/EN)</label>
-                            <p class="text-xs text-gray-500">Các ô này sẽ xuất hiện <b>nằm trên số điện thoại</b> và tự tạo cột tương ứng trên Google Sheets.</p>
+                            <p class="text-xs text-gray-500">Các ô này sẽ xuất hiện <b>nằm trên số điện thoại</b> và tự động lưu về Sheet.</p>
                         </div>
-                        <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200 self-start sm:self-auto">
+                        <button type="button" onclick="addCustomFieldRow()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg text-xs transition border border-blue-200">
                             + Thêm ô nhập
                         </button>
                     </div>
@@ -177,7 +175,7 @@
                 </div>
 
                 <div class="border-t pt-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện (Hỗ trợ PNG trong suốt)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tải Logo sự kiện</label>
                     <div class="flex items-center gap-4 bg-gray-100 p-3 rounded-lg border border-dashed border-gray-300">
                         <div class="h-12 w-32 flex items-center justify-center">
                             <img id="logo-preview" src="https://placehold.co/200x80?text=LOGO" class="max-h-full max-w-full object-contain">
@@ -206,7 +204,7 @@
                     <div id="bg-panel-image" class="hidden p-4 bg-gray-50 rounded-lg space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-blue-700 mb-1">Dán Link ảnh trực tiếp (Khuyên dùng - Nét 4K, siêu nhẹ):</label>
-                            <input type="url" id="bg-url-input" oninput="handleBgUrlInput(this.value)" placeholder="VD: https://i.postimg.cc/..." class="w-full h-10 px-3 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="url" id="bg-url-input" oninput="handleBgUrlInput(this.value)" placeholder="VD: https://i.postimg.cc/..." class="w-full h-10 px-3 border rounded-lg text-sm bg-white outline-none">
                         </div>
                         <div class="border-t pt-2">
                             <label class="block text-xs font-semibold text-gray-700 mb-1">Hoặc tải file ảnh từ máy (Tự nén 9:16):</label>
@@ -224,7 +222,7 @@
                 
                 <div class="mt-8 border-t-2 border-red-100 pt-6">
                     <h3 class="text-red-600 font-bold text-sm mb-2 uppercase">⚠️ Khu vực nguy hiểm</h3>
-                    <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách để bắt đầu sự kiện mới (STT sẽ bắt đầu lại từ 001).</p>
+                    <p class="text-xs text-gray-500 mb-3">Xóa toàn bộ danh sách khách để bắt đầu sự kiện mới (STT bắt đầu lại từ 001).</p>
                     <button onclick="resetData()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 text-sm font-semibold rounded hover:bg-red-600 hover:text-white transition flex items-center gap-2">
                         Xóa dữ liệu Check-in <div id="reset-spinner" class="spinner !border-red-600 !border-t-white"></div>
                     </button>
@@ -252,36 +250,36 @@
                     <div class="h-12 w-full flex justify-center items-center mx-auto mb-5">
                         <img id="view-logo" src="" class="max-h-full max-w-[80%] object-contain drop-shadow-sm">
                     </div>
-                    <h1 id="view-event-name" class="text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">Check-in Sự Kiện</h1>
-                    <p id="view-subtitle" class="text-gray-600 text-sm mt-1 font-medium">Vui lòng điền thông tin</p>
+                    <h1 id="view-event-name" class="text-2xl font-black text-gray-900 tracking-tight leading-tight">Check-in Sự Kiện</h1>
+                    <p id="view-subtitle" class="text-gray-600 text-sm mt-1 font-semibold">Vui lòng điền thông tin</p>
                 </div>
                 
                 <div class="space-y-3.5">
-                    <!-- 1. HỌ TÊN -->
+                    <!-- HỌ VÀ TÊN -->
                     <div>
-                        <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <input type="text" id="input-name" placeholder="Họ và tên" class="glass-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-semibold focus:outline-none transition-all">
                     </div>
 
-                    <!-- 2. CÁC TRƯỜNG TÙY BIẾN ĐƯỢC CHUYỂN NẰM TRÊN SĐT -->
+                    <!-- CÁC TRƯỜNG TÙY BIẾN -->
                     <div id="custom-fields-client-container" class="space-y-3.5"></div>
                     
-                    <!-- 3. SỐ ĐIỆN THOẠI -->
+                    <!-- SỐ ĐIỆN THOẠI -->
                     <div>
-                        <div id="phone-wrapper" class="glass-input flex items-center w-full h-[50px] rounded-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
-                            <div class="relative w-[110px] h-full flex-shrink-0 bg-black/5 border-r border-black/10 transition-colors hover:bg-black/10">
-                                <div id="country-code-display" class="absolute inset-0 flex items-center justify-center text-gray-900 font-semibold text-sm pointer-events-none z-10">
+                        <div id="phone-wrapper" class="glass-input flex items-center w-full h-[50px] rounded-xl transition-all overflow-hidden">
+                            <div class="relative w-[110px] h-full flex-shrink-0 bg-black/5 border-r border-gray-300 transition-colors">
+                                <div id="country-code-display" class="absolute inset-0 flex items-center justify-center text-gray-900 font-bold text-sm pointer-events-none z-10">
                                     🇻🇳 +84
                                 </div>
                                 <select id="country-code" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 outline-none" onchange="updateCountryDisplay(this)"></select>
                             </div>
-                            <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full h-full px-4 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 font-medium min-w-0">
+                            <input type="tel" id="input-phone" placeholder="Số điện thoại" class="w-full h-full px-4 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 font-semibold min-w-0">
                         </div>
-                        <p id="error-msg" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.</p>
+                        <p id="error-msg" class="text-red-600 text-xs mt-1.5 hidden font-bold ml-1">Vui lòng nhập đúng Họ tên và Số điện thoại.</p>
                     </div>
 
-                    <!-- 4. NÚT GỬI -->
+                    <!-- NÚT GỬI -->
                     <button id="btn-submit" onclick="submitCheckin()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl mt-3 flex justify-center items-center gap-2 shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
-                        <span id="btn-text" class="tracking-wide">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
+                        <span id="btn-text" class="tracking-wide font-black">GỬI THÔNG TIN</span><div id="loading-spinner" class="spinner"></div>
                     </button>
                 </div>
             </div>
@@ -297,23 +295,23 @@
                     
                     <h2 class="text-base font-semibold text-gray-800 mb-0.5 leading-tight">
                         <span id="view-hello">Xin chào,</span> <br>
-                        <span id="display-name" class="dynamic-text text-2xl font-extrabold"></span>!
+                        <span id="display-name" class="dynamic-text text-2xl font-black"></span>!
                     </h2>
                     <p id="display-sub-info" class="text-xs font-bold text-gray-500 uppercase tracking-wide hidden mb-1"></p>
-                    <p id="view-success-sub" class="text-xs text-gray-600 mb-5 font-medium">Bạn đã check-in thành công</p>
+                    <p id="view-success-sub" class="text-xs text-gray-600 mb-5 font-semibold">Bạn đã check-in thành công</p>
                     
                     <div class="glass-box rounded-2xl py-8 px-4 flex flex-col justify-center items-center w-full min-h-[160px]">
-                        <p id="view-ticket-label" class="text-gray-600 font-bold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ CỦA BẠN</p>
+                        <p id="view-ticket-label" class="text-gray-500 font-extrabold text-[11px] uppercase tracking-widest w-full text-center m-0 mb-3 leading-none">MÃ SỐ MAY MẮN</p>
                         <span id="display-id" class="text-[6.5rem] font-black dynamic-text tracking-tighter drop-shadow-sm leading-[0.8] block w-full text-center m-0 p-0">000</span>
                     </div>
                     
-                    <p class="mt-6 text-xs font-semibold text-gray-700 leading-relaxed"><span id="view-save-note">Vui lòng lưu ảnh này để tham gia </span><b class="dynamic-text">Lucky Draw</b></p>
+                    <p class="mt-6 text-xs font-bold text-gray-700 leading-relaxed"><span id="view-save-note">Vui lòng lưu ảnh này để tham gia </span><b class="dynamic-text">Lucky Draw</b></p>
                 </div>
             </div>
             
             <div id="action-area" class="w-full mt-6">
                 <button onclick="downloadTicket()" class="w-full dynamic-bg text-white font-bold h-[50px] rounded-xl shadow-xl hover:brightness-105 active:scale-95 transition border border-white/20">
-                    <span id="btn-dl-text" class="tracking-wide">LƯU ẢNH VỀ MÁY</span>
+                    <span id="btn-dl-text" class="tracking-wide font-black">LƯU ẢNH VỀ MÁY</span>
                 </button>
             </div>
         </div>
@@ -321,6 +319,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyd-VyJNVF4gYVdUtzkIsE1l5CZZN7mIC_XSOMnY2lXDnMoO47viAG5J0DGKZG2A7TTOQ/exec";
+        const SYSTEM_SECRET_TOKEN = "EVT_SECURE_2026"; // Khóa bảo vệ khớp với Code.gs
 
         const countriesStr = "Afghanistan|+93|🇦🇫,Albania|+355|🇦🇱,Algeria|+213|🇩🇿,Andorra|+376|🇦🇩,Angola|+244|🇦🇴,Antigua & Barbuda|+1268|🇦🇬,Argentina|+54|🇦🇷,Armenia|+374|🇦🇲,Australia|+61|🇦🇺,Austria|+43|🇦🇹,Azerbaijan|+994|🇦🇿,Bahamas|+1242|🇧🇸,Bahrain|+973|🇧🇭,Bangladesh|+880|🇧🇩,Barbados|+1246|🇧🇧,Belarus|+375|🇧🇾,Belgium|+32|🇧🇪,Belize|+501|🇧🇿,Benin|+229|🇧🇯,Bhutan|+975|🇧🇹,Bolivia|+591|🇧🇴,Bosnia & Herzegovina|+387|🇧🇦,Botswana|+267|🇧🇼,Brazil|+55|🇧🇷,Brunei|+673|🇧🇳,Bulgaria|+359|🇧🇬,Burkina Faso|+226|🇧🇫,Burundi|+257|🇧🇮,Cambodia|+855|🇰🇭,Cameroon|+237|🇨🇲,Canada|+1|🇨🇦,Cape Verde|+238|🇨🇻,Central African Rep|+236|🇨🇫,Chad|+235|🇹🇩,Chile|+56|🇨🇱,China|+86|🇨🇳,Colombia|+57|🇨🇴,Comoros|+269|🇰🇲,Congo|+242|🇨🇬,Costa Rica|+506|🇨🇷,Croatia|+385|🇭🇷,Cuba|+53|🇨🇺,Cyprus|+357|🇨🇾,Czech Republic|+420|🇨🇿,Denmark|+45|🇩🇰,Djibouti|+253|🇩🇯,Dominica|+1767|🇩🇲,Dominican Rep|+1809|🇩🇴,East Timor|+670|🇹🇱,Ecuador|+593|🇪🇨,Egypt|+20|🇪🇬,El Salvador|+503|🇸🇻,Equatorial Guinea|+240|🇬🇶,Eritrea|+291|🇪🇷,Estonia|+372|🇪🇪,Eswatini|+268|🇸🇿,Ethiopia|+251|🇪🇹,Fiji|+679|🇫🇯,Finland|+358|🇫🇮,France|+33|🇫🇷,Gabon|+241|🇬🇦,Gambia|+220|🇬🇲,Georgia|+995|🇬🇪,Germany|+49|🇩🇪,Ghana|+233|🇬🇭,Greece|+30|🇬🇷,Grenada|+1473|🇬🇩,Guatemala|+502|🇬🇹,Guinea|+224|🇬🇳,Guinea-Bissau|+245|🇬🇼,Guyana|+592|🇬🇾,Haiti|+509|🇭🇹,Honduras|+504|🇭🇳,Hungary|+36|🇭🇺,Iceland|+354|🇮🇸,India|+91|🇮🇳,Indonesia|+62|🇮🇩,Iran|+98|🇮🇷,Iraq|+964|🇮🇶,Ireland|+353|🇮🇪,Israel|+972|🇮🇱,Italy|+39|🇮🇹,Ivory Coast|+225|🇨🇮,Jamaica|+1876|🇯🇲,Japan|+81|🇯🇵,Jordan|+962|🇯🇴,Kazakhstan|+7|🇰🇿,Kenya|+254|🇰🇪,Kiribati|+686|🇰🇮,Kosovo|+383|🇽🇰,Kuwait|+965|🇰🇼,Kyrgyzstan|+996|🇰🇬,Laos|+856|🇱🇦,Latvia|+371|🇱🇻,Lebanon|+961|🇱🇧,Lesotho|+266|🇱🇸,Liberia|+231|🇱🇷,Libya|+218|🇱🇾,Liechtenstein|+423|🇱🇮,Lithuania|+370|🇱🇹,Luxembourg|+352|🇱🇺,Madagascar|+261|🇲🇬,Malawi|+265|🇲🇼,Malaysia|+60|🇲🇾,Maldives|+960|🇲🇻,Mali|+223|🇲🇱,Malta|+356|🇲🇹,Marshall Islands|+692|🇲🇭,Mauritania|+222|🇲🇷,Mauritius|+230|🇲🇺,Mexico|+52|🇲🇽,Micronesia|+691|🇫🇲,Moldova|+373|🇲🇩,Monaco|+377|🇲🇨,Mongolia|+976|🇲🇳,Montenegro|+382|🇲🇪,Morocco|+212|🇲🇦,Mozambique|+258|🇲🇿,Myanmar|+95|🇲🇲,Namibia|+264|🇳🇦,Nauru|+674|🇳🇷,Nepal|+977|🇳🇵,Netherlands|+31|🇳🇱,New Zealand|+64|🇳🇿,Nicaragua|+505|🇳🇮,Niger|+227|🇳🇪,Nigeria|+234|🇳🇬,North Korea|+850|🇰🇵,North Macedonia|+389|🇲🇰,Norway|+47|🇳🇴,Oman|+968|🇴🇲,Pakistan|+92|🇵🇰,Palau|+680|🇵🇼,Palestine|+970|🇵🇸,Panama|+507|🇵🇦,Papua New Guinea|+675|🇵🇬,Paraguay|+595|🇵🇾,Peru|+51|🇵🇪,Philippines|+63|🇵🇭,Poland|+48|🇵🇱,Portugal|+351|🇵🇹,Qatar|+974|🇶🇦,Romania|+40|🇷🇴,Russia|+7|🇷🇺,Rwanda|+250|🇷🇼,St Kitts & Nevis|+1869|🇰🇳,St Lucia|+1758|🇱🇨,Samoa|+685|🇼🇸,San Marino|+378|🇸🇲,Sao Tome & Principe|+239|🇸🇹,Saudi Arabia|+966|🇸🇦,Senegal|+221|🇸🇳,Serbia|+381|🇷🇸,Seychelles|+248|🇸🇨,Sierra Leone|+232|🇸🇱,Singapore|+65|🇸🇬,Slovakia|+421|🇸🇰,Slovenia|+386|🇸🇮,Solomon Islands|+677|🇸🇧,Somalia|+252|🇸🇴,South Africa|+27|🇿🇦,South Korea|+82|🇰🇷,South Sudan|+211|🇸🇸,Spain|+34|🇪🇸,Sri Lanka|+94|🇱🇰,Sudan|+249|🇸🇩,Suriname|+597|🇸🇷,Sweden|+46|🇸🇪,Switzerland|+41|🇨🇭,Syria|+963|🇸🇾,Taiwan|+886|🇹🇼,Tajikistan|+992|🇹🇯,Tanzania|+255|🇹🇿,Thailand|+66|🇹🇭,Togo|+228|🇹🇬,Tonga|+676|🇹🇴,Trinidad & Tobago|+1868|🇹🇹,Tunisia|+216|🇹🇳,Turkey|+90|🇹🇷,Turkmenistan|+993|🇹🇲,Tuvalu|+688|🇹🇻,Uganda|+256|🇺🇬,Ukraine|+380|🇺🇦,UAE|+971|🇦🇪,UK|+44|🇬🇧,Uruguay|+598|🇺🇾,Uzbekistan|+998|🇺🇿,Vanuatu|+678|🇻🇺,Vatican City|+379|🇻🇦,Venezuela|+58|🇻🇪,Vietnam|+84|🇻🇳,Yemen|+967|🇾🇪,Zambia|+260|🇿🇲,Zimbabwe|+263|🇿🇼";
 
@@ -329,14 +328,16 @@
                 subtitle: "Vui lòng điền thông tin",
                 namePh: "Họ và tên",
                 phonePh: "Số điện thoại",
-                errorMsg: "Vui lòng nhập đúng Họ tên và Số điện thoại hợp lệ.",
+                errorMsg: "Vui lòng nhập đúng Họ tên và Số điện thoại.",
                 btnSubmit: "GỬI THÔNG TIN",
                 hello: "Xin chào,",
                 successSub: "Bạn đã check-in thành công",
-                ticketLabel: "MÃ SỐ CỦA BẠN",
+                ticketLabel: "MÃ SỐ MAY MẮN",
                 saveNotePre: "Vui lòng lưu ảnh này để tham gia ",
                 btnSave: "LƯU ẢNH VỀ MÁY",
-                processing: "ĐANG XỬ LÝ..."
+                processing: "ĐANG XỬ LÝ...",
+                waiting1: "ĐANG KẾT NỐI HỆ THỐNG...",
+                waiting2: "ĐANG XẾP HÀNG CẤP VÉ..."
             },
             en: {
                 subtitle: "Please fill in your information",
@@ -346,10 +347,12 @@
                 btnSubmit: "SUBMIT",
                 hello: "Hello,",
                 successSub: "Check-in successful",
-                ticketLabel: "YOUR TICKET NUMBER",
+                ticketLabel: "YOUR LUCKY NUMBER",
                 saveNotePre: "Please save this image to join the ",
                 btnSave: "SAVE IMAGE",
-                processing: "PROCESSING..."
+                processing: "PROCESSING...",
+                waiting1: "CONNECTING...",
+                waiting2: "ALLOCATING TICKET..."
             }
         };
 
@@ -430,11 +433,34 @@
             } catch (e) { return null; }
         }
 
-        // TỰ ĐỘNG DIỆT LOADER SAU 1.2S NẾU MẠNG ANDROID TREO
+        // TỰ ĐỘNG KHÔI PHỤC VÉ NẾU THIẾT BỊ NÀY ĐÃ TỪNG CHECK-IN TRONG NGÀY
+        function checkExistingTicketOnDevice() {
+            try {
+                const savedTicket = localStorage.getItem('my_event_ticket');
+                if (savedTicket) {
+                    const ticketData = JSON.parse(savedTicket);
+                    const today = new Date().toDateString();
+                    if (ticketData && ticketData.date === today && ticketData.id) {
+                        document.getElementById('display-name').innerText = ticketData.name;
+                        document.getElementById('display-id').innerText = ticketData.id;
+                        if (ticketData.subInfo) {
+                            const sub = document.getElementById('display-sub-info');
+                            sub.innerText = ticketData.subInfo;
+                            sub.classList.remove('hidden');
+                        }
+                        document.getElementById('form-screen').classList.add('hidden');
+                        document.getElementById('success-screen').classList.remove('hidden');
+                    }
+                }
+            } catch(e) {}
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             populateCountries(); 
             handleRouting(); 
             window.addEventListener('hashchange', handleRouting); 
+
+            checkExistingTicketOnDevice(); // Kiểm tra vé cũ
 
             const langSelect = document.getElementById('cfg-language');
             if (langSelect) {
@@ -574,11 +600,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <div>
                             <label class="block text-[11px] font-bold text-gray-600 mb-1">🇻🇳 Tên ô (Cột trên Sheet)</label>
-                            <input type="text" value="${escapeHtml(field.label_vi || field.label || '')}" placeholder="VD: Công ty" oninput="updateCustomFieldProp('${field.id}', 'label_vi', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white outline-none">
+                            <input type="text" value="${escapeHtml(field.label_vi || field.label || '')}" placeholder="VD: Công ty" oninput="updateCustomFieldProp('${field.id}', 'label_vi', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white outline-none font-semibold">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-600 mb-1">🇬🇧 Label (English)</label>
-                            <input type="text" value="${escapeHtml(field.label_en || '')}" placeholder="E.g. Company" oninput="updateCustomFieldProp('${field.id}', 'label_en', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white outline-none">
+                            <input type="text" value="${escapeHtml(field.label_en || '')}" placeholder="E.g. Company" oninput="updateCustomFieldProp('${field.id}', 'label_en', this.value)" class="w-full h-9 px-3 border border-gray-300 rounded-lg text-xs bg-white outline-none font-semibold">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -625,8 +651,8 @@
                                data-field-label="${escapeHtml(displayLabel)}"
                                data-required="${field.required ? 'true' : 'false'}"
                                placeholder="${escapeHtml(placeholder || displayLabel)}${field.required ? ' *' : ''}" 
-                               class="glass-input custom-dyn-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                        <p id="error-custom-${field.id}" class="text-red-600 text-xs mt-1.5 hidden font-semibold ml-1 drop-shadow-sm">
+                               class="glass-input custom-dyn-input w-full px-4 h-[50px] rounded-xl text-gray-900 placeholder-gray-500 font-semibold focus:outline-none transition-all">
+                        <p id="error-custom-${field.id}" class="text-red-600 text-xs mt-1.5 hidden font-bold ml-1">
                             ${lang === 'en' ? `Please fill in ${escapeHtml(displayLabel)}.` : `Vui lòng điền ${escapeHtml(displayLabel)}.`}
                         </p>
                     </div>
@@ -731,7 +757,7 @@
                     img.src = evt.target.result;
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
-                        canvas.width = 640; canvas.height = 1138; // Chuẩn 9:16 sắc nét
+                        canvas.width = 640; canvas.height = 1138;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, 640, 1138);
                         currentBgBase64 = canvas.toDataURL('image/jpeg', 0.65);
@@ -784,6 +810,7 @@
 
             const payload = {
                 action: "updateSettings", 
+                token: SYSTEM_SECRET_TOKEN,
                 eventName: document.getElementById('cfg-event-name').value.trim() || "Check-in Sự Kiện",
                 eventCode: `${rawEventCode}|||${encodeURIComponent(JSON.stringify(validCustomFields))}`,
                 language: document.getElementById('cfg-language').value,
@@ -813,24 +840,32 @@
             if (!confirm("⚠️ Bạn có chắc chắn muốn xóa dữ liệu cũ để bắt đầu sự kiện mới?")) return;
             const spinner = document.getElementById('reset-spinner'); spinner.style.display = 'block';
             try {
-                const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "resetData" }) });
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify({ action: "resetData", token: SYSTEM_SECRET_TOKEN }) 
+                });
                 const result = await res.json();
-                if (result.status === "success") alert("Đã xóa trắng dữ liệu, STT bắt đầu lại từ 001!");
+                if (result.status === "success") {
+                    localStorage.removeItem('my_event_ticket');
+                    alert("Đã xóa trắng dữ liệu, STT bắt đầu lại từ 001!");
+                }
             } catch (err) { alert("Lỗi mạng."); } finally { spinner.style.display = 'none'; }
         }
 
-        // ==========================================
-        // CHECK-IN AN TOÀN: KHÔNG BAO GIỜ BỊ MẤT SỐ VÉ
-        // ==========================================
+        // =========================================================
+        // CHECK-IN AN TOÀN: CHỐNG XOAY VÒNG HOẢNG LOẠN & LƯU VÉ CỤC BỘ
+        // =========================================================
         let isProcessing = false;
 
         async function submitCheckin() {
-            if (isProcessing) return; // Chặn double click tuyệt đối
+            if (isProcessing) return;
 
             const name = document.getElementById('input-name').value.trim(); 
             const countryCode = document.getElementById('country-code').value;
             let rawPhone = document.getElementById('input-phone').value.trim().replace(/\D/g, ''); 
             const btn = document.getElementById('btn-submit'); 
+            const btnText = document.getElementById('btn-text');
             const spinner = document.getElementById('loading-spinner');
             const errorMsg = document.getElementById('error-msg');
             const phoneWrapper = document.getElementById('phone-wrapper');
@@ -866,7 +901,13 @@
                 }
             });
 
-            if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
+            // Chuẩn hóa số điện thoại thông minh (xử lý triệt để autofill)
+            if (rawPhone.startsWith('84') && rawPhone.length > 9) {
+                rawPhone = rawPhone.substring(2);
+            }
+            if (rawPhone.startsWith('0')) {
+                rawPhone = rawPhone.substring(1);
+            }
 
             if (!name || !rawPhone || rawPhone.length < 7 || rawPhone.length > 11) {
                 phoneWrapper.classList.add('!border-red-500', 'ring-1', 'ring-red-500'); 
@@ -881,8 +922,17 @@
 
             isProcessing = true;
             btn.disabled = true; 
-            btn.style.opacity = "0.7";
+            btn.style.opacity = "0.85";
             spinner.style.display = 'block';
+            btnText.innerText = (i18n[lang] || i18n['vi']).processing;
+
+            // BỘ ĐẾM THỜI GIAN THÔNG BÁO TIẾN ĐỘ TRÁNH KHÁCH HOẢNG LOẠN
+            const t1 = setTimeout(() => {
+                if (isProcessing) btnText.innerText = (i18n[lang] || i18n['vi']).waiting1;
+            }, 3000);
+            const t2 = setTimeout(() => {
+                if (isProcessing) btnText.innerText = (i18n[lang] || i18n['vi']).waiting2;
+            }, 6500);
 
             const fullPhone = countryCode + " " + rawPhone;
             const urlParams = new URLSearchParams(window.location.search);
@@ -892,55 +942,57 @@
                 name: name, 
                 phone: fullPhone, 
                 event: activeEventCode,
+                token: SYSTEM_SECRET_TOKEN,
                 customData: customData 
             });
 
-            let attempt = 0;
-            let finished = false;
+            try {
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: payload, 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                });
+                const result = await res.json();
+                
+                if (result.status === "success") {
+                    document.getElementById('display-name').innerText = result.name || name; 
+                    document.getElementById('display-id').innerText = result.id;
 
-            while (attempt < 2 && !finished) {
-                attempt++;
-                try {
-                    const res = await fetch(API_URL, { 
-                        method: 'POST', 
-                        body: payload, 
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-                    });
-                    const result = await res.json();
-                    
-                    if (result.status === "success") {
-                        document.getElementById('display-name').innerText = result.name || name; 
-                        document.getElementById('display-id').innerText = result.id;
-
-                        const subInfoElem = document.getElementById('display-sub-info');
-                        if (firstCustomVal) {
-                            subInfoElem.innerText = firstCustomVal;
-                            subInfoElem.classList.remove('hidden');
-                        }
-
-                        document.getElementById('form-screen').classList.add('hidden'); 
-                        document.getElementById('success-screen').classList.remove('hidden');
-                        finished = true;
-                    } else {
-                        alert(result.message);
-                        finished = true;
+                    const subInfoElem = document.getElementById('display-sub-info');
+                    if (firstCustomVal) {
+                        subInfoElem.innerText = firstCustomVal;
+                        subInfoElem.classList.remove('hidden');
                     }
-                } catch (err) {
-                    if (attempt >= 2) {
-                        alert(lang === 'en' ? "Connection unstable. Please tap submit again!" : "Đường truyền gián đoạn, vui lòng bấm gửi lại!");
-                    } else {
-                        await new Promise(r => setTimeout(r, 1000));
-                    }
+
+                    // GHI NHỚ VÉ VÀO MÁY KHÁCH (CHỐNG MẤT VÉ KHI TẮT TRÌNH DUYỆT)
+                    try {
+                        localStorage.setItem('my_event_ticket', JSON.stringify({
+                            id: result.id,
+                            name: result.name || name,
+                            subInfo: firstCustomVal,
+                            date: new Date().toDateString()
+                        }));
+                    } catch(ign) {}
+
+                    document.getElementById('form-screen').classList.add('hidden'); 
+                    document.getElementById('success-screen').classList.remove('hidden');
+                } else {
+                    alert(result.message);
                 }
+            } catch (err) {
+                alert(lang === 'en' ? "Connection unstable. Please tap Submit again!" : "Đường truyền gián đoạn, vui lòng bấm Gửi lại!");
+            } finally {
+                clearTimeout(t1);
+                clearTimeout(t2);
+                isProcessing = false;
+                btn.disabled = false; 
+                btn.style.opacity = "1";
+                spinner.style.display = 'none';
+                btnText.innerText = (i18n[lang] || i18n['vi']).btnSubmit;
             }
-
-            isProcessing = false;
-            btn.disabled = false; 
-            btn.style.opacity = "1";
-            spinner.style.display = 'none';
         }
 
-        // TẢI THẺ LUCKY DRAW TƯƠNG THÍCH MỌI TRÌNH DUYỆT (ZALO, FACEBOOK, SAFARI, CHROME)
+        // TẢI VÉ AN TOÀN TRÊN MỌI THIẾT BỊ VÀ TRÌNH DUYỆT ZALO/FB
         function downloadTicket() {
             const captureArea = document.getElementById('client-app');
             const btnText = document.getElementById('btn-dl-text');
@@ -952,11 +1004,10 @@
 
             const w = captureArea.offsetWidth;
             const targetH = Math.round(w * 16 / 9);
-
             window.scrollTo(0, 0); 
             
             html2canvas(captureArea, { 
-                scale: 2, // Scale 2x tối ưu ram, chống crash trên Android
+                scale: 2,
                 useCORS: true, 
                 backgroundColor: null,
                 width: w,
@@ -983,24 +1034,23 @@
                 document.getElementById('action-area').style.pointerEvents = 'auto';
 
                 const imgData = canvas.toDataURL("image/png");
-
-                // KIỂM TRA NẾU ĐANG TRONG TRÌNH DUYỆT ZALO HOẶC FACEBOOK THÌ HIỆN MODAL
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
                 const isZaloOrFB = /Zalo|FBAN|FBAV|Instagram/i.test(ua);
 
+                // Nếu là trình duyệt trong Zalo/FB thì mở Modal ảnh để bấm giữ lưu
                 if (isZaloOrFB) {
                     document.getElementById('modal-ticket-img').src = imgData;
                     document.getElementById('image-modal').classList.remove('hidden');
                 } else {
                     const link = document.createElement('a'); 
-                    link.download = `Ticket_${document.getElementById('display-id').innerText}.png`;
+                    link.download = `LuckyDraw_${document.getElementById('display-id').innerText}.png`;
                     link.href = imgData; 
                     link.click();
                 }
             }).catch(err => {
                 btnText.innerText = originalText;
                 document.getElementById('action-area').style.pointerEvents = 'auto';
-                alert("Không thể tạo ảnh, bạn có thể chụp màn hình nhé!");
+                alert("Không thể lưu ảnh tự động. Bạn vui lòng chụp màn hình lại nhé!");
             });
         }
 
