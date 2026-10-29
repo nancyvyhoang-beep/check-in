@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Kiểm Thử Tải (Stress Test Dashboard)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- HEADER -->
+        <div class="border-b border-slate-700 pb-4">
+            <h1 class="text-2xl font-black text-amber-400">⚡ CHECK-IN SYSTEM STRESS TEST TOOL</h1>
+            <p class="text-xs text-slate-400 mt-1">Giả lập đồng thời hàng chục khách mời bấm nút "GỬI THÔNG TIN" cùng 1 mili-giây để kiểm tra Race Condition & Duplicate ID.</p>
+            <p class="text-xs text-emerald-400 mt-1">Bản sửa 29/10: test với mã STRESS_TEST chỉ ghi vào sheet CheckinData_Test, không chiếm số thật. Bấm "XÓA DỮ LIỆU TEST" trước khi chạy lại để tránh vé test cũ được khôi phục.</p>
+        </div>
+
+        <!-- CẤU HÌNH TEST -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Target API URL (Google Apps Script):</label>
+                <input type="text" id="target-url" value="https://script.google.com/macros/s/AKfycbyd-VyJNVF4gYVdUtzkIsE1l5CZZN7mIC_XSOMnY2lXDnMoO47viAG5J0DGKZG2A7TTOQ/exec" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Số lượng khách giả lập:</label>
+                    <select id="concurrency" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-amber-400">
+                        <option value="5" selected>5 khách (Tải nhẹ - Nhóm đi cùng)</option>
+                        <option value="10">10 khách (Tải trung bình - Giờ cao điểm)</option>
+                        <option value="20">20 khách (Tải nặng - Check-in dồn dập)</option>
+                        <option value="30">30 khách (Kịch trần Google Apps Script)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Mã sự kiện test:</label>
+                    <input type="text" id="event-tag" value="STRESS_TEST" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono uppercase text-slate-200">
+                </div>
+                <div class="flex items-end">
+                    <button id="btn-run" onclick="startStressTest()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 rounded-lg transition active:scale-95 flex justify-center items-center gap-2">
+                        <span>BẮT ĐẦU BẮN TẢI</span>
+                        <div id="loader" class="hidden w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="resetTestData()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold py-2.5 rounded-lg transition active:scale-95 text-sm">
+                        XÓA DỮ LIỆU TEST
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢNG ĐO LƯỜNG REAL-TIME -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                <p class="text-[11px] text-slate-400 font-bold uppercase">Tổng request gửi</p>
+                <p id="stat-total" class="text-3xl font-black text-slate-100 mt-1">0</p>
+            </div>
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                <p class="text-[11px] text-emerald-400 font-bold uppercase">Thành công</p>
+                <p id="stat-success" class="text-3xl font-black text-emerald-400 mt-1">0</p>
+            </div>
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                <p class="text-[11px] text-red-400 font-bold uppercase">Thất bại / Lỗi mạng</p>
+                <p id="stat-failed" class="text-3xl font-black text-red-400 mt-1">0</p>
+            </div>
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                <p class="text-[11px] text-amber-400 font-bold uppercase">Phát hiện trùng số</p>
+                <p id="stat-duplicates" class="text-3xl font-black text-amber-400 mt-1">0</p>
+            </div>
+        </div>
+
+        <!-- KẾT QUẢ ĐÁNH GIÁ -->
+        <div id="verdict-box" class="hidden p-4 rounded-xl text-sm font-bold border"></div>
+
+        <!-- BẢNG CHI TIẾT CÁC LUỒNG -->
+        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="px-4 py-3 bg-slate-800/90 border-b border-slate-700 text-xs font-bold text-slate-300">
+                CHI TIẾT PHẢN HỒI THEO THỜI GIAN THỰC
+            </div>
+            <div class="max-h-72 overflow-y-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 font-mono text-[10px] uppercase sticky top-0">
+                        <tr>
+                            <th class="p-2.5">#</th>
+                            <th class="p-2.5">Khách mời</th>
+                            <th class="p-2.5">SĐT</th>
+                            <th class="p-2.5">Số Lucky Draw</th>
+                            <th class="p-2.5">Thời gian xử lý</th>
+                            <th class="p-2.5">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-tbody" class="divide-y divide-slate-700/50 font-mono">
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-slate-500 italic">Chưa có dữ liệu kiểm thử. Bấm nút "BẮT ĐẦU BẮN TẢI" ở trên để chạy.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const SYSTEM_SECRET_TOKEN = "EVT_SECURE_2026"; // Khóa bảo mật xác thực với Backend Code.gs
+
+        async function resetTestData() {
+            const apiUrl = document.getElementById('target-url').value.trim();
+            if (!apiUrl) { alert("Vui lòng nhập API URL!"); return; }
+            if (!confirm("Xóa toàn bộ dữ liệu test trong sheet CheckinData_Test? Dữ liệu thật không bị ảnh hưởng.")) return;
+            try {
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "resetTestData", token: SYSTEM_SECRET_TOKEN, adminToken: prompt("Nhập mật khẩu admin (ADMIN_TOKEN trong Script Properties):") || "" })
+                });
+                const result = await res.json();
+                alert(result.message || (result.status === "success" ? "Đã xóa dữ liệu test!" : "Xóa dữ liệu test thất bại."));
+            } catch (err) { alert("Lỗi mạng."); }
+        }
+
+        async function startStressTest() {
+            const apiUrl = document.getElementById('target-url').value.trim();
+            const count = parseInt(document.getElementById('concurrency').value, 10);
+            const eventTag = document.getElementById('event-tag').value.trim() || "TEST";
+
+            if (!apiUrl) {
+                alert("Vui lòng nhập API URL!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-run');
+            const loader = document.getElementById('loader');
+            const tbody = document.getElementById('result-tbody');
+            const verdict = document.getElementById('verdict-box');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            loader.classList.remove('hidden');
+            verdict.classList.add('hidden');
+            tbody.innerHTML = "";
+
+            document.getElementById('stat-total').innerText = count;
+            document.getElementById('stat-success').innerText = "0";
+            document.getElementById('stat-failed').innerText = "0";
+            document.getElementById('stat-duplicates').innerText = "0";
+
+            const runTimestamp = Date.now().toString().slice(-4);
+            const requests = [];
+
+            // Tạo các request giả lập kèm theo token bảo mật
+            for (let i = 1; i <= count; i++) {
+                const uniqueId = `${runTimestamp}${String(i).padStart(3, '0')}`;
+                const payload = {
+                    name: `Test User ${i}`,
+                    phone: `+84 98${uniqueId}`,
+                    event: eventTag,
+                    token: SYSTEM_SECRET_TOKEN, // Đã thêm token xác thực chống lỗi truy cập không hợp lệ
+                    customData: {
+                        "Công ty": `Company Test ${i}`
+                    }
+                };
+
+                const promise = (async () => {
+                    const start = performance.now();
+                    try {
+                        const res = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        const duration = Math.round(performance.now() - start);
+                        return { index: i, payload, data, duration, ok: true };
+                    } catch (err) {
+                        const duration = Math.round(performance.now() - start);
+                        return { index: i, payload, error: err.toString(), duration, ok: false };
+                    }
+                })();
+
+                requests.push(promise);
+            }
+
+            // Kích hoạt bắn đồng thời
+            const results = await Promise.all(requests);
+
+            let successCount = 0;
+            let failedCount = 0;
+            const seenIds = new Map();
+            const duplicateIds = new Set();
+
+            results.forEach(r => {
+                if (r.ok && r.data && r.data.status === "success") {
+                    successCount++;
+                    const id = r.data.id;
+                    if (seenIds.has(id)) {
+                        duplicateIds.add(id);
+                        seenIds.get(id).push(r.index);
+                    } else {
+                        seenIds.set(id, [r.index]);
+                    }
+                } else {
+                    failedCount++;
+                }
+            });
+
+            document.getElementById('stat-success').innerText = successCount;
+            document.getElementById('stat-failed').innerText = failedCount;
+            document.getElementById('stat-duplicates').innerText = duplicateIds.size;
+
+            tbody.innerHTML = "";
+            results.forEach(r => {
+                const tr = document.createElement('tr');
+                const isDup = r.ok && r.data && duplicateIds.has(r.data.id);
+                
+                tr.className = isDup ? "bg-red-950/60 text-red-200" : (r.ok && r.data && r.data.status === 'success' ? "hover:bg-slate-800/40" : "bg-slate-950 text-slate-500");
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold">${r.index}</td>
+                    <td class="p-2.5">${r.payload.name}</td>
+                    <td class="p-2.5">${r.payload.phone}</td>
+                    <td class="p-2.5 font-black text-sm ${isDup ? 'text-red-400 animate-pulse' : 'text-amber-400'}">
+                        ${r.ok && r.data && r.data.id ? r.data.id : '--'}
+                        ${isDup ? ' ⚠️ TRÙNG!' : ''}
+                    </td>
+                    <td class="p-2.5 text-slate-400">${r.duration} ms</td>
+                    <td class="p-2.5">
+                        ${r.ok && r.data && r.data.status === 'success' 
+                            ? '<span class="text-emerald-400 font-bold">200 OK</span>' 
+                            : `<span class="text-red-400 font-bold">${r.data ? r.data.message : 'Timeout'}</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            verdict.classList.remove('hidden');
+            if (duplicateIds.size === 0 && failedCount === 0) {
+                verdict.className = "p-4 rounded-xl text-sm font-bold border border-emerald-500/50 bg-emerald-950/50 text-emerald-300";
+                verdict.innerHTML = `✅ BÀI TEST HOÀN HẢO: 100% khách nhận mã độc bản, không bị trùng số và không rớt request nào. Phiên bản này an toàn cho sự kiện!`;
+            } else if (duplicateIds.size > 0) {
+                verdict.className = "p-4 rounded-xl text-sm font-bold border border-red-500/50 bg-red-950/50 text-red-300";
+                verdict.innerHTML = `❌ PHÁT HIỆN LỖI TRANH CHẤP: Có ${duplicateIds.size} mã số bị cấp trùng lặp (${Array.from(duplicateIds).join(', ')}).`;
+            } else {
+                verdict.className = "p-4 rounded-xl text-sm font-bold border border-amber-500/50 bg-amber-950/50 text-amber-300";
+                verdict.innerHTML = `⚠️ NGHẼN MẠNG / QUÁ TẢI: Không trùng số nhưng có ${failedCount} request bị từ chối hoặc timeout.`;
+            }
+
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+            loader.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
